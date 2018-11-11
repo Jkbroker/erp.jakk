@@ -165,9 +165,9 @@
         <!--================================================== -->	
         <style type="text/css" media="screen">
                 .form_login{
-                    background: rgba(<?= $ci->general->hex2rgb($style[2],true)?>,0.2) !important;
+                    background: rgba(<?= $ci->general->hex2rgb("#fff",true)?>,0.2) !important;
                         border: none;
-                        box-shadow: 1px 1px 4px rgba(<?= $ci->general->hex2rgb($style[2],true)?>, 0.5);
+                        box-shadow: 1px 1px 4px rgba(<?= $ci->general->hex2rgb("#fff",true)?>, 0.5);
                 }	
                 #login-form header{
                         background: none;
@@ -190,7 +190,7 @@
                 #header h1{font-weight: bold !important;}
                 header h2{
                     text-align: center; 
-                    color: <?=$style[1]?> ;
+                    color: <?=$style[2]?> ;
                     font-weight: bold !important;
                     font-size: 2em;
                 }
@@ -201,18 +201,18 @@
                         padding: 1em 3em;
                 }
                 #enviar{	
-                    color: #FFF;
+                    color: #000;
                     font-weight: initial; 
                     height: 2.5em; 
-                    background-color: <?=$style[1]?>;
-                    border-color: rgba(<?= $ci->general->hex2rgb($style[1],true)?>,0.1);
+                    background-color: <?=$style[2]?>;
+                    border-color: rgba(<?= $ci->general->hex2rgb($style[2],true)?>,0.1);
                     font-size: 1.5em;
                 }			
                 #enviar:hover{							
-                                        border-bottom: medium solid #268498;
+                   border-bottom: medium solid <?=$style[1]?>;
                 }	
                 .link_login{							
-                        color: <?=$style[1]?> !important;
+                        color: <?=$style[2]?> !important;
                 }		
                 .header2{text-align: center; padding-bottom: 10px;}
 
@@ -220,8 +220,8 @@
                 {
                         height: 5em;
                         text-align: center;
-                        color: #FFF !important;
-                        background-color: <?=$style[1]?>;
+                        color: #000 !important;
+                        background-color: <?=$style[2]?>;
                 }
                 #extr-page #main{
                     padding: 2% 5% 10% 5%;
@@ -230,7 +230,7 @@
                 }
                 .smart-form .label {
                         font-size: 1.5em;
-                        color: <?=$style[1]?> !important;
+                        color: <?=$style[2]?> !important;
                 }
         </style>
         <!-- PACE LOADER - turn this on if you want ajax loading to show (caution: uses lots of memory on iDevices)-->

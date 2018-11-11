@@ -232,7 +232,7 @@
 					<!-- end widget div -->
 					
 				</div>
-				<div class="jarviswidget jarviswidget-color-darken" id="wid-id-2" data-widget-editbutton="false" data-widget-colorbutton="false" data-widget-deletebutton="false" data-widget-fullscreenbutton="false">
+				<div class="hide jarviswidget jarviswidget-color-darken" id="wid-id-2" data-widget-editbutton="false" data-widget-colorbutton="false" data-widget-deletebutton="false" data-widget-fullscreenbutton="false">
 					<header>
 						<span class="widget-icon"> <i class="fa fa-arrows-v"></i> </span>
 						<h2 class="font-md"><i>Tipos de Mercancia</i></h2>				
@@ -272,11 +272,12 @@
 				<!-- end widget -->
 				<div class="paymentMethodImg"> 
 				<h3>Métodos de pago</h3>
-					<img src="/template/img/payment/payu.jpg" alt="img" height="50"> 
-					<img src="/template/img/payment/master_card.png" alt="img" height="30"> 
+                    <img src="/template/img/payment/blockchain.png" alt="img" height="50">
+                    <img src="/template/img/payment/payu.jpg" alt="img" height="50">
+					<img src="/template/img/payment/master_card.png" class="hide" alt="img" height="30">
 					<img src="/template/img/payment/paypal.png" alt="img" height="30"> 
-					<img src="/template/img/payment/american_express_card.png" alt="img" height="30"> 
-					<img src="/template/img/payment/discover_network_card.png" alt="img" height="30">  
+					<img src="/template/img/payment/american_express_card.png" class="hide" alt="img" height="30">
+					<img src="/template/img/payment/discover_network_card.png" class="hide" alt="img" height="30">
 				</div>
 </article>
 <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">

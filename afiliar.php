@@ -30,7 +30,7 @@ if ($isRepeated) {
     echo '<div class="col-md-6">
   <h4>El Email ingresado ya esta registrado.</h4>
      <p>Si desea Iniciar Sesion con esta cuenta 
-           <a href="http://oficinavirtual.[[website]]/">Haz Click Aqui</a>.</p>
+           <a href="http://jakk.com.mx/">Haz Click Aqui</a>.</p>
   </div><script>setTimeout (\'window.location.href="/"\', 5000);</script>';
     terminar(1);
 }

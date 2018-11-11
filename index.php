@@ -6,6 +6,24 @@ ini_set('display_startup_errors', TRUE);
 
 date_default_timezone_set('America/Mexico_City');#UTC
 
+if(isset($_GET["reg"])){
+    $mifolder = $_GET["reg"];
+    $webfolder = str_replace("erp.clientes","sites.clientes", getcwd());
+    $sys_dir = (substr($webfolder, 1,1) == ":") ? "\\" : "/";
+
+    $local = ($sys_dir=="\\");
+
+    $link = $webfolder.$sys_dir.$mifolder;
+    if(file_exists($link)&&!$local){
+        $mifile = file_get_contents($link.$sys_dir."index.php");
+        $mifile = str_replace("form_template","template", $mifile);
+        $mifile = str_replace('url : "/afiliar.php"','url : "/registrar.php"', $mifile);
+        $mifile = str_replace('action="/afiliar.php"','action="/registrar.php"', $mifile);
+        echo $mifile;
+        exit();
+    }
+}
+
 /*
  *---------------------------------------------------------------
  * APPLICATION ENVIRONMENT

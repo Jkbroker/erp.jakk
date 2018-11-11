@@ -1,5 +1,6 @@
 <?php $ci = &get_instance();
-   	$ci ->load ->model("model_permissions");?>
+   	$ci ->load ->model("model_permissions");
+   	$BASE_URL = 'http://'.$_SERVER['SERVER_NAME']."/";?>
 			<!-- MAIN CONTENT -->
 			<div id="content" >
 
@@ -57,7 +58,7 @@
 																<li>
 																	<h5 class="text-muted">
 																		<i class="fa fa-globe"></i> LINK PERSONAL:<br/></h5>
-																		<a href="<?=$link_personal;?>" ><?=$link_personal;?></a>
+																		<a href="<?=$link_personal;?>" target="_blank"><?=$BASE_URL.$link_personal;?></a>
 																	<hr/>
 																</li>
 																<li>

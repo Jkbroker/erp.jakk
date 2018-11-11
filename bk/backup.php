@@ -5,8 +5,8 @@ echo "Leyendo datos...";
 	
 	#function setDir($base="/var/www"){	
 	function setDir_($base="/home/startupns/www/"){	
-		$project="erp.networksoft"; #"erp.clientes" 
-		$project.="/rtm";#"erp.multinivel" 
+		$project="erp.clientes"; #"erp.networksoft"
+		$project.="/jakk";#"erp.multinivel"
 		return $base.$project;
 	}
 	
@@ -19,7 +19,7 @@ echo "Leyendo datos...";
 		return setDir()."/bk/".$file." ".$hostname." ".$username." ".$password." ".$database." \"$data\"";
 	}
 	
-$code = "->networksoft";#code
+$code = "->jakk";#code
 $val = md5(date('Y-m-d')."^".date('H:i:s').$code);    
 	 require_once(setDir_()."/bk/dataset.php");
 echo "

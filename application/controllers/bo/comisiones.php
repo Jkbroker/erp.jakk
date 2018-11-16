@@ -1258,28 +1258,32 @@ BONO AUTOCOMPRA
 		$this->template->set_partial('footer', 'website/bo/footer');
 		$this->template->build('website/bo/configuracion/Comision/comisiones');
 	}
-	
-	function actualizar_comisiones(){
-		if(isset($_POST['categoria'])){
-			$porcentaje = 0;
-			foreach ($_POST['configuracion'] as $valor){
-				$porcentaje = $porcentaje + $valor;
-			}
-			if($porcentaje > 100){
-				echo "La Configuracion no se ha podido actualizar, debido a que la suma de los porcentajes es mayor al 100%";
-				//$this->session->set_flashdata('error', $error);
-			}else{
-				$id_categoria = $_POST['categoria'];
-				
-				$this->model_admin->new_Config_Comision($id_categoria);
-				echo "La configuracion ha sido actualizada.";
-				//$this->session->set_flashdata('correcto', $correcto);
-			}
-		}else{
-			echo "La Configuracion no se ha podido actualizar";
-			//$this->session->set_flashdata('error', $error);
-		}
-		
-		//redirect('bo/configuracion/comisiones');
-	}
+
+    function actualizar_comisiones()
+    {
+        $id_categoria = isset($_POST['categoria']) ? $_POST['categoria'] : false;
+        if (!$id_categoria) {
+            echo "La Configuracion no se ha podido actualizar";
+            //$this->session->set_flashdata('error', $error);
+            return false;
+        }
+        $porcentaje = 0;
+        $configuracion = isset($_POST['configuracion']) ? $_POST['configuracion'] : array();
+        foreach ($configuracion as $valor) {
+            $porcentaje = $porcentaje + $valor;
+        }
+        if ($porcentaje > 100) {
+            echo "La Configuracion no se ha podido actualizar, debido a que la suma de los porcentajes es mayor al 100%";
+            //$this->session->set_flashdata('error', $error);
+            return false;
+        }
+
+        $this->model_admin->new_Config_Comision($id_categoria);
+        echo "La configuracion ha sido actualizada.";
+        //$this->session->set_flashdata('correcto', $correcto);
+
+
+        //redirect('bo/configuracion/comisiones');
+    }
+
 }

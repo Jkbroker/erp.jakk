@@ -556,7 +556,8 @@ class model_mercancia extends CI_Model {
 
 	}
 	function ImpuestoPaisPorId($id_impuesto){
-		$q = $this->db->query ( "SELECT porcentaje FROM cat_impuesto where id_impuesto = " . $id_impuesto . "" );
+        $id_impuesto = intval($id_impuesto);
+		$q = $this->db->query ( "SELECT porcentaje FROM cat_impuesto where id_impuesto ='$id_impuesto' "  );
 		return $q->result ();
 	}
 	function new_proveedor($id) {

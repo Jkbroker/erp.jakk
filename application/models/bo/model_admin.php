@@ -2188,23 +2188,24 @@ from CountryLanguage CL join Country C on CountryCode=C.Code  join cat_moneda CM
 		
 		$this->db->query('update tipo_red set valor_punto="'.$_POST['valorPunto'].'"');
 	}
-	
-	function new_Config_Comision($id_grupo)
-	{
-		$q=$this->db->query('delete from valor_comisiones where id_red = '.$id_grupo);
-		$i = 1;
-		
-			foreach( $_POST['configuracion'] as $profundidad ) {
-				$datos = array(
-						'profundidad' => $i,
-						'id_red' => $id_grupo,
-						'valor'	=> $profundidad
-				);
-				$this->db->insert("valor_comisiones",$datos);
-				$i++;
-			}
-		
-	}
+
+    function new_Config_Comision($id_grupo)
+    {
+        $q = $this->db->query("delete from valor_comisiones where id_red = $id_grupo" );
+        $i = 1;
+
+        $configuracion = isset($_POST['configuracion']) ? $_POST['configuracion'] : array();
+        foreach ($configuracion as $profundidad) {
+            $datos = array(
+                'profundidad' => $i,
+                'id_red' => $id_grupo,
+                'valor' => $profundidad
+            );
+            $this->db->insert("valor_comisiones", $datos);
+            $i++;
+        }
+
+    }
 	
 	function get_pais_impuesto($var){
 	

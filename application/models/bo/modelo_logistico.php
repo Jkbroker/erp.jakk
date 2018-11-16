@@ -405,7 +405,7 @@ class modelo_logistico extends CI_Model
 	{
 	    $id = intval($id);
 
-		$q=$this->db->query("select porcentaje from cat_impuesto where id_impuesto=".$id);
+		$q=$this->db->query("select porcentaje from cat_impuesto where id_impuesto='$id'");
 		return $q->result();
 	}
 	function get_movimientos($i)

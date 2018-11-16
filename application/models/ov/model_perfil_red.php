@@ -572,7 +572,9 @@ order by (U.id);");
 	
 	function use_username()
 	{
-		$q=$this->db->query("select * from users where lower(username) = '".strtolower($_POST['username'])."'");
+        $username = strtolower($_POST['username']);
+        $username = str_replace("'","",$username);
+        $q=$this->db->query("select * from users where lower(username) = '$username'");
 		return $q->result();
 	}
 	
@@ -584,7 +586,11 @@ order by (U.id);");
 	
 	function use_username_modificar()
 	{
-		$q=$this->db->query("select * from users where lower(username) like '".strtolower($_POST['username'])."' and id!= '".$_POST['id']."'");
+        $id = $_POST['id'];
+        $username = strtolower($_POST['username']);
+        $username = str_replace("'","",$username);
+
+        $q=$this->db->query("select * from users where lower(username) like '$username' and id!= '$id'");
 		return $q->result();
 	}
 	

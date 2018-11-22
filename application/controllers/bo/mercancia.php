@@ -237,6 +237,9 @@ if($datos['pais'] == "-"){
 		}
 		
 		$ruta="/media/carrito/";
+if(!is_dir(getcwd().$ruta))
+mkdir(getcwd().$ruta);if(!is_dir(getcwd().$ruta))
+mkdir(getcwd().$ruta);
 		//definimos la ruta para subir la imagen
 		$config['upload_path'] 		= getcwd().$ruta;
 		$config['allowed_types'] 	= 'gif|jpg|png|jpeg|png';
@@ -290,6 +293,9 @@ if($datos['pais'] == "-"){
 		}
 		
 		$ruta="/media/carrito/";
+if(!is_dir(getcwd().$ruta))
+mkdir(getcwd().$ruta);if(!is_dir(getcwd().$ruta))
+mkdir(getcwd().$ruta);
 		//definimos la ruta para subir la imagen
 		$config['upload_path'] 		= getcwd().$ruta;
 		$config['allowed_types'] 	= 'gif|jpg|png|jpeg|png';
@@ -349,6 +355,9 @@ if($datos['pais'] == "-"){
 		$id = $this->tank_auth->get_user_id();
 	
 		$ruta="/media/carrito/";
+if(!is_dir(getcwd().$ruta))
+mkdir(getcwd().$ruta);if(!is_dir(getcwd().$ruta))
+mkdir(getcwd().$ruta);
 		//definimos la ruta para subir la imagen
 		$config['upload_path'] 		= getcwd().$ruta;
 		$config['allowed_types'] 	= 'gif|jpg|png|jpeg|png';
@@ -410,6 +419,8 @@ if($datos['pais'] == "-"){
 		}
 		
 		$ruta="/media/carrito/";
+if(!is_dir(getcwd().$ruta))
+mkdir(getcwd().$ruta);
 		//definimos la ruta para subir la imagen
 		$config['upload_path'] 		= getcwd().$ruta;
 		$config['allowed_types'] 	= 'gif|jpg|png|jpeg|png';
@@ -469,6 +480,8 @@ if($datos['pais'] == "-"){
 		}
 	
 		$ruta="/media/carrito/";
+if(!is_dir(getcwd().$ruta))
+mkdir(getcwd().$ruta);
 		//definimos la ruta para subir la imagen
 		$config['upload_path'] 		= getcwd().$ruta;
 		$config['allowed_types'] 	= 'gif|jpg|png|jpeg|png';

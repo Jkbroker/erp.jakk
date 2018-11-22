@@ -140,7 +140,7 @@ if ($this->session->flashdata ( 'error' )) {
 							<fieldset id="moneda_field">
 								<legend>Moneda y país</legend>
 								<section class="col col-2">
-									<label class="input"> Costo real <input type="number" min="1"
+									<label class="input"> Costo real <input type="number" min="0"
 										name="real" id="real" onchange="calcular_precio_total()"
 										required>
 									</label>
@@ -152,7 +152,7 @@ if ($this->session->flashdata ( 'error' )) {
 									</label>
 								</section>
 								<section class="col col-2">
-									<label class="input">Costo publico <input type="number" min="1"
+									<label class="input">Costo publico <input type="number" min="0"
 										name="costo_publico" id="costo_publico"
 										onchange="calcular_precio_total()" required>
 									</label>

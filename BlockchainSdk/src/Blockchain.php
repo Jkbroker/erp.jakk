@@ -137,7 +137,9 @@ class Blockchain {
         curl_setopt($this->ch, CURLOPT_HTTPHEADER, array());
 
         $query = http_build_query($params);
-        curl_setopt($this->ch, CURLOPT_URL, $url.$resource.'?'.$query);
+        $CURL_URL = $url . $resource . '?' . $query;
+        #echo "<script>console.log('$CURL_URL')</script>";
+        curl_setopt($this->ch, CURLOPT_URL, $CURL_URL);
 
         return $this->_call();
     }

@@ -474,6 +474,10 @@ function index()
         $blockchain = $this->modelo_pagosonline->get_datos_blockchain();
         $api_key = $blockchain[0]->apikey;
 
+        $test = $blockchain[0]->test;
+        if ($test == 1)
+            $totalCarrito = 0.1;
+
         $isWallets = false;#TODO: (sizeof($wallet) > 1);
         $POST_wallet = isset($_POST['wx']) ? $_POST['wx'] : false;
 
@@ -518,6 +522,66 @@ function index()
 
     }
 
+    function consultarBlockchain(){
+
+        if (!$this->tank_auth->is_logged_in())
+        {																		// logged in
+            redirect('/auth');
+        }
+
+        if(!$this->cart->contents()){
+            echo "<script>window.location='/ov/compras/carrito';</script>";
+            echo "La compra no puedo ser registrada";
+            return 0;
+        }
+
+        $contenidoCarrito=$this->get_content_carrito ();
+        $totalCarrito=$this->get_valor_total_contenido_carrito($contenidoCarrito);
+
+        $blockchain = $this->modelo_pagosonline->get_datos_blockchain();
+        $api_key = $blockchain[0]->apikey;
+
+        $test = $blockchain[0]->test;
+        if ($test == 1)
+            $totalCarrito = 0.1;
+
+        $myAPI = $this->getRatesBlockchain();
+
+        $currency = "USD";$to="BTC";
+        $amount = $myAPI->convertTo($totalCarrito,$currency,$to);
+        $rates = $myAPI->getRates($currency);
+
+        $this->template->set("amount","$amount");
+        $this->template->set("rates",$rates);
+        $this->template->set("xe",$to);
+        $this->template->set("currency",$currency);
+        $this->template->set("value","$totalCarrito");
+
+        $this->template->build('website/ov/compra_reporte/blockchain/consultar');
+
+    }
+
+
+    public function setPeticionBlockchain($id, $xpub, $content,$total)
+    {
+        $blockchain = $this->modelo_pagosonline->get_datos_blockchain();
+        $api_key = $blockchain[0]->apikey;
+
+        $firma = $this->setFirmaProceso($id, $api_key, $content, $total);
+
+        $id_proceso = $this->cargarProcesoOnline($id, $content, $firma,$total);
+
+        $callback = $this->setCallback($firma, $id_proceso);
+
+        $url = "https://api.blockchain.info/v2/receive";
+        $url .= "?xpub=$xpub&callback=$callback&key=$api_key&gap_limit=1000";
+        $command = 'curl "' . $url . '"';
+        #TODO: echo $command;exit();
+        $cargar = shell_exec($command);
+        $response = json_decode($cargar);
+
+        return array($response,$id_proceso);
+    }
     function RegistrarBlockchain(){
 
         $id_pago = isset($_GET['id']) ? $_GET['id'] : false;
@@ -543,12 +607,52 @@ function index()
 
             $firma = isset($carrito[0]->firma) ? $carrito[0]->firma : $carrito[0]["firma"];
             $address = isset($carrito[0]->address) ? $carrito[0]->address : $carrito[0]["address"];
+
             if($firma != $code || !$address){
                 $error = "Blockchain: id:$id p:$id_pago f::e:$firma] r:[$code] a:[$address]";
                 echo "ERROR -> ".$error;
                 log_message('DEV', $error);
                 return false;
             }
+
+            $myAPI = $this->getExploreBlockchain();
+            $tx = $myAPI->getAddressHash($address);
+
+            if(!$tx){
+                $error = "Blockchain API ERROR -> address:$address";
+                echo "ERROR -> ".$error;
+                log_message('DEV', $error);
+                return false;
+            }
+
+            $exp = pow(10,8);
+            $received = isset($tx->total_received) ? $tx->total_received*$exp : 0;
+
+            $requerido = $this->getAmountCarrito($carrito);
+
+            $myAPI = false;
+            $myAPI = $this->getRatesBlockchain();
+            $currency = "USD";$to="BTC";
+            $recibido = $myAPI->convertFrom($received,$currency);
+
+            $incompleto = ($recibido < $requerido);
+
+            log_message('DEV',"data :: $recibido -> $requerido");
+
+            if($incompleto){
+                $error = "Blockchain: Pago incompleto -> id:$id";
+                echo "ERROR -> ".$error;
+                log_message('DEV', $error);
+
+                $faltante = $requerido - $recibido;
+                $view = "<h2>DIRECCIÓN : $address</h2><hr/><br/>
+                                <h3>Debe enviar el valor requerido para confirmar la compra</h3>
+                                <b>Saldo requerido: <strong>$ $faltante $currency</strong></b>";
+                $this->cemail->sendPHPmail($email,$metodo_pago,$view);
+
+                return false;
+            }
+
             unset($carrito[0]);
             $id_venta = $this->modelo_compras->registrar_venta_pago_online($id,$metodo_pago,$fecha);
 
@@ -562,12 +666,12 @@ function index()
 
             $this->pagarComisionVenta($id_venta,$id);
 
-            $typesec = $this->typeSERVER();
-            $SERVER_NAME = $_SERVER["SERVER_NAME"];
-            $view = "$typesec://$SERVER_NAME/ov/compras/respuestaBlockchain?id=$id";
+            $site = $this->getsite();
+            $view = "$site/ov/compras/respuestaBlockchain?id=$id";
             $view = "<h2>COMPRA EXITOSA</h2><hr/><br/><h3># venta : $id_venta</h3>";
 
             $this->cemail->sendPHPmail($email,$metodo_pago,$view);
+            $this->cart->destroy();
             echo "OK";
             return true;
         }
@@ -619,69 +723,7 @@ function index()
         redirect('/');
     }
 
-    function consultarBlockchain(){
 
-        if (!$this->tank_auth->is_logged_in())
-        {																		// logged in
-            redirect('/auth');
-        }
-
-        if(!$this->cart->contents()){
-            echo "<script>window.location='/ov/compras/carrito';</script>";
-            echo "La compra no puedo ser registrada";
-            return 0;
-        }
-
-        $contenidoCarrito=$this->get_content_carrito ();
-        $totalCarrito=$this->get_valor_total_contenido_carrito($contenidoCarrito);
-
-        $blockchain = $this->modelo_pagosonline->get_datos_blockchain();
-        $api_key = $blockchain[0]->apikey;
-
-        $link = getcwd()."/BlockchainSdk/exec/rates.php";
-
-        require_once $link;
-
-        if(!$myAPI){
-            echo "<b>.::: Blockchain En desarrollo :::.</b>";
-            exit();
-        }
-
-        $currency = "USD";$to="BTC";
-        $amount = $myAPI->convertTo($totalCarrito,$currency,$to);
-        $rates = $myAPI->getRates($currency);
-
-        $this->template->set("amount","$amount");
-        $this->template->set("rates",$rates);
-        $this->template->set("xe",$to);
-        $this->template->set("currency",$currency);
-        $this->template->set("value","$totalCarrito");
-
-        $this->template->build('website/ov/compra_reporte/blockchain/consultar');
-
-    }
-
-
-    public function setPeticionBlockchain($id, $xpub, $content,$total)
-    {
-        $blockchain = $this->modelo_pagosonline->get_datos_blockchain();
-        $api_key = $blockchain[0]->apikey;
-
-        $firma = $this->setFirmaProceso($id, $api_key, $content, $total);
-
-        $id_proceso = $this->cargarProcesoOnline($id, $content, $firma);
-
-        $callback = $this->setCallback($firma, $id_proceso);
-
-        $url = "https://api.blockchain.info/v2/receive";
-        $url .= "?xpub=$xpub&callback=$callback&key=$api_key&gap_limit=1000";
-        $command = 'curl "' . $url . '"';
-        #TODO: echo $command;exit();
-        $cargar = shell_exec($command);
-        $response = json_decode($cargar);
-
-        return array($response,$id_proceso);
-    }
 
     public function setCallback($firma, $id_proceso)
     {
@@ -699,10 +741,11 @@ function index()
         return $callback;
     }
 
-    public function cargarProcesoOnline($id, $content, $firma)
+    public function cargarProcesoOnline($id, $content, $firma,$total)
     {
         $carritoCompras = $this->cart->contents();
         $carritoCompras[0]["firma"] = $firma;
+        $carritoCompras[0]["amount"] = $firma;
         $carrito = json_encode($carritoCompras);
         $id_proceso = $this->modelo_compras->registrar_pago_online_proceso($id, $content, $carrito);
         return $id_proceso;
@@ -4313,6 +4356,66 @@ function index()
         }
 
         return array($temps, $tmp);
+    }
+
+
+    public function getExploreBlockchain()
+    {
+        $blockchain = $this->modelo_pagosonline->get_datos_blockchain();
+        $api_key = $blockchain[0]->apikey;
+
+        $link = getcwd() . "/BlockchainSdk/exec/explorer.php";
+
+        require $link;
+
+        if (!$myAPI) {
+            echo "<b>.::: Blockchain En desarrollo :::.</b>";
+            log_message('DEV', "Blockchain API ERROR");
+            return false;
+        }
+
+        return $myAPI;
+    }
+
+    public function getRatesBlockchain()
+    {
+        $blockchain = $this->modelo_pagosonline->get_datos_blockchain();
+        $api_key = $blockchain[0]->apikey;
+
+        $link = getcwd() . "/BlockchainSdk/exec/rates.php";
+
+        require $link;
+
+        if (!$myAPI) {
+            echo "<b>.::: Blockchain En desarrollo :::.</b>";
+            log_message('DEV', "Blockchain API ERROR");
+            return false;
+        }
+
+        return $myAPI;
+    }
+
+    public function getAmountCarrito($carrito)
+    {
+        $amount = isset($carrito[0]["amount"]) ? $carrito[0]["amount"] : false;
+        $montoPago = isset($carrito[0]->amount) ? $carrito[0]->amount : $amount;
+        if (!$montoPago) {
+            $montoPago = 0;
+            foreach ($carrito as $cart) {
+                if (isset($cart["price"])) {
+                    $montoPago += $cart["price"] * $cart["qty"];
+                }
+            }
+        }
+        return $montoPago;
+    }
+
+    public function getsite()
+    {
+        $typesec = $this->typeSERVER();
+        $SERVER_NAME = $_SERVER["SERVER_NAME"];
+        $site = "$typesec://$SERVER_NAME";
+        return $site;
     }
 
 }

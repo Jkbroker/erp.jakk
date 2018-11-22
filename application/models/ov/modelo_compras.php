@@ -688,7 +688,7 @@ where a.id_paquete = e.id_paquete and d.sku= a.id_paquete and d.estatus="ACT" an
 		foreach($res_imp as $imp)
 		{
             $id_impuesto = intval($imp->id_impuesto);
-            $q2=$this->db->query("Select porcentaje from cat_impuesto where id_impuesto=". $id_impuesto);
+            $q2=$this->db->query("Select porcentaje from cat_impuesto where id_impuesto='$id_impuesto'" );
 			$res2=$q2->result();
 			$impuestos[$i]=$res2[0]->porcentaje;
 			$i++;

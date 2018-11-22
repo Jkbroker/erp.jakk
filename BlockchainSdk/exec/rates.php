@@ -1,10 +1,12 @@
 <?php
 require_once(dirname(__DIR__) . '/vendor/autoload.php');
 
-function pre_message($string,$exit = false){
-    echo "<pre>$string</pre>\n";
-    if($exit)
-        exit();
+if(!function_exists("pre_message")){
+    function pre_message($string,$exit = false){
+        echo "<pre>$string</pre>\n";
+        if($exit)
+            exit();
+    }
 }
 
 $api_code = null;
@@ -27,6 +29,13 @@ class rates{
     function convertTo($units = 500,$currency = 'USD',$to = "BTC"){
         // Convert a fiat amount to BTC
         $funct = "to".$to;
+        $amount = $this->Blockchain->Rates->$funct($units, $currency);
+        return $amount;
+    }
+
+    function convertFrom($units = 500,$currency = 'USD',$to = "BTC"){
+        // Convert a fiat amount to BTC
+        $funct = "from".$to;
         $amount = $this->Blockchain->Rates->$funct($units, $currency);
         return $amount;
     }

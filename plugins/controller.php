@@ -44,8 +44,11 @@ function validate_user_data($db)
 
 function use_username($db)
 {
-    $username = isset($_POST['username']) ? strtolower($_POST['username']) : "";
-    $query = "select * from users where lower(username) = '".$username."'";
+    $username = isset($_POST['username']) ? strtolower($_POST['username']) : "0";
+
+    $username = str_replace("'","",$username);
+
+    $query = "select * from users where lower(username) = '$username'";
     $use_username =  newQuery($db,$query);
     
     if($use_username){

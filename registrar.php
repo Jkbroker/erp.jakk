@@ -33,7 +33,7 @@ try {
 
     //$body             = file_get_contents('contents.html');
 	//$body             = preg_replace('/\\\\/','', $body); //Strip backslashes
-	$Destination = 'contacto@smart-owner.com';
+	$Destination = 'contacto@jakk.com.mx';
 	$Subject = 'BIENVENIDO A jakk.com.mx';
 	$Content = '
 	

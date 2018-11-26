@@ -1,6 +1,7 @@
 <?php  if (!defined('BASEPATH')) exit('No direct script access allowed');
 
 class web_personal extends CI_Model{
+
     
     private $web_dir;
     private $sys_dir;
@@ -8,7 +9,8 @@ class web_personal extends CI_Model{
     
     function __construct() {
         parent::__construct();
-        
+        $this->load->model('bo/model_admin');
+        $this->load->model('general');
         $this->web_dir = $this->setDir();
         
     }
@@ -89,8 +91,8 @@ class web_personal extends CI_Model{
         if($this->sys_dir=="\\")
             return true;
         
-        if($id == 2)
-            return true;
+        #if($id == 2)
+        #    return true;
         
         $miWeb = $this->configDirPersonal($id);
         $miPagina = $miWeb . $this->sys_dir . "index.php";
@@ -108,8 +110,20 @@ class web_personal extends CI_Model{
         
         $milink = explode($this->sys_dir, $miWeb);        
         $milink = $webempresa.$this->sys_dir.end($milink);
-        
+
+        $milink = $this->getLinkParam($id);
+
         return $milink;
+    }
+
+    private function getLinkParam($id){
+        $mifolder = $this->traer_afiliado_username($id);
+        $mifolder = strtolower($mifolder);
+
+        $index = "/?reg=$mifolder";
+
+        return $index;
+
     }
     
     private function configPagePersonal($id){                
@@ -178,11 +192,16 @@ class web_personal extends CI_Model{
         
         $head = $setbody[0];       
         $footer = str_replace("<body","</body",  $setbody[2]);
+
+        $empresa=$this->model_admin->val_empresa_multinivel();
+        $nombre_empresa = $this->general->issetVar($empresa,"nombre","NetworkSoft");
+        $logo = $this->general->issetVar($empresa,"logo","/logo.png");
+
         $marca = '<a href="'.$webempresa.'"> 
-                  <img alt="" src="'.site_url().'/logo.png" '
+                  <img alt="'.$nombre_empresa.'" src="'.site_url().$logo.'" '
                         .'style="width: 100%" />
                   </a>';
-        $fondo = site_url().'/template/img/login.jpg';
+        $fondo = site_url().'/false.jpg';
         
         $NoBody = array("head"=>$head,"head"=>$footer);
         

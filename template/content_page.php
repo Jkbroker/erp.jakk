@@ -65,6 +65,7 @@
         <!-- Main content -->
         <div class="content" 
         		style="background-image: url('[[$FONDO]]');
+        		       background-color: #000;
         			   background-attachment: fixed;
         			   background-size: 100% auto;" >
             <div>

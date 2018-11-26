@@ -10,7 +10,8 @@
  *
  * @package PAYBIT_Mail
  */
-require 'email/PHPMailer_5.2.4/class.phpmailer.php';
+$ruta = str_replace("erp.clientes", "sites.clientes", getcwd());
+require $ruta.'/email/PHPMailer_5.2.4/class.phpmailer.php';
 
 if(!$_POST['g-recaptcha-response']){
 	echo '

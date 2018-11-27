@@ -624,7 +624,31 @@ function codpos_red()
 															</div>
 															</div>
 														</fieldset>
-														
+                                                        <fieldset class="lado_afiliar">
+                                                            <legend>Lado de Afiliación</legend>
+                                                            <div class="col-md-6"> <section class="col col-1"></section>
+                                                                <section class="col col-1" style="text-align: justify">
+                                                                    <label class="radio pull-right"> <input value="0" checked
+                                                                        id="lado_0" name="lado[]" type="radio">
+                                                                        <i></i>
+                                                                    </label>
+                                                                </section>
+                                                                <section class="col col-3" style="text-align: justify">
+                                                                    izquierda
+                                                                </section></div>
+                                                            <div class="col-md-6">
+                                                                <section class="col col-1"></section>
+                                                                <section class="col col-1" style="text-align: justify">
+                                                                    <label class="radio pull-right"> <input value="1"
+                                                                        id="lado_1" name="lado[]" type="radio">
+                                                                        <i></i>
+                                                                    </label>
+                                                                </section>
+                                                                <section class="col col-3" style="text-align: justify">
+                                                                    Derecha
+                                                                </section>
+                                                            </div>
+                                                        </fieldset>
 														<fieldset>
 															<legend>Datos del Beneficiario</legend>
 															<div class="row">

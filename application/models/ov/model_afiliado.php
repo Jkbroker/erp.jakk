@@ -97,9 +97,17 @@ class model_afiliado extends CI_Model{
 		}
 		
 		$mi_red=$_POST['red'];		
-		$id_debajo = $this->definir_debajo ();				
-		$lado = $this->definir_lado ($id_debajo,$mi_red);		
-		$directo = $this->definir_sponsor ($id_debajo);
+		$id_debajo = $this->definir_debajo ();
+        $directo = $this->definir_sponsor ($id_debajo);
+
+        $lado = isset($_POST["lado"]) ? $_POST["lado"] : false;
+
+        if(!$lado)
+            $lado = $this->definir_lado ($id_debajo,$mi_red);
+        else if(gettype($lado)=="array")
+            $lado = $lado[0];
+
+        $id_debajo = $this->definir_lateral ($id_debajo,$lado,$mi_red) ;
 		
 		$fijos = isset($_POST["fijo"]) ? $_POST["fijo"] : false;
 		$moviles = isset($_POST["movil"]) ? $_POST["movil"] : false;
@@ -711,7 +719,15 @@ class model_afiliado extends CI_Model{
  		return true;
  	}
 
-	function RedAfiliado($id, $red =1){
+    private function getRedAfiliado($id_debajo = 2, $red = 1)
+    {
+        $query = "select * from afiliar where debajo_de = $id_debajo and id_red = $red order by lado";
+        $query = $this->db->query($query);
+        return $query->result();
+    }
+
+
+    function RedAfiliado($id, $red =1){
 		$query = $this->db->query('select * from afiliar where id_red = "'.$red.'" and id_afiliado = "'.$id.'" ');
 		return $query->result();
 	}
@@ -850,5 +866,21 @@ class model_afiliado extends CI_Model{
 			return false;
 		}
 	}
+
+    private function definir_lateral($id_debajo, $lado,$red)
+    {
+        $derrame =  true;
+        while ($derrame){
+            $derrame = false;
+            $afiliados = $this->getRedAfiliado($id_debajo, $red);
+            foreach ($afiliados as $afiliado){
+                if($afiliado->lado==$lado){
+                    $id_debajo =  $afiliado->id_afiliado;
+                    $derrame =  true;
+                }
+            }
+        }
+        return $id_debajo;
+    }
 }
 

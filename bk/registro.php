@@ -268,9 +268,16 @@ class registro {
         $id_debajo = $directo;
 
         if(isset($this->datos["profundidad"]))
-            $this->definir_debajo ($directo) ;
+            $id_debajo = $this->definir_debajo ($directo) ;
 
-        $lado = $this->definir_lado ($id_debajo,$mi_red);
+        $lado = isset($this->datos["lado"]) ? $this->datos["lado"] : false;
+
+        if(!$lado)
+            $lado = $this->definir_lado ($id_debajo,$mi_red);
+        else if(gettype($lado)=="array")
+            $lado = $lado[0];
+
+        $id_debajo = $this->definir_lateral ($id_debajo,$lado,$mi_red) ;
 
         $fijos = isset($this->datos["fijo"]) ? $this->datos["fijo"] : false;
         $moviles = isset($this->datos["movil"]) ? $this->datos["movil"] : false;
@@ -1146,5 +1153,21 @@ class registro {
 				</div>";
             return false;
         }
+    }
+
+    private function definir_lateral($id_debajo, $lado,$red)
+    {
+        $derrame =  true;
+        while ($derrame){
+            $derrame = false;
+            $afiliados = $this->getRedAfiliado($id_debajo, $red);
+            foreach ($afiliados as $afiliado){
+                if($afiliado["lado"]==$lado){
+                    $id_debajo =  $afiliado["id_afiliado"];
+                    $derrame =  true;
+                }
+            }
+        }
+        return $id_debajo;
     }
 }

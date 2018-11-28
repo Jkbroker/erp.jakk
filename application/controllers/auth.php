@@ -306,6 +306,11 @@ class Auth extends CI_Controller
 					
 						$id   = $this->tank_auth->get_user_id();
 						$tipo = $this->general->get_tipo($id);
+						if(!$tipo) {
+                            $this->template->build('auth/login');
+                            return true;
+                        }
+
 						$tipo = (int)$tipo[0]->id_tipo_usuario;
 							
 						$estatus = $this->general->get_status($id);

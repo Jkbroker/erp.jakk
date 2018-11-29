@@ -88,14 +88,14 @@ class Cemail extends CI_Model
 	
 	function Asuntos ($type){		
 		$q = array(
-				"TE DAMOS LA BIENVENIDA", //welcome
+				"TE DAMOS LA BIENVENIDA A JAKK", //welcome
 				"ACTIVACIÓN", //activate
 				"CONFIRMACIÓN NUEVO EMAIL", //change-email
 				"PAGO DE SOLICITUD DE DINERO", //cobros
 				"CONFIRMACIÓN DE PAGO POR BANCO", //cuentas-cobrar
 				"RECUPERACIÓN DE CONTRASEÑA", //forgot-password
 				"CONFIRMACIÓN DE NUEVA CONTRASEÑA", //reset-password
-				"INVITACION AL MULTINIVEL", //invitacion
+				"INVITACION A JAKK", //invitacion
 				"BANNER PROMOCIONAL", //autoresponder
 				"TRANSACCION DE BILLETERA", //transaccion-empresa
 				"RECIBO DE COMPRA DESDE CEDI" //compra-cedi
@@ -260,7 +260,7 @@ class Cemail extends CI_Model
 						</p><!-- /Callout Panel -->
 						<p>Si el link no funciona copie y pegue la siguiente direccion en su navegador
 						<a href="'.$sitios[5].'">'.$sitios[5].'</a></p><br /><br />
-						<h4>Datos del Sponsor</h4><br />
+						<h4>Datos del Patrocinador</h4><br />
 						<p>Nombre Completo: '.$data['sponsor_name'].'<br /></p>
 						<p>Correo: '.$data['sponsor_email'].'<br /></p>
 						<p>'.$validar['sponsor_tel'].'<br /></p>': '';

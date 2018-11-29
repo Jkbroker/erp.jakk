@@ -272,12 +272,14 @@ class registro {
 
         $lado = isset($this->datos["lado"]) ? $this->datos["lado"] : false;
 
-        if(!$lado)
+        if($lado===false)
             $lado = $this->definir_lado ($id_debajo,$mi_red);
         else if(gettype($lado)=="array")
             $lado = $lado[0];
 
         $id_debajo = $this->definir_lateral ($id_debajo,$lado,$mi_red) ;
+
+        log_message("ID:$id LADO: $lado DEBAJO_DE: $id_debajo DIRECTO: $directo");
 
         $fijos = isset($this->datos["fijo"]) ? $this->datos["fijo"] : false;
         $moviles = isset($this->datos["movil"]) ? $this->datos["movil"] : false;

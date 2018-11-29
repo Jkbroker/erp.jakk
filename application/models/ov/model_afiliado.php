@@ -102,13 +102,15 @@ class model_afiliado extends CI_Model{
 
         $lado = isset($_POST["lado"]) ? $_POST["lado"] : false;
 
-        if(!$lado)
+        if($lado===false)
             $lado = $this->definir_lado ($id_debajo,$mi_red);
         else if(gettype($lado)=="array")
             $lado = $lado[0];
 
         $id_debajo = $this->definir_lateral ($id_debajo,$lado,$mi_red) ;
-		
+
+        log_message('DEV',"nuevo ID:$id L: $lado D: $id_debajo P: $directo");
+
 		$fijos = isset($_POST["fijo"]) ? $_POST["fijo"] : false;
 		$moviles = isset($_POST["movil"]) ? $_POST["movil"] : false;
 		

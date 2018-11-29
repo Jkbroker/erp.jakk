@@ -379,7 +379,8 @@ class configuracion extends CI_Controller
 		else
 		{
 		$consulta_img=$this->model_admin->img_banner();
-		unlink(getcwd().$ruta.$consulta_img[0]->nombre_banner);
+            $file_dir = getcwd() . $ruta . $consulta_img[0]->nombre_banner;
+            if(file_exists($file_dir))unlink($file_dir);
 			$data = array('upload_data' => $this->upload->data());
 			$sku = $this->model_admin->modificar_banner($data["upload_data"]["file_name"]);
 			//$this->model_mercancia->img_merc($sku , $data["upload_data"]);

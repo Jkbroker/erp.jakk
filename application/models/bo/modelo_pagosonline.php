@@ -220,6 +220,9 @@ class modelo_pagosonline extends CI_Model
         if(isset($_POST['estatus']))
             $estado='ACT';
 
+        $json = json_encode($_POST);
+        log_message('DEV',"update blckchn :: $json");
+
         $dato = array(
             "apikey" => $_POST['key'],
             "currency" => $_POST['moneda'],
@@ -230,10 +233,13 @@ class modelo_pagosonline extends CI_Model
         $this->db->where('id', $_POST['id']);
         $this->db->update('blockchain', $dato);
 
-        $dato=array(
-            "hashkey"     => $_POST['wallet'],
-            "porcentaje"       		=> $_POST['wallet_per'],
-        );
+        $wallet = isset($_POST["wallet"]) ? $_POST["wallet"] : array();
+        foreach ($wallet as $key =>$item) {
+            $dato=array(
+                "hashkey"     => $item,
+                "porcentaje"  => $_POST['wallet_per'][$key],
+            );
+        }
 
         $this->db->where('id_usuario', 1);
         $this->db->update('blockchain_wallet', $dato);

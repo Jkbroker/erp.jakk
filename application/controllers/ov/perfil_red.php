@@ -881,7 +881,7 @@ class perfil_red extends CI_Controller
 	function validate_user_data()
 	{
 	
-		$use_mail=$this->model_perfil_red->use_mail();
+		$use_mail=false;#$this->model_perfil_red->use_mail();#TODO
 		$use_username=$this->model_perfil_red->use_username();
 		
 		$email = preg_match(
@@ -953,7 +953,7 @@ class perfil_red extends CI_Controller
 				'/^[A-z0-9_\-.]+[A-z0-9]{1,}+[@][A-z0-9_\-]+([.][A-z0-9_\-]+)+[A-z.]{1,}$/', $_POST['mail']
 		); 
 		
-		$use_mail=$this->model_perfil_red->use_mail();
+		$use_mail=false;#$this->model_perfil_red->use_mail();#TODO
 		if($use_mail){
 			echo "<p style='color: red;'>El email no está disponible.</p>";
 		}else if(!$email){
@@ -993,7 +993,7 @@ class perfil_red extends CI_Controller
 	
 	function use_keyword()
 	{
-		$use_keyword=$this->model_perfil_red->use_keyword();
+		$use_keyword=false;#$this->model_perfil_red->use_keyword();#TODO
 		if($use_keyword)
 		{
 			echo "La identificación no está disponible";
@@ -1093,7 +1093,7 @@ class perfil_red extends CI_Controller
 		$ocupacion       = $this->model_perfil_red->get_ocupacion();
 		$tiempo_dedicado = $this->model_perfil_red->get_tiempo_dedicado();
 		$afiliados       = $this->model_perfil_red->get_afiliados($id_red, $id);
-		
+        $image 			 = $this->model_perfil_red->get_images($id);
 		
 		$img_perfil="/template/img/empresario.jpg";
 		foreach ($image as $img)

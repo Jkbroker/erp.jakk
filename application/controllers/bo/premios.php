@@ -225,46 +225,67 @@ class premios extends CI_Controller
 	}
 	
 	function crear_premio(){
-		
-		$red = $this->model_tipo_red->traerRed($_POST['red']);
-	
-		if ($_POST['nombre']==""){
-			$error = "Debe agregar un nombre a la categoria.";
-			$this->session->set_flashdata('error', $error);
-			redirect('/bo/premios/nuevo_premio');
-		}
-		
-		else if ($_POST['desc_frm']==""){
-			$error = "Debe escribir una descripcion para la informacion.";
-			$this->session->set_flashdata('error', $error);
-			redirect('/bo/premios/nuevo_premio');
-		}
-		
-		else if ($_POST['nivel']>$red[0]->profundidad || $_POST['nivel']<=0){
-			if ($_POST['nivel']<=0) $error = "El nivel de profundidad no puede ser igual o menor a 0.";
-			else $error = "La red solo cuenta con una capacidad de profundidad de ".$red[0]->profundidad." niveles.";
-			$this->session->set_flashdata('error', $error);
-			redirect('/bo/premios/nuevo_premio');
-		}
-		
-		for ($i = 0; $i<$_POST['nivel']; $i++){
-			if ($i==0){
-				$frontales_por_nivel = $red[0]->frontal;
-			}
-			else $frontales_por_nivel = $frontales_por_nivel * $red[0]->frontal;
-				
-			if ($_POST['cantidad']>$frontales_por_nivel){
-				$contador_de_errores = 1;
-			}
-			else $contador_de_errores = 0;
-		}
-		
-		if ($contador_de_errores == 1 || $_POST['cantidad']<=0){
-			if ($_POST['cantidad']<=0) $error = "La cantidad de afiliados necesarios no puede ser igual o menor a 0.";
-			else	$error = "La cantidad máxima de afiliados necesarios que se puede tener en el nivel ".$_POST['nivel']." es ".$frontales_por_nivel.".";
-			$this->session->set_flashdata('error', $error);
-			redirect('/bo/premios/nuevo_premio');
-		}
+
+        $nombre_frm = $_POST['nombre'];
+        $descripcion = $_POST['desc_frm'];
+
+        $id_red = $_POST['red'];
+        $nivel = $_POST['nivel'];
+        $cantidad = $_POST['cantidad'];
+
+        $red = $this->model_tipo_red->traerRed($id_red);
+        $profundidad = $this->general->issetVar($red,"profundidad",0);
+
+        $excedeNivel = $nivel > $profundidad;
+        $noNivel = $nivel <= 0;
+        $noCantidad = $cantidad <= 0;
+        $errorNivel = $excedeNivel || $noNivel;
+
+        if ($this->isNullText($nombre_frm)){
+            $error = "Debe escribir un nombre a la categoria.";
+            $this->session->set_flashdata('error', $error);
+            redirect('/bo/premios/listar');
+            return false;
+        }
+
+        if ($this->isNullText($descripcion)){
+            $error = "Debe escribir una descripcion para la informacion.";
+            $this->session->set_flashdata('error', $error);
+            redirect('/bo/premios/listar');
+            return false;
+        }
+
+        if ($errorNivel){
+            $error = ($noNivel) ?
+                "El nivel de profundidad no puede ser igual o menor a 0."
+                : "La red solo cuenta con una profundidad de $profundidad niveles.";
+
+            $this->session->set_flashdata('error', $error);
+            redirect('/bo/premios/listar');
+            return false;
+        }
+
+        $frontalesNivel = 0;
+
+        foreach ($red as $i => $redNivel) {
+            if ($i==0){
+                $frontalesNivel = $redNivel->frontal;
+            }
+            else {
+                $frontalesNivel *= $redNivel->frontal;
+            }
+
+            $mayor = $cantidad > $frontalesNivel;
+            $nErrores= ($mayor) ? 1: 0;
+        }
+
+        if ($nErrores == 1 || $noCantidad){
+            if ($noCantidad) $error = "La cantidad de afiliados necesarios no puede ser igual o menor a 0.";
+            else	$error = "La cantidad máxima de afiliados necesarios que se puede tener en el nivel ". $nivel ." es ".$frontalesNivel.".";
+            $this->session->set_flashdata('error', $error);
+            redirect('/bo/premios/listar');
+            return false;
+        }
 		
 		if (!$this->tank_auth->is_logged_in())
 		{																		// logged in
@@ -306,19 +327,18 @@ class premios extends CI_Controller
 		{
 			$data = array('upload_data' => $this->upload->data());
 			$nombre=$data['upload_data']['file_name'];
-			$nombre=$data['upload_data']['file_name'];
 			$filename=strrev($nombre);
 			$explode=explode(".",$filename);
 			$nombre=strrev($explode[1]);
 			$extencion=strrev($explode[0]);
 			$ext=strtolower($extencion);
-			$descripcion = $_POST['desc_frm'];
+			$descripcion = $descripcion;
 			$descripcion = htmlentities($descripcion);
 			//echo 'se supone que se debo de subir';
 				
 			//echo 'insert into noticia (id_usuario,nombre,contenido,imagen) values ('.$id.',"'.$_POST['nombre_frm'].'","'.$_POST['desc_frm'].'","'.$ruta.$_POST['file_nme'].'")';
 			$this->db->query('insert into premios (nombre,descripcion,imagen,nivel,num_afiliados,id_red,frecuencia,estatus)
-				values ("'.$_POST['nombre'].'","'.$descripcion.'","'.$ruta.$nombre.".".$ext.'","'.$_POST['nivel'].'","'.$_POST['cantidad'].'","'.$_POST['red'].'","'.$_POST['frecuencia'].'","'.ACT.'")');
+				values ("'. $nombre_frm .'","'.$descripcion.'","'.$ruta.$nombre.".".$ext.'","'. $nivel .'","'. $cantidad .'","'.$_POST['red'].'","'.$_POST['frecuencia'].'","'.ACT.'")');
 			//echo 'ptm';
 		
 		
@@ -342,65 +362,84 @@ class premios extends CI_Controller
 	}
 	
 	function actualizar(){
-		
-		$red = $this->model_tipo_red->traerRed($_POST['red']);
-		
-		if ($_POST['nombre']==""){
+
+        $id_premio = $_POST['id'];
+        $nombre_frm = $_POST['nombre'];
+        $descripcion = $_POST['desc_frm'];
+
+        $id_red = $_POST['red'];
+        $nivel = $_POST['nivel'];
+        $cantidad = $_POST['cantidad'];
+
+        $frecuencia= $_POST['frecuencia'];
+        $file_name = $_POST['file_nme'];
+        $imagen = $_POST['nombre_completo'];
+
+        $red = $this->model_tipo_red->traerRed($id_red);
+        $profundidad = $this->general->issetVar($red,"profundidad",0);
+
+        $excedeNivel = $nivel > $profundidad;
+        $noNivel = $nivel <= 0;
+        $noCantidad = $cantidad <= 0;
+        $errorNivel = $excedeNivel || $noNivel;
+
+        if ($this->isNullText($nombre_frm)){
 			$error = "Debe escribir un nombre a la categoria.";
 			$this->session->set_flashdata('error', $error);
 			redirect('/bo/premios/listar');
+			return false;
 		}
-		
-		else if ($_POST['desc_frm']==""){
+
+		if ($this->isNullText($descripcion)){
 			$error = "Debe escribir una descripcion para la informacion.";
 			$this->session->set_flashdata('error', $error);
 			redirect('/bo/premios/listar');
+			return false;
 		}
-		
-		else if ($_POST['nivel']>$red[0]->profundidad || $_POST['nivel']<=0){
-			if ($_POST['nivel']<=0) $error = "El nivel de profundidad no puede ser igual o menor a 0.";
-			else $error = "La red solo cuenta con una capacidad de profundidad de ".$red[0]->profundidad." niveles.";
+
+		if ($errorNivel){
+            $error = ($noNivel) ?
+            "El nivel de profundidad no puede ser igual o menor a 0."
+            : "La red solo cuenta con una profundidad de $profundidad niveles.";
+
+            $this->session->set_flashdata('error', $error);
+            redirect('/bo/premios/listar');
+            return false;
+        }
+
+        $frontalesNivel = 0;
+
+        foreach ($red as $i => $redNivel) {
+            if ($i==0){
+				$frontalesNivel = $redNivel->frontal;
+			}
+			else {
+                $frontalesNivel *= $redNivel->frontal;
+            }
+
+            $mayor = $cantidad > $frontalesNivel;
+			$nErrores= ($mayor) ? 1: 0;
+		}
+
+        if ($nErrores == 1 || $noCantidad){
+			if ($noCantidad) $error = "La cantidad de afiliados necesarios no puede ser igual o menor a 0.";
+			else	$error = "La cantidad máxima de afiliados necesarios que se puede tener en el nivel ". $nivel ." es ".$frontalesNivel.".";
 			$this->session->set_flashdata('error', $error);
 			redirect('/bo/premios/listar');
+			return false;
 		}
-		
-		for ($i = 0; $i<$_POST['nivel']; $i++){
-			if ($i==0){
-				$frontales_por_nivel = $red[0]->frontal;
-			}
-			else $frontales_por_nivel = $frontales_por_nivel * $red[0]->frontal;
-			
-			if ($_POST['cantidad']>$frontales_por_nivel){
-				$contador_de_errores = 1; 
-			}
-			else $contador_de_errores = 0;
-		}
-		
-		if ($contador_de_errores == 1 || $_POST['cantidad']<=0){
-			if ($_POST['cantidad']<=0) $error = "La cantidad de afiliados necesarios no puede ser igual o menor a 0.";
-			else	$error = "La cantidad máxima de afiliados necesarios que se puede tener en el nivel ".$_POST['nivel']." es ".$frontales_por_nivel.".";
-			$this->session->set_flashdata('error', $error);
-			redirect('/bo/premios/listar');
-		}
-		
-		$id_premio = $_POST['id'];
-		$nivel= $_POST['nivel'];
-		$num_afiliados= $_POST['cantidad'];
-		$id_red= $_POST['red'];
-		$frecuencia= $_POST['frecuencia'];
-		
-		if ($_POST['file_nme']==""){
-			$imagen = $_POST['nombre_completo'];
-			$descripcion = $_POST['desc_frm'];
+
+        if ($this->isNullText($file_name)){
 			$descripcion = htmlentities($descripcion);
-			
-			$this->modelo_premios->actualizarPremio($id_premio,$_POST['nombre'],$descripcion,$imagen,$nivel,$num_afiliados,$id_red,$frecuencia);
+			$this->modelo_premios->actualizarPremio($id_premio, $nombre_frm,$descripcion,$imagen,$nivel,$cantidad,$id_red,$frecuencia);
 		}
+
 		else {
 			$ruta="/media/premios/";
 			//definimos la ruta para subir la imagen
-			$config['upload_path'] 		= getcwd().$ruta;
-			$config['allowed_types'] 	= 'jpg|png|gif|jpeg';
+            $config = array();
+			$config['upload_path'] = getcwd().$ruta;
+			$config['allowed_types'] = 'jpg|png|gif|jpeg';
 			
 			//Cargamos la libreria con las configuraciones de arriba
 			$this->load->library('upload', $config);
@@ -415,29 +454,30 @@ class premios extends CI_Controller
 				
 				$this->session->set_flashdata('error', $error);
 				redirect('/bo/premios/listar');
+				return false;
 			}
-			else
-			{	
-				if(unlink($_SERVER['DOCUMENT_ROOT'].$_POST['file'])){
-						
-				}
-				
-					$data = array('upload_data' => $this->upload->data());
-					$nombre=$data['upload_data']['file_name'];
-					$nombre=$data['upload_data']['file_name'];
-					$filename=strrev($nombre);
-					$explode=explode(".",$filename);
-					$nombre=strrev($explode[1]);
-					$extencion=strrev($explode[0]);
-					$ext=strtolower($extencion);
-					$imagen = $ruta.$nombre.".".$ext;
-				
-	
-				$descripcion = $_POST['desc_frm'];
-				$descripcion = htmlentities($descripcion);
-				
-				$this->modelo_premios->actualizarPremio($id_premio,$_POST['nombre'],$descripcion,$imagen,$nivel,$num_afiliados,$id_red,$frecuencia);
-			}
+                $DOCUMENT_ROOT = $_SERVER['DOCUMENT_ROOT'];
+                $file = $_POST['file'];
+                $file_dir = $DOCUMENT_ROOT . $file;
+                if (file_exists($file_dir)) {
+                    unlink($file_dir);
+                }
+
+                $data = array('upload_data' => $this->upload->data());
+                $nombre = $data['upload_data']['file_name'];
+                $filename = strrev($nombre);
+                $explode = explode(".", $filename);
+                $nombre = strrev($explode[1]);
+                $extencion = strrev($explode[0]);
+                $ext = strtolower($extencion);
+                $imagen = "$ruta$nombre.$ext";
+
+
+                $descripcion = $descripcion;
+                $descripcion = htmlentities($descripcion);
+
+                $this->modelo_premios->actualizarPremio($id_premio, $nombre_frm, $descripcion, $imagen, $nivel, $cantidad, $id_red, $frecuencia);
+
 		}
 		$success = "El premio ha sido actualizado satisfactoriamente.";
 		$this->session->set_flashdata('success', $success);
@@ -468,4 +508,9 @@ class premios extends CI_Controller
 		$correcto = $this->modelo_premios->cambiar_estatus($_POST['id'], $_POST['estatus']);
 		echo "";
 	}
+
+    private function isNullText($text)
+    {
+        return $text == "";
+    }
 }

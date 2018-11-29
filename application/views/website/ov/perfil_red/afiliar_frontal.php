@@ -44,6 +44,7 @@ $(document).ready(function() {
 					var mensajess=new Array(
 						"El nombre de usuario no puede contener espacios en blanco"
 					);
+
 					var validacion_=valida_espacios(idss,mensajess);
 					var validacion=valida_vacios(ids,mensajes);
 					if(validacion&&validacion_)
@@ -101,10 +102,9 @@ $(document).ready(function() {
 					}
 			    
 			  });
-	
+	$("#pais").val("MEX");
 	pageSetUp();
 });
-
 
 $("#remove_step").click(function() {
 	$("#tipo_plan").attr("name","tipo_plan");
@@ -628,8 +628,9 @@ function codpos_red()
                                                             <legend>Lado de Afiliación</legend>
                                                             <div class="col-md-6"> <section class="col col-1"></section>
                                                                 <section class="col col-1" style="text-align: justify">
-                                                                    <label class="radio pull-right"> <input value="0" checked
-                                                                        id="lado_0" name="lado[]" type="radio">
+                                                                    <label class="radio pull-right"> <input
+                                                                                value="0" checked class="lado"
+                                                                                id="lado_0" name="lado" type="radio">
                                                                         <i></i>
                                                                     </label>
                                                                 </section>
@@ -639,8 +640,9 @@ function codpos_red()
                                                             <div class="col-md-6">
                                                                 <section class="col col-1"></section>
                                                                 <section class="col col-1" style="text-align: justify">
-                                                                    <label class="radio pull-right"> <input value="1"
-                                                                        id="lado_1" name="lado[]" type="radio">
+                                                                    <label class="radio pull-right"> <input
+                                                                                value="1" class="lado"
+                                                                                id="lado_1" name="lado" type="radio">
                                                                         <i></i>
                                                                     </label>
                                                                 </section>
@@ -790,136 +792,7 @@ function codpos_red()
 															
 													</form>
 												</div>
-												<div class="step-pane" id="step3">
 
-													<div class="row">
-														<br/>
-													</div>
-													<div class="hidden-xs hidden-sm hidden-md col-lg-1"></div>
-													<div class="col-xs-12 col-sm-12 col-md-12 col-lg-10">
-														<div class="row">
-													        <div id="planuno" class="col-xs-12 col-sm-6 col-md-3">
-													            <div class="panel panel-success pricing-big">
-													                <div class="panel-heading">
-													                    <h3 class="panel-title">
-													                       <i class="fa fa-plane"></i> Plan despegue</h3>
-													                </div>
-													                <div class="panel-body no-padding text-align-center">
-													                    <div class="the-price">
-													                        <h1>
-													                            <strong>$85.25 USD</strong></h1>
-													                    </div>
-																		<div class="price-features">
-																			<ul class="list-unstyled text-left">
-																	          	<li><h1><i class="fa fa-check text-success"></i> <strong>8%</strong> de ganancia</h1></li>
-																	        	<li><h1><i class="fa fa-check text-success"></i> <strong>60</strong> puntos de comisión</h1></li>
-																	        	<li><i class="fa fa-check text-success"></i> <strong>1</strong> Aloe Detox (6 pack)</li>
-																	        	<li><i class="fa fa-check text-success"></i> <strong>1</strong> Vita Live (6 pack)</li>
-																	        	<li><i class="fa fa-check text-success"></i> <strong>1</strong> Linea Gala</li>
-																	        </ul>
-																		</div>
-													                </div>
-													                <div class="panel-footer text-align-center">
-													                    <a id="plan1" href="javascript:void(0);" class="btn btn-primary btn-block" role="button">Seleccionar</span></a>
-													                </div>
-													            </div>
-													        </div>
-													        
-													        <div id="plandos" class="col-xs-12 col-sm-6 col-md-3">
-													            <div class="panel panel-teal pricing-big">
-													            	
-													                <div class="panel-heading">
-													                    <h3 class="panel-title">
-													                        <i class="fa fa-bar-chart-o"></i> Plan avance</h3>
-													                </div>
-													                <div class="panel-body no-padding text-align-center">
-													                    <div class="the-price">
-													                        <h1>
-													                            <strong>$164.00 USD</strong></h1>
-													                    </div>
-																		<div class="price-features">
-																			<ul class="list-unstyled text-left">
-																	          	<li><h1><i class="fa fa-check text-success"></i> <strong>10%</strong> de ganancia</h1></li>
-																	        	<li><h1><i class="fa fa-check text-success"></i> <strong>135</strong> puntos de comisión</h1></li>
-																	        	<li><i class="fa fa-check text-success"></i> <strong>4</strong> Aloe Detox (6 pack)</li>
-																	        	<li><i class="fa fa-check text-success"></i> <strong>3</strong> Vita Live (6 pack)</li>
-																	        	<li><i class="fa fa-check text-success"></i> <strong>1</strong> Linea Gala</li>
-																	        </ul>
-																		</div>
-													                </div>
-													                <div class="panel-footer text-align-center">
-													                    <a id="plan2" href="javascript:void(0);" class="btn btn-primary btn-block" role="button">Seleccionar</span></a>
-													                </div>
-													            </div>
-													        </div>
-													        
-													        <div id="plantres" class="col-xs-12 col-sm-6 col-md-3">
-													            <div class="panel panel-primary pricing-big">
-													            	<img src="/template/img/ribbon.png" class="ribbon" alt="">
-													                <div class="panel-heading">
-													                    <h3 class="panel-title">
-													                        <i class="fa fa-suitcase"></i> Plan empresarial</h3>
-													                </div>
-													                <div class="panel-body no-padding text-align-center">
-													                    <div class="the-price">
-													                        <h1>
-													                            <strong>$454.25 USD</strong></h1>
-													                    </div>
-																		<div class="price-features">
-																			<ul class="list-unstyled text-left">
-																	          	<li><h1><i class="fa fa-check text-success"></i> <strong>12%</strong> de ganancia</h1></li>
-																	        	<li><h1><i class="fa fa-check text-success"></i> <strong>420</strong> puntos de comisión</h1></li>
-																	        	<li><i class="fa fa-check text-success"></i> <strong>10</strong> Aloe Detox (6 pack)</li>
-																	        	<li><i class="fa fa-check text-success"></i> <strong>9</strong> Vita Live (6 pack)</li>
-																	        	<li><i class="fa fa-check text-success"></i> <strong>4</strong> Linea Gala</li>
-																	        </ul>
-																		</div>
-													                </div>
-													                <div class="panel-footer text-align-center">
-													                    <a id="plan3" href="javascript:void(0);" class="btn btn-primary btn-block" role="button">Seleccionar</span></a>
-													                </div>
-													            </div>
-													        </div>
-													        
-													        <div id="plancuatro" class="col-xs-12 col-sm-6 col-md-3">
-													            <div class="panel panel-darken pricing-big">
-													            	
-													                <div class="panel-heading">
-													                    <h3 class="panel-title">
-													                        <i class="fa fa-signal"></i> <i class="fa fa-male"></i> Plan inversionista</h3>
-													                </div>
-													                <div class="panel-body no-padding text-align-center">
-													                    <div class="the-price">
-													                        <h1>
-													                            <strong>$920.00 USD</strong></h1>
-													                    </div>
-																		<div class="price-features">
-																			<ul class="list-unstyled text-left">
-																	          	<li><h1><i class="fa fa-check text-success"></i> <strong>15%</strong> de ganancia</h1></li>
-																	        	<li><h1><i class="fa fa-check text-success"></i> <strong>850</strong> puntos de comisión</h1></li>
-																	        	<li><i class="fa fa-check text-success"></i> <strong>20</strong> Aloe Detox (6 pack)</li>
-																	        	<li><i class="fa fa-check text-success"></i> <strong>20</strong> Vita Live (6 pack)</li>
-																	        	<li><i class="fa fa-check text-success"></i> <strong>8</strong> Linea Gala</li>
-																	        	<li><i class="fa fa-check text-success"></i> <small>Podrás modificar la cantidad de producto que tengan el mismo precio que no insida en el valor y puntaje del plan</small></li>
-																	        </ul>
-																		</div>
-													                </div>
-													                <div class="panel-footer text-align-center">
-													                    <a id="plan4" href="javascript:void(0);" class="btn btn-primary btn-block" role="button">Seleccionar</span></a>
-													                </div>
-													            </div>
-													        </div>		    	
-											    		</div>
-											    		<br />
-											    		<a id="remove_step" href="javascript:void(0);" class="btn btn-primary btn-block" role="button">Comprar el plan después</span></a>
-											    	</div>
-												</div>
-												<div class="step-pane" id="step4">
-													<div class="well">
--														<p>El pago se realizara despues en la enttrega de su primer pedido</p>
--													</div>
-												</div>
-				
 											</div>
 										</div>
 									</div>

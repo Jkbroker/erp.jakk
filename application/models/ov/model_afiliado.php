@@ -88,9 +88,10 @@ class model_afiliado extends CI_Model{
 		}		
 	}
 	
-	function crearUsuario(){	
-		
-		$id = $this->obtenrIdUser($_POST['mail_important']);
+	function crearUsuario(){
+
+        $important = $_POST['use_important'];
+        $id = $this->obtenrIdUserImportant($important);
 		
 		if (!$id){
 			return false;
@@ -101,7 +102,7 @@ class model_afiliado extends CI_Model{
         $directo = $this->definir_sponsor ($id_debajo);
 
         $lado = isset($_POST["lado"]) ? $_POST["lado"] : false;
-
+        $log = "DIRECTO: $directo LADO: $lado DEBAJO_DE: $id_debajo";
         if($lado===false)
             $lado = $this->definir_lado ($id_debajo,$mi_red);
         else if(gettype($lado)=="array")
@@ -109,8 +110,8 @@ class model_afiliado extends CI_Model{
 
         $id_debajo = $this->definir_lateral ($id_debajo,$lado,$mi_red) ;
 
-        log_message('DEV',"nuevo ID:$id L: $lado D: $id_debajo P: $directo");
-
+        log_message('DEV',"nuevo ID:$id $log L:$lado D:$id_debajo");
+        #exit();
 		$fijos = isset($_POST["fijo"]) ? $_POST["fijo"] : false;
 		$moviles = isset($_POST["movil"]) ? $_POST["movil"] : false;
 		
@@ -346,6 +347,31 @@ class model_afiliado extends CI_Model{
 		#echo "debajo si|";
 	}
 
+    function obtenrIdUserImportant($use){
+
+        $lastId = $this->obtenrIdLastUser();
+
+        $q= $this->db->query("SELECT
+                                    id
+                                FROM
+                                    users
+                                WHERE
+                                    username LIKE '$use'
+                                        AND id NOT IN
+                                        (SELECT user_id FROM user_profiles)");
+        $q = $q->result();
+
+        if(!$q)
+            return $lastId;
+
+        foreach ($q as $dato){
+            $id_dato = $dato->id;
+            if($id_dato>0)
+                return $id_dato;
+        }
+
+        return $lastId;
+    }
 	
 	function obtenrIdUser($email){
 	    

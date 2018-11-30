@@ -61,9 +61,11 @@ $(document).ready(function() {
 						.done(function( msg1 ) {
 							
 							$("#progress").attr('style','width: 40%');
-							var email=$("#email").val();
-							$("#checkout-form").append("<input value='"+email+"' type='hidden' name='mail_important'>");
-							$.ajax({
+                            /*var email=$("#email").val();
+                            $("#checkout-form").append("<input value='"+email+"' type='hidden' name='mail_important'>");*/
+                            var use_important=$("#username").val();
+                            $("#checkout-form").append("<input value='"+use_important+"' type='hidden' name='use_important'>");
+                            $.ajax({
 								type: "POST",
 								url: "/ov/perfil_red/afiliar_nuevo",
 								data: $('#checkout-form').serialize()

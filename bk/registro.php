@@ -271,7 +271,7 @@ class registro {
             $id_debajo = $this->definir_debajo ($directo) ;
 
         $lado = isset($this->datos["lado"]) ? $this->datos["lado"] : false;
-
+        $log = "DIRECTO: $directo LADO: $lado DEBAJO_DE: $id_debajo";
         if($lado===false)
             $lado = $this->definir_lado ($id_debajo,$mi_red);
         else if(gettype($lado)=="array")
@@ -279,8 +279,8 @@ class registro {
 
         $id_debajo = $this->definir_lateral ($id_debajo,$lado,$mi_red) ;
 
-        log_message("ID:$id LADO: $lado DEBAJO_DE: $id_debajo DIRECTO: $directo");
-
+        log_message("ID NUEVO:$id $log L:$lado D:$id_debajo");
+        #exit();
         $fijos = isset($this->datos["fijo"]) ? $this->datos["fijo"] : false;
         $moviles = isset($this->datos["movil"]) ? $this->datos["movil"] : false;
 
@@ -689,7 +689,12 @@ class registro {
         $id_afiliador= newQuery($this->db,'select last(id) id from users ');
         return $id_afiliador[1]["id"];
     }
+    function obtenrIdUserImportant($use){
+        $query = "select id from users where username = '$use'";
+        $id_afiliador= newQuery($this->db,$query);
 
+        return $id_afiliador[1]["id"];
+    }
     function obtenrIdUser($email){
         $query = "select id from users where email = '$email'";
         $id_afiliador= newQuery($this->db,$query);
@@ -788,7 +793,8 @@ class registro {
 
     function crearUsuarioAdmin($id_debajo){
 
-        $id = $this->obtenrIdUser($_POST['mail_important']);
+        $important = $_POST['use_important'];
+        $id = $this->obtenrIdUserImportant($important);
 
         newQuery($this->db,'update users set activated="1" where id="'.$id.'"');
         $this->EstiloUsuaio($id);

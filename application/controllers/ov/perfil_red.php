@@ -93,6 +93,40 @@ class perfil_red extends CI_Controller
 		$this->template->build('website/ov/perfil_red/perfil');
 	}
 
+    function get_red_ver()
+    {
+        $id_red=$_POST['red'];
+        $id_afiliado=$_POST['id'];
+
+        $red 	 = $this->model_tipo_red->ObtenerFrontalesRed($id_red);
+        $frontalidadRed= $red[0]->frontal;
+        $profundidadRed=$red[0]->profundidad;
+
+        $INFINITO=0;
+
+        $user_id = $this->tank_auth->get_user_id();
+        if($user_id >2){
+            $nivel=$_POST['profundidad'];
+        }else {
+            $nivel=$INFINITO;
+            $profundidadRed=$INFINITO;
+        }
+
+        if(!$this->getHayEspacioParaAfiliarProfundidad ( $nivel ,$profundidadRed))
+            return false;
+
+
+        if($frontalidadRed==$INFINITO){
+            $frontalesUsuario = $this->model_perfil_red->get_cantidad_de_frontales($id_afiliado,$id_red);
+            $frontalesUsuario=$frontalesUsuario[0]->frontales;
+            $frontalidadRed=$frontalesUsuario+1;
+        }
+
+        $this->printRedParaVer ( $id_red,$id_afiliado,$frontalidadRed,$nivel);
+
+
+    }
+
 	function get_red_afiliar()
 	{
 		$id_red=$_POST['red'];
@@ -110,7 +144,7 @@ class perfil_red extends CI_Controller
 			$nivel=$INFINITO;
 			$profundidadRed=$INFINITO;
 		}
-		
+
 		if(!$this->getHayEspacioParaAfiliarProfundidad ( $nivel ,$profundidadRed))
 			return false;
 
@@ -134,7 +168,21 @@ class perfil_red extends CI_Controller
 		}
 		return true;
 	}
+    private function printRedParaVer($id_red,$id_afiliado, $frontales,$nivel) {
 
+        echo "<ul>";
+        for($lado=0;$lado<$frontales;$lado++){
+            $afiliado = $this->model_perfil_red->get_afiliado_por_posicion($id_red,$id_afiliado,$lado);
+
+            if($afiliado){
+                $this->printPosicionAfiliado ( $nivel, $afiliado);
+            }else {
+                $this->printEspacioParaVer ();
+            }
+        }
+        echo "</ul>";
+
+    }
 	private function printRedParaAfiliar($id_red,$id_afiliado, $frontales,$nivel) {
 	
 		echo "<ul>";
@@ -156,11 +204,19 @@ class perfil_red extends CI_Controller
 	private function printPosicionAfiliado($nivel, $afiliado) {
 		$img_perfil = $this->setImagenAfiliado ($afiliado[0]->id_afiliado);
 		$colorDirecto=$this->getDirectoColor($afiliado[0]->directo);
-		
-		echo "  <li id='".$afiliado[0]->id_afiliado."'>
-		        	<a class='quitar' onclick='subred(".$afiliado[0]->id_afiliado.",".($nivel+1).")' style='background: url(".$img_perfil."); background-size: cover; background-position: center;' href='javascript:void(0)'></a>
-		        	<div onclick='detalles(".$afiliado[0]->id_afiliado.")' class='".$colorDirecto."'>".$afiliado[0]->afiliado."<br />Detalles</div>
+
+        $nivelup = $nivel + 1;
+        echo "  <li id='".$afiliado[0]->id_afiliado."'>
+		        	<a class='quitar' 
+		        	onclick='subred(".$afiliado[0]->id_afiliado.",".($nivelup).")'
+		        	 style='background: url(".$img_perfil.");
+		        	  background-size: cover; 
+		        	  background-position: center;' href='javascript:void(0);'></a>
+		        	<div onclick='detalles(".$afiliado[0]->id_afiliado.")' 
+		        	class='".$colorDirecto."'>".$afiliado[0]->afiliado."<br />Detalles</div>
 		        </li>";
+
+
 	}
 	
 	private function getDirectoColor($directo){
@@ -169,8 +225,12 @@ class perfil_red extends CI_Controller
 			return 'todo1';
 		return 'todo';
 	}
-	
-	
+
+    private function printEspacioParaVer() {
+        echo "<li>
+				<a href='javascript:void(0)'>No hay afiliado</a>
+			  </li>	";
+    }
 	
 	private function printEspacioParaAfiliar($sponsor,$id_afiliado, $lado) {
 		echo "<li>
@@ -741,63 +801,90 @@ class perfil_red extends CI_Controller
 		$this->template->set_partial('footer', 'website/ov/footer');
 		$this->template->build('website/ov/perfil_red/afiliar_frontal_existente');
 	}
-	
-	function afiliar_red()
+
+    function afiliar_red()
+    {
+        if (!$this->tank_auth->is_logged_in())
+        {																		// logged in
+            redirect('/auth');
+        }
+
+        $id              = $this->tank_auth->get_user_id();
+
+        if($this->general->isActived($id)!=0){
+            redirect('/ov/compras/carrito');
+        }
+
+        $id_red          = $_GET['id'];
+
+        $style           = $this->general->get_style($id);
+
+
+        if($id>2){
+            $estaEnRed 	 = $this->model_tipo_red->validarUsuarioRed($id,$id_red);
+
+            if(!$estaEnRed)
+                redirect('/');
+
+        }
+
+        $afiliados = $this->model_perfil_red->get_afiliados($id_red, $id);
+
+        $image = $this->model_perfil_red->get_images($id);
+        $red_frontales = $this->model_tipo_red->ObtenerFrontalesRed($id_red);
+
+        $img_perfil = "/template/img/empresario.jpg";
+        foreach ($image as $img) {
+            $cadena = explode(".", $img->img);
+            if ($cadena[0] == "user") {
+                $img_perfil = $img->url;
+            }
+        }
+
+        $this->template->set("id",$id);
+        $this->template->set("style",$style);
+        $this->template->set("afiliados",$afiliados);
+        $this->template->set("img_perfil",$img_perfil);
+        $this->template->set("red_frontales",$red_frontales);
+
+        $this->template->set_theme('desktop');
+        $this->template->set_layout('website/main');
+        $this->template->set_partial('header', 'website/ov/header');
+        $this->template->set_partial('footer', 'website/ov/footer');
+        $this->template->build('website/ov/perfil_red/afiliar_red');
+    }
+
+	function registro_red()
 	{
 		if (!$this->tank_auth->is_logged_in())
 		{																		// logged in
 			redirect('/auth');
 		}
 		
-		$id              = $this->tank_auth->get_user_id();
+		$id  = $this->tank_auth->get_user_id();
 		
 		if($this->general->isActived($id)!=0){
 			redirect('/ov/compras/carrito');
 		}
-	
-		$id_red          = $_GET['id'];
-		
-		$usuario         = $this->model_perfil_red->datos_perfil($id);
-		$telefonos       = $this->model_perfil_red->telefonos($id);
+
+        $id_red = $_POST['red'];
+        $lado = $_POST['lado'];
+
 		$sexo            = $this->model_perfil_red->sexo();
 		$pais            = $this->model_perfil_red->get_pais();
 		$style           = $this->general->get_style($id);
-		$dir             = $this->model_perfil_red->dir($id);
 		$civil           = $this->model_perfil_red->edo_civil();
 		$tipo_fiscal     = $this->model_perfil_red->tipo_fiscal();
 		$estudios        = $this->model_perfil_red->get_estudios();
 		$ocupacion       = $this->model_perfil_red->get_ocupacion();
 		$tiempo_dedicado = $this->model_perfil_red->get_tiempo_dedicado();
-		
-		$red 			 = $this->model_afiliado->RedAfiliado($id, $id_red);
 
-		if($id>2){
-			$estaEnRed 	 = $this->model_tipo_red->validarUsuarioRed($id,$id_red);
-				
-			if(!$estaEnRed)
-				redirect('/');
-				
-		}
-		
-		//$premium         = $red[0]->premium;
-		$afiliados       = $this->model_perfil_red->get_afiliados($id_red, $id);
 		$planes 		 = $this->model_planes->Planes();
-	
-		$image 			 = $this->model_perfil_red->get_images($id);
-		$red_forntales 	 = $this->model_tipo_red->ObtenerFrontalesRed($id_red );
 
-		$img_perfil="/template/img/empresario.jpg";
-		foreach ($image as $img)
-		{
-			$cadena=explode(".", $img->img);
-			if($cadena[0]=="user")
-			{
-				$img_perfil=$img->url;
-			}
-		}
 		$this->template->set("id",$id);
+        $this->template->set("id_red",$id_red);
+        $this->template->set("lado",$lado);
 		$this->template->set("style",$style);
-		$this->template->set("afiliados",$afiliados);
 		$this->template->set("sexo",$sexo);
 		$this->template->set("civil",$civil);
 		$this->template->set("pais",$pais);
@@ -805,16 +892,9 @@ class perfil_red extends CI_Controller
 		$this->template->set("estudios",$estudios);
 		$this->template->set("ocupacion",$ocupacion);
 		$this->template->set("tiempo_dedicado",$tiempo_dedicado);
-		$this->template->set("img_perfil",$img_perfil);
-		$this->template->set("red_frontales",$red_forntales);
-		//$this->template->set("premium",$premium);
 		$this->template->set("planes",$planes);
-	
-		$this->template->set_theme('desktop');
-		$this->template->set_layout('website/main');
-		$this->template->set_partial('header', 'website/ov/header');
-		$this->template->set_partial('footer', 'website/ov/footer');
-		$this->template->build('website/ov/perfil_red/afiliar_red');
+
+		$this->template->build('website/ov/perfil_red/registro_red');
 	}
 	
 	function afiliar_red_existente()

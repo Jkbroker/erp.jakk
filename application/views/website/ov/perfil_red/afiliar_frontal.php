@@ -631,7 +631,7 @@ function codpos_red()
                                                             <div class="col-md-6"> <section class="col col-1"></section>
                                                                 <section class="col col-1" style="text-align: justify">
                                                                     <label class="radio pull-right"> <input
-                                                                                value="0" checked class="lado"
+                                                                                value="1" checked class="lado"
                                                                                 id="lado_0" name="lado" type="radio">
                                                                         <i></i>
                                                                     </label>
@@ -643,7 +643,7 @@ function codpos_red()
                                                                 <section class="col col-1"></section>
                                                                 <section class="col col-1" style="text-align: justify">
                                                                     <label class="radio pull-right"> <input
-                                                                                value="1" class="lado"
+                                                                                value="2" class="lado"
                                                                                 id="lado_1" name="lado" type="radio">
                                                                         <i></i>
                                                                     </label>

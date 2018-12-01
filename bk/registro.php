@@ -270,12 +270,13 @@ class registro {
         if(isset($this->datos["profundidad"]))
             $id_debajo = $this->definir_debajo ($directo) ;
 
-        $lado = isset($this->datos["lado"]) ? $this->datos["lado"] : false;
-        $log = "DIRECTO: $directo LADO: $lado DEBAJO_DE: $id_debajo";
-        if($lado===false)
+        $lado_post = isset($this->datos["lado"]) ? $this->datos["lado"] : false;
+        $log = "DIRECTO: $directo LADO: $lado_post DEBAJO_DE: $id_debajo";
+        if($lado_post)
+            $lado = $lado_post -1;
+        else
             $lado = $this->definir_lado ($id_debajo,$mi_red);
-        else if(gettype($lado)=="array")
-            $lado = $lado[0];
+
 
         $id_debajo = $this->definir_lateral ($id_debajo,$lado,$mi_red) ;
 

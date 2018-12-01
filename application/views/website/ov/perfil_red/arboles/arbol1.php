@@ -68,14 +68,19 @@
                                     									<div class="nombre">Tú</div>
                                     								</a>
                                     								<ul>
-                                    									<? $aux = 0;
+                                    									<?php $aux = 0;
                                     									foreach ( $afiliadostree as $key ) {
                                     										$aux ++;
                                     										$key->img ? $img = $key->img : $img = "/template/img/empresario.jpg";
                                     										if ($key->debajo_de == $id) {	?>
-                                    											<li id="t<?=$key->id_afiliado?>"><a class="quitar" style="background: url('<?=$img?>'); background-size: cover; background-position: center;" onclick="subtree(<?=$key->id_afiliado?>, 1)" href="#"></a>
+                                    											<li id="<?=$key->id_afiliado?>">
+                                                                                    <a class="quitar" style="background: url('<?=$img?>'); background-size: cover; background-position: center;"
+                                                                                       onclick="subred(<?=$key->id_afiliado?>, 1)"
+                                                                                       href="javascript:void(0);"></a>
                                     												<div onclick="detalles(<?=$key->id_afiliado?>)"
-                                    													class="<?=($key->directo==$id) ? 'todo1' : 'todo'?>"><?=$key->afiliado?> <?=$key->afiliado_p?><br />Detalles
+                                    													class="<?=($key->directo==$id) ? 'todo1' : 'todo'?>">
+                                                                                        <?=$key->afiliado?> <?=$key->afiliado_p?>
+                                                                                        <br />Detalles
                                     												</div>
                                     											</li>
                                     											
@@ -327,16 +332,18 @@ src="/template/js/plugin/datatable-responsive/datatables.responsive.min.js"></sc
                /* END COLUMN FILTER */
 
            })
-function subred(id)
+
+function subred(id, profundidad)
 {
-	$("#"+id).children(".quitar").attr('onclick','');
+	$("#t"+id).children(".quitar").attr('onclick','');
 
 	$.ajax({
 		type: "POST",
-		url: "/ov/perfil_red/subred",
+		url: "/ov/perfil_red/get_red_ver",
 		data: {
 			id: id,
-			red: <?php echo $_GET['id']; ?>
+			red: <?php echo $_GET['id']; ?>,
+			profundidad: profundidad
 		},
 	})
 	.done(function( msg )
@@ -346,42 +353,6 @@ function subred(id)
 }
 
 
-function subtree(id, profundidad)
-{
-	$("#t"+id).children(".quitar").attr('onclick','');
-
-	$.ajax({
-		type: "POST",
-		url: "/ov/perfil_red/subtree",
-		data: {
-			id: id,
-			red: <?php echo $_GET['id']; ?>,
-			nivel: profundidad 
-		},
-	})
-	.done(function( msg )
-	{
-		$("#t"+id).append(msg);
-	});
-}
-
-function subtree2(id)
-{
-	$("#tt"+id).children(".quitar").attr('onclick','');
-
-	$.ajax({
-		type: "POST",
-		url: "/ov/perfil_red/subtree2",
-		data: {
-			id: id,
-			red: <?php echo $_GET['id']; ?> 
-		},
-	})
-	.done(function( msg )
-	{
-		$("#tt"+id).append(msg);
-	});
-}
 
 jQuery(document).ready(function() {
 
@@ -435,28 +406,4 @@ function detalles(id)
 	});
 }
 
-function detalles2(id)
-{
-	$.ajax({
-		type: "POST",
-		url: "/ov/perfil_red/detalle_usuario2",
-		data: {id: id},
-	})
-	.done(function( msg )
-	{
-		bootbox.dialog({
-			message: msg,
-			title: "Información Fiscal",
-			buttons: {
-				success: {
-					label: "Cerrar!",
-					className: "btn-success",
-					callback: function() {
-					//location.href="";
-				}
-			}
-		}
-	});
-	});
-}
 </script>

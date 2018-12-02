@@ -696,23 +696,9 @@ class cgeneral extends CI_Controller
 	
 		$id              = $this->tank_auth->get_user_id();
 	
-		
-	
-		$id_red          = $_GET['id'];
-	
-		$usuario         = $this->model_perfil_red->datos_perfil($id);
-		$telefonos       = $this->model_perfil_red->telefonos($id);
-		$sexo            = $this->model_perfil_red->sexo();
-		$pais            = $this->model_perfil_red->get_pais();
+		$id_red          = isset($_GET['id']) ? $_GET['id'] : 1;
+
 		$style           = $this->general->get_style($id);
-		$dir             = $this->model_perfil_red->dir($id);
-		$civil           = $this->model_perfil_red->edo_civil();
-		$tipo_fiscal     = $this->model_perfil_red->tipo_fiscal();
-		$estudios        = $this->model_perfil_red->get_estudios();
-		$ocupacion       = $this->model_perfil_red->get_ocupacion();
-		$tiempo_dedicado = $this->model_perfil_red->get_tiempo_dedicado();
-	
-		$red 			 = $this->model_afiliado->RedAfiliado($id, $id_red);
 	
 		if($id>2){
 			$estaEnRed 	 = $this->model_tipo_red->validarUsuarioRed($id,$id_red);
@@ -721,37 +707,25 @@ class cgeneral extends CI_Controller
 				redirect('/');
 	
 		}
-	
-		//$premium         = $red[0]->premium;
+
 		$afiliados       = $this->model_perfil_red->get_afiliados($id_red, $id);
-		$planes 		 = $this->model_planes->Planes();
-	
 		$image 			 = $this->model_perfil_red->get_images($id);
-		$red_forntales 	 = $this->model_tipo_red->ObtenerFrontalesRed($id_red );
-	
-		$img_perfil="/template/img/empresario.jpg";
-		foreach ($image as $img)
-		{
-			$cadena=explode(".", $img->img);
-			if($cadena[0]=="user")
-			{
-				$img_perfil=$img->url;
-			}
-		}
-		$this->template->set("id",$id);
+		$red_frontales 	 = $this->model_tipo_red->ObtenerFrontalesRed($id_red );
+
+        $img_perfil = "/template/img/empresario.jpg";
+        foreach ($image as $img) {
+            $cadena = explode(".", $img->img);
+            if ($cadena[0] == "user") {
+                $img_perfil = $img->url;
+            }
+        }
+
+        $this->template->set("id",$id);
+        $this->template->set("id_red",$id_red);
 		$this->template->set("style",$style);
 		$this->template->set("afiliados",$afiliados);
-		$this->template->set("sexo",$sexo);
-		$this->template->set("civil",$civil);
-		$this->template->set("pais",$pais);
-		$this->template->set("tipo_fiscal",$tipo_fiscal);
-		$this->template->set("estudios",$estudios);
-		$this->template->set("ocupacion",$ocupacion);
-		$this->template->set("tiempo_dedicado",$tiempo_dedicado);
 		$this->template->set("img_perfil",$img_perfil);
-		$this->template->set("red_frontales",$red_forntales);
-		//$this->template->set("premium",$premium);
-		$this->template->set("planes",$planes);
+		$this->template->set("red_frontales",$red_frontales);
 		
 		$this->template->set_theme('desktop');
 		$this->template->set_layout('website/main');

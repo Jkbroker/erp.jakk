@@ -205,6 +205,9 @@ class perfil_red extends CI_Controller
 		$img_perfil = $this->setImagenAfiliado ($afiliado[0]->id_afiliado);
 		$colorDirecto=$this->getDirectoColor($afiliado[0]->directo);
 
+		if(strlen($img_perfil)<3 || !file_exists(getcwd().$img_perfil))
+		    $img_perfil = "/template/img/avatars/male.png";
+
         $nivelup = $nivel + 1;
         echo "  <li id='".$afiliado[0]->id_afiliado."'>
 		        	<a class='quitar' 
@@ -815,7 +818,7 @@ class perfil_red extends CI_Controller
             redirect('/ov/compras/carrito');
         }
 
-        $id_red          = $_GET['id'];
+        $id_red          = isset($_GET['id']) ? $_GET['id'] : 1;
 
         $style           = $this->general->get_style($id);
 
@@ -842,6 +845,7 @@ class perfil_red extends CI_Controller
         }
 
         $this->template->set("id",$id);
+        $this->template->set("id_red",$id_red);
         $this->template->set("style",$style);
         $this->template->set("afiliados",$afiliados);
         $this->template->set("img_perfil",$img_perfil);

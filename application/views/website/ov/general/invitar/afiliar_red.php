@@ -11,7 +11,7 @@ function subred(id,profundidad)
 		type: "POST",
 		url: "/ov/perfil_red/get_red_afiliar",
 		data: {id: id,
-				red: <?php echo $_GET['id']; ?>,profundidad: profundidad,},
+				red: <?php echo $id_red; ?>,profundidad: profundidad,},
 	})
 	.done(function( msg )
 	{
@@ -26,7 +26,7 @@ function botbox(nombre,id_debajo, lado)
 		type: "POST",
 		url: "/ov/cgeneral/nuevo_invitado",
 		data: {id_debajo: id_debajo,
-				red: <?php echo $_GET['id']; ?>,lado: lado}
+				red: <?php echo $id_red; ?>,lado: lado}
 	})
 	.done(function( msg )
 	{
@@ -125,29 +125,60 @@ function detalles(id)
 										<div class="tree1" style="width: 10000rem;">
 											<ul>
 												<li>
-													<a style="background: url('<?=$img_perfil?>'); background-size: cover; background-position: center;" href="#"><div class="nombre">Tú</div></a>
+                                                    <?php if (!file_exists(getcwd() . $img_perfil))
+                                                        $img_perfil = "/template/img/avatars/male.png";?>
+													<a style="background: url('<?=$img_perfil?>');
+                                                            background-size: cover; background-position: center;"
+                                                       href="javascript:void(0);"><div class="nombre">Tú</div></a>
 													<ul>
-													<?
-													$aux =0;
-													
-													foreach ($afiliados as $key) 
-                                                    {
-                                                    	$aux++;
-                                                    	$key->img ? $img=$key->img : $img="/template/img/empresario.jpg";
-                                                        if($key->debajo_de==$id)
-                                                        {?>
-														<li id="<?=$key->id_afiliado?>">
-															<a class="quitar" style="background: url('<?=$img?>'); background-size: cover; background-position: center;" onclick="subred(<?=$key->id_afiliado?>, 1)" href="#"></a>
-															<div onclick="detalles(<?=$key->id_afiliado?>)" class="<?=($key->directo==0) ? 'todo' : 'todo1'?>"><?=$key->afiliado?> <?=$key->afiliado_p?><br />Detalles</div>
-														</li>
-														<?}
-                                                    }
-													if($afiliados==null||$id==2||$red_frontales[0]->frontal>count($afiliados))
-                                                        {?>
-														<li>
-															<a onclick="botbox('Tí',<?=$id?>,<?=count($afiliados)?>)" href='javascript:void(0)'>Afiliar Aqui</a>
-			 										 	</li>
-												<?}?>
+                                                        <?php
+                                                        $aux = 0;
+                                                        $frontalidad = $red_frontales[0]->frontal;
+                                                        $frontales = range(0,$frontalidad-1);
+                                                        $lados = 0;
+                                                        foreach ($frontales as $key => $values) {
+                                                            $datos = false ;
+                                                            if(isset($afiliados[$lados]))
+                                                                $datos = $afiliados[$lados];
+
+                                                            if($datos->lado != $values){
+                                                                ?>
+                                                                <li>
+                                                                    <a onclick="botbox('Tí',<?= $id ?>,<?= $values ?>)"
+                                                                       href='javascript:void(0)'>Afiliar Aqui</a>
+                                                                </li>
+                                                                <?php
+                                                                continue;
+                                                            }
+
+                                                            if ($datos->debajo_de != $id)
+                                                                continue;
+
+                                                            $lados++;
+                                                            $aux++;
+                                                            $img = strlen($datos->img) < 3 ? "/0.png" : $datos->img;
+                                                            $img = file_exists(getcwd() . $img) ? $img : "/template/img/avatars/male.png";
+
+                                                                ?>
+                                                                <li id="<?= $datos->id_afiliado ?>">
+                                                                    <a class="quitar"
+                                                                       style="background: url('<?= $img ?>'); background-size: cover; background-position: center;"
+                                                                       onclick="subred(<?= $datos->id_afiliado ?>, 1)"
+                                                                       href="javascript:void(0);"></a>
+                                                                    <div onclick="detalles(<?= $datos->id_afiliado ?>)"
+                                                                         class="<?= ($datos->directo == $id) ? 'todo1' : 'todo' ?>"><?= $datos->afiliado ?> <?= $datos->afiliado_p ?>
+                                                                        <br/>Detalles
+                                                                    </div>
+                                                                </li>
+                                                            <?php
+                                                        }
+                                                        if ($afiliados == null ) {
+                                                            ?>
+                                                            <li>
+                                                                <a onclick="botbox('Tí',<?= $id ?>,<?= count($afiliados) ?>)"
+                                                                   href='javascript:void(0)'>Afiliar Aqui</a>
+                                                            </li>
+                                                        <?php } ?>
 													</ul>
 												</li>
 											</ul>

@@ -145,30 +145,28 @@ class red extends CI_Controller
 		if($this->general->isActived($id)!=0){
 			redirect('/ov/compras/carrito');
 		}
-		
-		$id_red        = $_GET['id'];
-		$frontales 	 = $this->model_tipo_red->ObtenerFrontalesRed($id_red);
-		$frontales = $frontales[0]->frontal;
+
+        $id_red = isset($_GET['id']) ? $_GET['id'] : 1;
+        $frontales = $this->model_tipo_red->ObtenerFrontalesRed($id_red);
+        $frontales = $frontales[0]->frontal;
 
 		$style         = $this->general->get_style($id);
-		//$afiliados     = $this->model_perfil_red->get_afiliados_($id_red, $id);
 		$afiliadostree = $this->model_perfil_red->get_afiliados($id_red, $id);
-	
-		$image=$this->model_perfil_red->get_images($id);
-		$user="/template/img/empresario.jpg";
-		foreach ($image as $img) {
-			$cadena=explode(".", $img->img);
-			if($cadena[0]=="user")
-			{
-				$user=$img->url;
-			}
-		}
-	
+
+        $image = $this->model_perfil_red->get_images($id);
+        $user = "/template/img/empresario.jpg";
+        foreach ($image as $img) {
+            $cadena = explode(".", $img->img);
+            if ($cadena[0] == "user") {
+                $user = $img->url;
+            }
+        }
+
 		$this->template->set("user",$user);
 		$this->template->set("style",$style);
 		$this->template->set("id",$id);
 		$this->template->set("frontales",$frontales);
-		//$this->template->set("afiliados",$afiliados);
+        $this->template->set("id_red",$id_red);
 		$this->template->set("afiliadostree",$afiliadostree);
 		$this->template->set("img_perfil",$user);
 		$this->template->set_theme('desktop');

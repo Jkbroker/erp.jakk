@@ -35,7 +35,7 @@
             type: "POST",
             url: "/ov/perfil_red/get_red_afiliar",
             data: {id: id,
-                red: <?php echo $_GET['id']; ?>,profundidad: profundidad,},
+                red: <?php echo $id_red; ?>,profundidad: profundidad,},
         })
             .done(function( msg )
             {
@@ -50,7 +50,7 @@
             url: "/ov/perfil_red/registro_red",
             data: {
                 id: id,
-                red : <?=$_GET['id'];?> ,
+                red : <?=$id_red;?> ,
                 lado : lado
             },
         })
@@ -81,7 +81,7 @@
 				<?php }else {?>
 				<span> 
 				> <a href="/ov/perfil_red/afiliar?tipo=1">Red</a>
-				> <a href="/ov/perfil_red/nuevo_afilido?id=<?php echo $_GET['id']; ?>">Afiliar</a>
+				> <a href="/ov/perfil_red/nuevo_afilido?id=<?php echo $id_red; ?>">Afiliar</a>
 				> Red
 				</span>
 				<?php }?>
@@ -137,27 +137,53 @@
 										<div class="tree1" style="width: 10000rem;">
 											<ul>
 												<li>
-													<a style="background: url('<?=file_exists(getcwd().$img_perfil) ? $img_perfil : "/template/img/avatars/male.png";?>'); background-size: cover; background-position: center;" href="javascript:void(0)"><div class="nombre">Tú</div></a>
+                                                    <?php if (!file_exists(getcwd() . $img_perfil))
+                                                        $img_perfil = "/template/img/avatars/male.png";?>
+													<a style="background: url('<?= $img_perfil;?>');
+                                                            background-size: cover; background-position: center;"
+                                                       href="javascript:void(0)"><div class="nombre">Tú</div></a>
 													<ul>
 													<?php
 													$aux =0;
-                                                    foreach ($afiliados as $key) {
-                                                        $aux++;
-                                                        $img = strlen($key->img) < 3 ? "/0.png" : $key->img;
-                                                        $img = file_exists(getcwd() . $img) ? $img : "/template/img/avatars/male.png";
-                                                        if ($key->debajo_de == $id) {
+                                                    $frontalidad = $red_frontales[0]->frontal;
+                                                    $frontales = range(0,$frontalidad-1);
+                                                    $lados = 0;
+                                                    foreach ($frontales as $key => $values) {
+                                                        $datos = false ;
+                                                        if(isset($afiliados[$lados]))
+                                                            $datos = $afiliados[$lados];
+
+                                                        if($datos->lado != $values){
                                                             ?>
-                                                            <li id="<?= $key->id_afiliado ?>">
+                                                            <li>
+                                                                <a onclick="botbox('Tí',<?= $id ?>,<?= $values ?>)"
+                                                                   href='javascript:void(0)'>Afiliar Aqui</a>
+                                                            </li>
+                                                            <?php
+                                                            continue;
+                                                        }
+
+                                                        if ($datos->debajo_de != $id)
+                                                            continue;
+
+                                                        $lados++;
+                                                        $aux++;
+                                                        $img = strlen($datos->img) < 3 ? "/0.png" : $datos->img;
+                                                        $img = file_exists(getcwd() . $img) ? $img : "/template/img/avatars/male.png";
+
+                                                            ?>
+                                                            <li id="<?= $datos->id_afiliado ?>">
                                                                 <a class="quitar"
                                                                    style="background: url('<?= $img ?>'); background-size: cover; background-position: center;"
-                                                                   onclick="subred(<?= $key->id_afiliado ?>, 1)"
-                                                                   href="javascript:void(0)"></a>
-                                                                <div onclick="detalles(<?= $key->id_afiliado ?>)"
-                                                                     class="<?= ($key->directo == $id) ? 'todo1' : 'todo' ?>"><?= $key->afiliado ?> <?= $key->afiliado_p ?>
+                                                                   onclick="subred(<?= $datos->id_afiliado ?>, 1)"
+                                                                   href="javascript:void(0);"></a>
+                                                                <div onclick="detalles(<?= $datos->id_afiliado ?>)"
+                                                                     class="<?= ($datos->directo == $id) ? 'todo1' : 'todo' ?>">
+                                                                    <?= $datos->afiliado ?> <?= $datos->afiliado_p ?>
                                                                     <br/>Detalles
                                                                 </div>
                                                             </li>
-                                                        <?php }
+                                                        <?php
                                                     } ?>
 												
 													</ul>

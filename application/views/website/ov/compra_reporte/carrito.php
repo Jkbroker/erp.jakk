@@ -491,8 +491,9 @@
 			{
 				
 				var qty=$("#cantidad").val();
+                var inv=$("#inversion").val();
 
-					var datos={'id':id,'tipo':tipo,'qty':qty};
+					var datos={'id':id,'tipo':tipo,'inversion':inv,'qty':qty};
 					$.ajax({
 						data:{info:JSON.stringify(datos)},
 						type: 'get',

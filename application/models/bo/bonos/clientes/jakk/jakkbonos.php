@@ -393,9 +393,10 @@ class jakkbonos extends CI_Model
 
     private function getValorBonoDirectos($parametro)
     {
-        $valores = $this->getBonoValorNiveles(1);
+        $id_bono = 1;
+        $valores = $this->getBonoValorNiveles($id_bono);
 
-        $bono = $this->getBono(1);
+        $bono = $this->getBono($id_bono);
         $periodo = $this->issetVar($bono,"frecuencia","UNI");
 
         $fechaInicio=$this->getPeriodoFecha($periodo, "INI", $parametro["fecha"]);
@@ -404,7 +405,7 @@ class jakkbonos extends CI_Model
         $id_usuario = $parametro["id_usuario"];
         $id_red = isset($parametro["red"]) ?  $parametro["red"] : 1;
 
-        log_message('DEV', "between: $fechaInicio - $fechaFin");
+        log_message('DEV', "BONO $id_bono between: $fechaInicio - $fechaFin");
 
         $afiliados = $this->getAfiliadosInicial($valores, $id_usuario, $fechaInicio, $fechaFin);
 
@@ -461,7 +462,8 @@ class jakkbonos extends CI_Model
         if(!isset($parametro["fecha"]))
             $parametro["fecha"] = date('Y-m-d');
 
-        $valores = $this->getBonoValorNiveles(2);
+        $id_bono = 2;
+        $valores = $this->getBonoValorNiveles($id_bono);
 
         $bono = $this->getBono(1);
         $periodo = $this->issetVar($bono,"frecuencia","UNI");
@@ -472,22 +474,38 @@ class jakkbonos extends CI_Model
         $id_usuario = $parametro["id_usuario"];
         $id_red = isset($parametro["red"]) ?  $parametro["red"] : 1;
 
-        $Ganancia = $this->getGananciaAvance($id_usuario,$valores,$id_red,$fechaInicio,$fechaFin);
-        $extra = "Cierre de Ciclo del Directo ID:$id_usuario";
-        $upline = $this->getUpline($id_usuario,$id_red);
+        $afiliados = $this->getAfiliadosMatriz($valores,$id_usuario);
 
-        if($pagar&&$Ganancia>0)
-            $this->repartirBono(2, $upline, $Ganancia,$extra,$fechaFin);
+        $ganancia =0;
 
-        return $Ganancia;
+        if($pagar&&$ganancia>0)
+            $this->repartirBono($id_bono, $id_usuario, $ganancia,"",$fechaFin);
+
+        return $ganancia;
     }
 
-    function getUpline($id_usuario,$id_red)
+    private function getAfiliadosMatriz($valores, $id)
     {
-        $afiliacion = $this->isAfiliadoenRed($id_usuario,$id_red,"red DESC");
-        $red = $this->issetVar($afiliacion,"red",1);
-        $isLider = $this->getCicloRed($red);
-        return $this->issetVar($isLider,"lider",2);
+        $where = ""; #@test: 1
+
+        $afiliados = array();
+
+        if(!$valores)
+            return array();
+
+        $limite = $afiliados[0]->valor;
+
+        for($key = 0;$key<$limite; $key++) {
+
+            $nivel = $key + 1;
+
+            $this->getAfiliadosBy($id, $nivel, "RED", $where);
+            array_push($afiliados, $this->getAfiliados());
+
+
+        }/* foreach: $valores */
+
+        return $afiliados;
     }
 
 
@@ -997,21 +1015,6 @@ class jakkbonos extends CI_Model
     private function getAfiliadosBy ($id,$nivel,$tipo,$where,$padre = false,$red = 1)
     {
         $is = array("DIRECTOS" =>"a.directo","RED"=>"a.debajo_de");
-        $negocio = "";
-
-        $subquery ="SELECT id_red FROM red 
-                        WHERE  
-                            tipo_red = $red 
-                            AND estatus = 'ACT'";#@test: 9
-
-        if($padre)
-            $negocio = "AND a.red in ($subquery)";
-
-        $temp = $this->temp;
-        if($temp && sizeof($temp)>0){
-            $rowid = $this->getTempRows(true);
-            $where .= " AND a.id not in ($rowid)";
-        }
 
         $query = "SELECT 
 						a.id_afiliado id,

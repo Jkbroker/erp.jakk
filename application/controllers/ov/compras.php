@@ -31,6 +31,7 @@ class compras extends CI_Controller
         $this->load->model('bo/modelo_logistico');
         $this->load->model('cemail');
 		$this->load->model('ov/model_web_personal_reporte');
+        $this->load->model('/bo/bonos/clientes/jakk/jakkbonos');
 	}
 	
 	private $afiliados = array();
@@ -189,55 +190,62 @@ function index()
 		$this->template->set_partial('footer', 'website/ov/footer');
 		$this->template->build('website/ov/compra_reporte/carrito',$data);
 	}
-	
-	/**
-	 * @param detalles
-	 */private function get_content_carrito() {
-	 	
-	 	$id_usuario = $this->tank_auth->get_user_id();
-	 	$pais = $this->general->get_pais($id_usuario);
-	 
-		$data=array();
-		$contador=0;
-		$info_compras=Array();
-		
-		foreach ($this->cart->contents() as $items)
-		{
 
-		$imagenes=$this->modelo_compras->get_imagenes($items['id']);
-		$id_tipo_mercancia=$items['name'];
-		
-		if($id_tipo_mercancia==1)
-			$detalles=$this->modelo_compras->detalles_productos($items['id']);
-		else if($id_tipo_mercancia==2)
-			$detalles=$this->modelo_compras->detalles_servicios($items['id']);
-		else if($id_tipo_mercancia==3)
-			$detalles=$this->modelo_compras->detalles_combinados($items['id']);
-		else if($id_tipo_mercancia==4)
-			$detalles=$this->modelo_compras->detalles_paquete($items['id']);
-		else if($id_tipo_mercancia==5)
-			$detalles=$this->modelo_compras->detalles_membresia($items['id']);
-		
-		$costosImpuestos=$this->modelo_compras->getCostosImpuestos($pais[0]->pais,$items['id']);
-		
-		$cantidad=$items['qty'];
+    private function get_content_carrito()
+    {
 
-		$info_compras[$contador]=Array(
-				"imagen" => $imagenes[0]->url,
-				"nombre" => $detalles[0]->nombre,
-				"puntos" => $detalles[0]->puntos_comisionables,
-				"descripcion" => $detalles[0]->descripcion,
-				"costos" => $costosImpuestos,
-				"cantidad" => $cantidad
-		);
-		$contador++;
-		
-		}
+        $id_usuario = $this->tank_auth->get_user_id();
+        $pais = $this->general->get_pais($id_usuario);
 
-		$data['compras']= $info_compras;
+        $data = array();
+        $contador = 0;
+        $info_compras = Array();
 
-		return $data;
-	}
+        foreach ($this->cart->contents() as $items) {
+
+            $imagenes = $this->modelo_compras->get_imagenes($items['id']);
+            $id_tipo_mercancia = $items['name'];
+
+            if ($id_tipo_mercancia == 1)
+                $detalles = $this->modelo_compras->detalles_productos($items['id']);
+            else if ($id_tipo_mercancia == 2)
+                $detalles = $this->modelo_compras->detalles_servicios($items['id']);
+            else if ($id_tipo_mercancia == 3)
+                $detalles = $this->modelo_compras->detalles_combinados($items['id']);
+            else if ($id_tipo_mercancia == 4)
+                $detalles = $this->modelo_compras->detalles_paquete($items['id']);
+            else if ($id_tipo_mercancia == 5)
+                $detalles = $this->modelo_compras->detalles_membresia($items['id']);
+
+            $costosImpuestos = $this->modelo_compras->getCostosImpuestos($pais[0]->pais, $items['id']);
+
+            $cantidad = $items['qty'];
+
+            $meses = $items['options']['prom_id'];
+            $valores = $this->jakkbonos->getBonoValorNiveles(3);
+            $factor = $valores[0]->valor;
+            $inversion = !isset($valores[$meses]) ? 1 : $valores[$meses]->valor;
+            $meses *= $factor;
+
+            #TODO: $descripcion = $detalles[0]->descripcion;
+            $descripcion = "Inversión: $meses MESES \n Ganancia: $inversion %";
+            $info_compras[$contador] = Array(
+                "imagen" => $imagenes[0]->url,
+                "nombre" => $detalles[0]->nombre,
+                "puntos" => $detalles[0]->puntos_comisionables,
+                "descripcion" => $descripcion,
+                "costos" => $costosImpuestos,
+                "cantidad" => $cantidad,
+                "inversion" => $meses
+            );
+            $contador++;
+
+        }
+
+        $data['compras'] = $info_compras;
+
+        return $data;
+    }
 
 	
 	function carrito_publico()
@@ -1400,7 +1408,7 @@ function index()
 	 * @param contenidoCarrito
 	 */private function registrarFacturaMercancia($contenidoCarrito,$id_venta) {
 		$contador=0;
-		
+
 		foreach ($this->cart->contents() as $items)
 		{
 			$costoImpuesto=0;
@@ -1419,7 +1427,9 @@ function index()
 				$precioUnidad-=$costoImpuesto;
 			}
 
-			$this->modelo_compras->registrar_venta_mercancia($id_mercancia,$id_venta,$cantidad,$precioUnidad,$costoImpuesto,$nombreImpuestos);
+            $this->setInversion($items);
+
+            $this->modelo_compras->registrar_venta_mercancia($id_mercancia,$id_venta,$cantidad,$precioUnidad,$costoImpuesto,$nombreImpuestos);
 			$contador++;
 		}
 	}
@@ -1445,7 +1455,9 @@ function index()
 			if($contenidoCarrito['compras'][$contador]['costos'][0]['iva']!='MAS'){
 				$precioUnidad-=$costoImpuesto;
 			}
-	
+
+			$this->setInversion($items);
+
 			$this->modelo_compras->registrar_venta_mercancia($id_mercancia,$id_venta,$cantidad,$precioUnidad,$costoImpuesto,$nombreImpuestos);
 			$contador++;
 		}
@@ -3196,8 +3208,34 @@ function index()
 						</div>
 					</div>";
 		}
-
-		echo "<div class='row'><br><a class='btn btn-success' onclick='comprar(".$id_mercancia.",".$id_tipo_mercancia.")'><i class='fa fa-shopping-cart'></i> Comprar</a></div>
+        if($id_tipo_mercancia==2){
+            $valores= $this->jakkbonos->getBonoValorNiveles(3);
+            if(sizeof($valores)>1){
+                $factor = $valores[0]->valor;
+                echo "<div class='row smart-form'>
+                        <div class=' col-md-4'></div>
+						<div class='select col-md-4'>Periodo de Inversión
+						    <label for='inversion' class='select'>
+						     <select  name='inversion' id='inversion' class='select2'>";
+                    for($key = 1;$key < sizeof($valores); $key++){
+                        $datos = $valores[$key];
+                        $periodo = $factor * $datos->nivel;
+                        echo "<option value='$datos->nivel'>$periodo MESES</option>";
+                    }
+                echo    "</select>	
+                           </label>
+						   
+						</div>
+					</div>";
+            }
+        }
+		echo "<div class='row'>
+                <br>
+                <a class='btn btn-success' 
+                onclick='comprar(" . $id_mercancia . "," . $id_tipo_mercancia . ")'>
+                <i class='fa fa-shopping-cart'></i> Comprar
+                </a>
+                </div>
 			</form>";
 
 	}
@@ -3225,9 +3263,10 @@ function index()
 			$detalles=$this->modelo_compras->detalles_paquete($id_mercancia);
 		else if($id_tipo_mercancia==5)
 			$detalles=$this->modelo_compras->detalles_membresia($id_mercancia);
-	
-		
-		if(!isset($data['qty']))
+
+        $inversion= isset($data['inversion']) ? $data['inversion'] : 1;
+
+        if(!isset($data['qty']))
 			$cantidad=1;
 		else 
 			$cantidad=$data['qty'];
@@ -3239,7 +3278,7 @@ function index()
 				'qty'     => $cantidad,
 				'price'   => $costo,
 				'name'    => $id_tipo_mercancia,
-				'options' => array(	'prom_id' => 0, 'time' => time())
+				'options' => array(	'prom_id' => $inversion, 'time' => time())
 		);
 	
 		$this->cart->insert($add_cart);
@@ -4416,6 +4455,19 @@ function index()
         $SERVER_NAME = $_SERVER["SERVER_NAME"];
         $site = "$typesec://$SERVER_NAME";
         return $site;
+    }
+
+
+    private function setInversion($items)
+    {
+        $id = $this->tank_auth->get_user_id();
+        if ($items['name'] == 2) {
+            $inversion = $items['options']['prom_id'];
+            $query = "update billetera 
+                            set inversion = $inversion 
+                            where id_user = $id";
+            $this->db->query($query);
+        }
     }
 
 }

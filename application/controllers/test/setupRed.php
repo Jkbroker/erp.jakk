@@ -1,10 +1,10 @@
 <?php
-class testSetupRedDeAfiliacionBaseDeDatos extends CI_Controller {
+require_once APPPATH.'controllers/ctest.php';
+class setupRed extends ctest {
 
 
 	public function __construct() {
-		parent::__construct();
-		$this->load->library('unit_test');
+		parent::__construct(); 
 		$this->load->model('/bo/bonos/afiliado');
 		$this->load->model('/bo/bonos/red');
 
@@ -90,28 +90,28 @@ class testSetupRedDeAfiliacionBaseDeDatos extends CI_Controller {
 		$red=$this->red;
 		
 		$resultado=$red->getIdRed();
-		echo $this->unit->run(300,$resultado, 'Test set Base de datos Id Red','Resultado es :'.$resultado);
+		$this->runTest(300,$resultado, 'Test set Base de datos Id Red');
 	
 		$resultado=$red->getNombre();
-		echo $this->unit->run("Binario",$resultado, 'Test set Base de datos nombre Red','Resultado es :'.$resultado);
+		$this->runTest("Binario",$resultado, 'Test set Base de datos nombre Red');
 		
 		$resultado=$red->getDescripcion();
-		echo $this->unit->run("Test de Red Binaria",$resultado, 'Test set Base de datos descripcion Red','Resultado es :'.$resultado);
+		$this->runTest("Test de Red Binaria",$resultado, 'Test set Base de datos descripcion Red');
 		
 		$resultado=$red->getFrontal();
-		echo $this->unit->run(2,$resultado, 'Test set Base de datos frontal red','Resultado es :'.$resultado);
+		$this->runTest(2,$resultado, 'Test set Base de datos frontal red');
 		
 		$resultado=$red->getProfundidad();
-		echo $this->unit->run(0,$resultado, 'Test set Base de datos Profundidad red','Resultado es :'.$resultado);
+		$this->runTest(0,$resultado, 'Test set Base de datos Profundidad red');
 		
 		$resultado=$red->getValorPunto();
-		echo $this->unit->run(1,$resultado, 'Test set Base de datos valor_punto red','Resultado es :'.$resultado);
+		$this->runTest(1,$resultado, 'Test set Base de datos valor_punto red');
 		
 		$resultado=$red->getEstatus();
-		echo $this->unit->run('ACT',$resultado, 'Test set Base de datos estatus red','Resultado es :'.$resultado);
+		$this->runTest('ACT',$resultado, 'Test set Base de datos estatus red');
 		
 		$resultado=$red->getPlan();
-		echo $this->unit->run('BIN',$resultado, 'Test set Base de datos plan red','Resultado es :'.$resultado);
+		$this->runTest('BIN',$resultado, 'Test set Base de datos plan red');
 
 	}
 	
@@ -120,28 +120,28 @@ class testSetupRedDeAfiliacionBaseDeDatos extends CI_Controller {
 		$red->setUpRed(300);
 		
 		$resultado=$red->getIdRed();
-		echo $this->unit->run(300,$resultado, 'Test set Base de datos Id Red','Resultado es :'.$resultado);
+		$this->runTest(300,$resultado, 'Test set Base de datos Id Red');
 		
 		$resultado=$red->getNombre();
-		echo $this->unit->run("Binario",$resultado, 'Test set Base de datos nombre Red','Resultado es :'.$resultado);
+		$this->runTest("Binario",$resultado, 'Test set Base de datos nombre Red');
 		
 		$resultado=$red->getDescripcion();
-		echo $this->unit->run("Test de Red Binaria",$resultado, 'Test set Base de datos descripcion Red','Resultado es :'.$resultado);
+		$this->runTest("Test de Red Binaria",$resultado, 'Test set Base de datos descripcion Red');
 		
 		$resultado=$red->getFrontal();
-		echo $this->unit->run(2,$resultado, 'Test set Base de datos frontal red','Resultado es :'.$resultado);
+		$this->runTest(2,$resultado, 'Test set Base de datos frontal red');
 		
 		$resultado=$red->getProfundidad();
-		echo $this->unit->run(0,$resultado, 'Test set Base de datos Profundidad red','Resultado es :'.$resultado);
+		$this->runTest(0,$resultado, 'Test set Base de datos Profundidad red');
 		
 		$resultado=$red->getValorPunto();
-		echo $this->unit->run(1,$resultado, 'Test set Base de datos valor_punto red','Resultado es :'.$resultado);
+		$this->runTest(1,$resultado, 'Test set Base de datos valor_punto red');
 		
 		$resultado=$red->getEstatus();
-		echo $this->unit->run('ACT',$resultado, 'Test set Base de datos estatus red','Resultado es :'.$resultado);
+		$this->runTest('ACT',$resultado, 'Test set Base de datos estatus red');
 		
 		$resultado=$red->getPlan();
-		echo $this->unit->run('BIN',$resultado, 'Test set Base de datos plan red','Resultado es :'.$resultado);
+		$this->runTest('BIN',$resultado, 'Test set Base de datos plan red');
 		
 	}
 

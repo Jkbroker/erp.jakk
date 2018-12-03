@@ -1,9 +1,9 @@
 <?php
-class testSetupRepartidorComisionBono extends CI_Controller {
+require_once APPPATH.'controllers/ctest.php';
+class setupRepartidorComisionBono extends ctest {
 
 	public function __construct() {
-		parent::__construct();
-		$this->load->library('unit_test');
+		parent::__construct(); 
 		$this->load->model('/bo/bonos/repartidor_comision_bono');
 
 
@@ -42,22 +42,22 @@ class testSetupRepartidorComisionBono extends CI_Controller {
 		$repartidorComisionBono->setUpHistorial(900);
 		
 		$resultado=$repartidorComisionBono->getId();
-		echo $this->unit->run(900,$resultado, 'Test Get Repartidor de Bono ID','Resultado es :'.$resultado);
+		$this->runTest(900,$resultado, 'Test Get Repartidor de Bono ID');
 		
 		$resultado=$repartidorComisionBono->getIdBono();
-		echo $this->unit->run(15,$resultado, 'Test Get Repartidor de Bono ID Bono','Resultado es :'.$resultado);
+		$this->runTest(15,$resultado, 'Test Get Repartidor de Bono ID Bono');
 		
 		$resultado=$repartidorComisionBono->getDia();
-		echo $this->unit->run(1,$resultado, 'Test Get Repartidor de Bono Dia','Resultado es :'.$resultado);
+		$this->runTest(1,$resultado, 'Test Get Repartidor de Bono Dia');
 		
 		$resultado=$repartidorComisionBono->getMes();
-		echo $this->unit->run(3,$resultado, 'Test Get Repartidor de Bono Mes','Resultado es :'.$resultado);
+		$this->runTest(3,$resultado, 'Test Get Repartidor de Bono Mes');
 		
 		$resultado=$repartidorComisionBono->getAno();
-		echo $this->unit->run(2016,$resultado, 'Test Get Repartidor de Bono Ano','Resultado es :'.$resultado);
+		$this->runTest(2016,$resultado, 'Test Get Repartidor de Bono Ano');
 		
 		$resultado=$repartidorComisionBono->getFecha();
-		echo $this->unit->run("2013-03-01",$resultado, 'Test Get Repartidor de Bono Fecha','Resultado es :'.$resultado);
+		$this->runTest("2013-03-01",$resultado, 'Test Get Repartidor de Bono Fecha');
 		
 	}
 	
@@ -85,13 +85,13 @@ class testSetupRepartidorComisionBono extends CI_Controller {
 		$repartidorComisionBono->setUpReparticionComision(200);
 
 		$resultado=$repartidorComisionBono->getIdTransaccion();
-		echo $this->unit->run(200,$resultado, 'Test Get Repartidor de Bono ID Transaccion','Resultado es :'.$resultado);
+		$this->runTest(200,$resultado, 'Test Get Repartidor de Bono ID Transaccion');
 		
 		$resultado=$repartidorComisionBono->getIdUsuario();
-		echo $this->unit->run(10000,$resultado, 'Test Get Repartidor de Bono ID Usuario','Resultado es :'.$resultado);
+		$this->runTest(10000,$resultado, 'Test Get Repartidor de Bono ID Usuario');
 		
 		$resultado=$repartidorComisionBono->getValor();
-		echo $this->unit->run(36.5,$resultado, 'Test Get Repartidor de Bono Valor','Resultado es :'.$resultado);
+		$this->runTest(36.5,$resultado, 'Test Get Repartidor de Bono Valor');
 
 		
 		$id_transaccion=201;
@@ -104,13 +104,13 @@ class testSetupRepartidorComisionBono extends CI_Controller {
 		$repartidorComisionBono->setUpReparticionComision(201);
 		
 		$resultado=$repartidorComisionBono->getIdTransaccion();
-		echo $this->unit->run(201,$resultado, 'Test Get Repartidor de Bono ID Transaccion','Resultado es :'.$resultado);
+		$this->runTest(201,$resultado, 'Test Get Repartidor de Bono ID Transaccion');
 		
 		$resultado=$repartidorComisionBono->getIdUsuario();
-		echo $this->unit->run(10001,$resultado, 'Test Get Repartidor de Bono ID Usuario','Resultado es :'.$resultado);
+		$this->runTest(10001,$resultado, 'Test Get Repartidor de Bono ID Usuario');
 		
 		$resultado=$repartidorComisionBono->getValor();
-		echo $this->unit->run(40.96,$resultado, 'Test Get Repartidor de Bono Valor','Resultado es :'.$resultado);
+		$this->runTest(40.96,$resultado, 'Test Get Repartidor de Bono Valor');
 		
 		$id_transaccion=202;
 		$id_usuario=10002;
@@ -122,13 +122,13 @@ class testSetupRepartidorComisionBono extends CI_Controller {
 		$repartidorComisionBono->setUpReparticionComision(202);
 		
 		$resultado=$repartidorComisionBono->getIdTransaccion();
-		echo $this->unit->run(202,$resultado, 'Test Get Repartidor de Bono ID Transaccion','Resultado es :'.$resultado);
+		$this->runTest(202,$resultado, 'Test Get Repartidor de Bono ID Transaccion');
 		
 		$resultado=$repartidorComisionBono->getIdUsuario();
-		echo $this->unit->run(10002,$resultado, 'Test Get Repartidor de Bono ID Usuario','Resultado es :'.$resultado);
+		$this->runTest(10002,$resultado, 'Test Get Repartidor de Bono ID Usuario');
 		
 		$resultado=$repartidorComisionBono->getValor();
-		echo $this->unit->run(0.10,$resultado, 'Test Get Repartidor de Bono Valor','Resultado es :'.$resultado);
+		$this->runTest(0.10,$resultado, 'Test Get Repartidor de Bono Valor');
 		
 		
 	}

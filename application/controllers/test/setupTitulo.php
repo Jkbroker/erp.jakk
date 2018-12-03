@@ -1,9 +1,9 @@
 <?php
-class testSetupTitulo extends CI_Controller {
+require_once APPPATH.'controllers/ctest.php';
+class setupTitulo extends ctest {
 
 	public function __construct() {
 		parent::__construct();
-		$this->load->library('unit_test');
 		$this->load->model('/bo/bonos/activacion_bono');
 		$this->load->model('/bo/bonos/afiliado');
 		$this->load->model('/bo/bonos/bono');
@@ -83,34 +83,34 @@ class testSetupTitulo extends CI_Controller {
 		$titulo->nuevoTitulo($datosTitulo);
 		
 		$resultado=$titulo->getId();
-		echo $this->unit->run(1,$resultado, 'Test retornar id Titulo','Resultado es :'.$resultado);
+		$this->runTest(1,$resultado, 'Test retornar id Titulo');
 
 		$resultado=$titulo->getOrden();
-		echo $this->unit->run(1,$resultado, 'Test retornar orden Titulo','Resultado es :'.$resultado);
+		$this->runTest(1,$resultado, 'Test retornar orden Titulo');
 		
 		$resultado=$titulo->getNombre();
-		echo $this->unit->run('Bronce',$resultado, 'Test retornar nombre Titulo','Resultado es :'.$resultado);
+		$this->runTest('Bronce',$resultado, 'Test retornar nombre Titulo');
 		
 		$resultado=$titulo->getDescripcion();
-		echo $this->unit->run('Titulo Bronce',$resultado, 'Test retornar Descripcion Titulo','Resultado es :'.$resultado);
+		$this->runTest('Titulo Bronce',$resultado, 'Test retornar Descripcion Titulo');
 		
 		$resultado=$titulo->getFrecuencia();
-		echo $this->unit->run('MES',$resultado, 'Test retornar Frecuencia Titulo','Resultado es :'.$resultado);
+		$this->runTest('MES',$resultado, 'Test retornar Frecuencia Titulo');
 		
 		$resultado=$titulo->getTipo();
-		echo $this->unit->run('PUNTOSP',$resultado, 'Test retornar Tipo Titulo','Resultado es :'.$resultado);
+		$this->runTest('PUNTOSP',$resultado, 'Test retornar Tipo Titulo');
 		
 		$resultado=$titulo->getCondicionRedAfiliacion();
-		echo $this->unit->run('EQU',$resultado, 'Test retornar Condicon Red de Afiliacion Titulo','Resultado es :'.$resultado);
+		$this->runTest('EQU',$resultado, 'Test retornar Condicon Red de Afiliacion Titulo');
 		
 		$resultado=$titulo->getPorcentaje();
-		echo $this->unit->run(50,$resultado, 'Test retornar Porcentaje Titulo','Resultado es :'.$resultado);
+		$this->runTest(50,$resultado, 'Test retornar Porcentaje Titulo');
 		
 		$resultado=$titulo->getValor();
-		echo $this->unit->run(1000,$resultado, 'Test retornar Valor Titulo','Resultado es :'.$resultado);
+		$this->runTest(1000,$resultado, 'Test retornar Valor Titulo');
 		
 		$resultado=$titulo->getGanancia();
-		echo $this->unit->run(20,$resultado, 'Test retornar Ganancias Titulo','Resultado es :'.$resultado);
+		$this->runTest(20,$resultado, 'Test retornar Ganancias Titulo');
 	}
 
 	public function testIngresarTitulo(){
@@ -137,34 +137,34 @@ class testSetupTitulo extends CI_Controller {
 		$titulo->setUpTitulo(1);
 	
 		$resultado=$titulo->getId();
-		echo $this->unit->run(1,$resultado, 'Test retornar id Titulo','Resultado es :'.$resultado);
+		$this->runTest(1,$resultado, 'Test retornar id Titulo');
 	
 		$resultado=$titulo->getOrden();
-		echo $this->unit->run(1,$resultado, 'Test retornar orden Titulo','Resultado es :'.$resultado);
+		$this->runTest(1,$resultado, 'Test retornar orden Titulo');
 	
 		$resultado=$titulo->getNombre();
-		echo $this->unit->run('Bronce',$resultado, 'Test retornar nombre Titulo','Resultado es :'.$resultado);
+		$this->runTest('Bronce',$resultado, 'Test retornar nombre Titulo');
 	
 		$resultado=$titulo->getDescripcion();
-		echo $this->unit->run('Titulo Bronce',$resultado, 'Test retornar Descripcion Titulo','Resultado es :'.$resultado);
+		$this->runTest('Titulo Bronce',$resultado, 'Test retornar Descripcion Titulo');
 	
 		$resultado=$titulo->getFrecuencia();
-		echo $this->unit->run('MES',$resultado, 'Test retornar Frecuencia Titulo','Resultado es :'.$resultado);
+		$this->runTest('MES',$resultado, 'Test retornar Frecuencia Titulo');
 	
 		$resultado=$titulo->getTipo();
-		echo $this->unit->run('PUNTOSP',$resultado, 'Test retornar Tipo Titulo','Resultado es :'.$resultado);
+		$this->runTest('PUNTOSP',$resultado, 'Test retornar Tipo Titulo');
 	
 		$resultado=$titulo->getCondicionRedAfiliacion();
-		echo $this->unit->run('EQU',$resultado, 'Test retornar Condicon Red de Afiliacion Titulo','Resultado es :'.$resultado);
+		$this->runTest('EQU',$resultado, 'Test retornar Condicon Red de Afiliacion Titulo');
 	
 		$resultado=$titulo->getPorcentaje();
-		echo $this->unit->run(50,$resultado, 'Test retornar Porcentaje Titulo','Resultado es :'.$resultado);
+		$this->runTest(50,$resultado, 'Test retornar Porcentaje Titulo');
 	
 		$resultado=$titulo->getValor();
-		echo $this->unit->run(1000,$resultado, 'Test retornar Valor Titulo','Resultado es :'.$resultado);
+		$this->runTest(1000,$resultado, 'Test retornar Valor Titulo');
 	
 		$resultado=$titulo->getGanancia();
-		echo $this->unit->run(20,$resultado, 'Test retornar Ganancias Titulo','Resultado es :'.$resultado);
+		$this->runTest(20,$resultado, 'Test retornar Ganancias Titulo');
 	}
 	
 	public function testGetValoresAfiliadoTieneParaTitulo(){
@@ -174,68 +174,68 @@ class testSetupTitulo extends CI_Controller {
 		$id_usuario=10000;$frecuencia="SEM";$fechaActual=date('Y-m-d');
 		$resultado=$titulo->getPuntosPersonalesFrecuencia($id_usuario,$frecuencia,$fechaActual);
 		$esperado=200;
-		echo $this->unit->run($esperado,$resultado, 'Test get Puntos Personales semanalmente '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get Puntos Personales semanalmente '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10017;$frecuencia="SEM";$fechaActual=date('Y-m-d');
 		$resultado=$titulo->getPuntosPersonalesFrecuencia($id_usuario,$frecuencia,$fechaActual);
 		$esperado=35;
-		echo $this->unit->run($esperado,$resultado, 'Test get Puntos Personales semanalmente '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get Puntos Personales semanalmente '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10019;$frecuencia="SEM";$fechaActual=date('Y-m-d');
 		$resultado=$titulo->getPuntosPersonalesFrecuencia($id_usuario,$frecuencia,$fechaActual);
 		$esperado=0;
-		echo $this->unit->run($esperado,$resultado, 'Test get Puntos Personales semanalmente '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get Puntos Personales semanalmente '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		
 		//Compras Personales
 		$id_usuario=10000;$frecuencia="SEM";$fechaActual=date('Y-m-d');
 		$resultado=$titulo->getComprasPersonalesFrecuencia($id_usuario,$frecuencia,$fechaActual);
 		$esperado=278000;
-		echo $this->unit->run($esperado,$resultado, 'Test get Puntos Personales semanalmente '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get Puntos Personales semanalmente '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10017;$frecuencia="SEM";$fechaActual=date('Y-m-d');
 		$resultado=$titulo->getComprasPersonalesFrecuencia($id_usuario,$frecuencia,$fechaActual);
 		$esperado=110000;
-		echo $this->unit->run($esperado,$resultado, 'Test get Puntos Personales semanalmente '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get Puntos Personales semanalmente '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10019;$frecuencia="SEM";$fechaActual=date('Y-m-d');
 		$resultado=$titulo->getComprasPersonalesFrecuencia($id_usuario,$frecuencia,$fechaActual);
 		$esperado=0;
-		echo $this->unit->run($esperado,$resultado, 'Test get Puntos Personales semanalmente '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get Puntos Personales semanalmente '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		
 		//Puntos Red
 		$id_usuario=10000;$frecuencia="SEM";$fechaActual=date('Y-m-d');
 		$resultado=$titulo->getPuntosRedFrecuencia($id_usuario,$frecuencia,"EQU",$fechaActual);
 		$esperado=2928;
-		echo $this->unit->run($esperado,$resultado, 'Test get Puntos Red semanalmente '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get Puntos Red semanalmente '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 
 		$id_usuario=10017;$frecuencia="SEM";$fechaActual=date('Y-m-d');
 		$resultado=$titulo->getPuntosRedFrecuencia($id_usuario,$frecuencia,"EQU",$fechaActual);
 		$esperado=635;
-		echo $this->unit->run($esperado,$resultado, 'Test get Puntos Red semanalmente '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get Puntos Red semanalmente '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10000;$frecuencia="SEM";$fechaActual=date('Y-m-d');
 		$resultado=$titulo->getPuntosRedFrecuencia($id_usuario,$frecuencia,"DEB",$fechaActual);
 		$esperado=34;
-		echo $this->unit->run($esperado,$resultado, 'Test get Puntos Red semanalmente '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get Puntos Red semanalmente '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 	
 		//Compras Red
 		$id_usuario=10000;$frecuencia="SEM";$fechaActual=date('Y-m-d');
 		$resultado=$titulo->getComprasRedFrecuencia($id_usuario,$frecuencia,"EQU",$fechaActual);
 		$esperado=5191000;
-		echo $this->unit->run($esperado,$resultado, 'Test get Compras Red semanalmente '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get Compras Red semanalmente '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10017;$frecuencia="SEM";$fechaActual=date('Y-m-d');
 		$resultado=$titulo->getComprasRedFrecuencia($id_usuario,$frecuencia,"EQU",$fechaActual);
 		$esperado=944000;
-		echo $this->unit->run($esperado,$resultado, 'Test get Compras Red semanalmente '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get Compras Red semanalmente '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10000;$frecuencia="SEM";$fechaActual=date('Y-m-d');
 		$resultado=$titulo->getComprasRedFrecuencia($id_usuario,$frecuencia,"DEB",$fechaActual);
 		$esperado=45000;
-		echo $this->unit->run($esperado,$resultado, 'Test get Compras Red semanalmente '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get Compras Red semanalmente '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		
 	}
@@ -258,57 +258,57 @@ class testSetupTitulo extends CI_Controller {
 		$id_usuario=10000;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$diamante;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10001;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$diamante;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10002;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$ninguno;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10003;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$bronce;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10004;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$ninguno;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10005;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$ninguno;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10006;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$diamante;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10007;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$diamante;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10008;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$ninguno;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10022;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$platino;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10032;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$platino;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		
 		$this->titulo->eliminarTitulo();
@@ -332,57 +332,57 @@ class testSetupTitulo extends CI_Controller {
 		$id_usuario=10000;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$oro;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10001;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$bronce;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10002;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$bronce;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10003;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$ninguno;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10004;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$oro;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10005;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$ninguno;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10006;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$bronce;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10007;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$bronce;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10008;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$bronce;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10022;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$oro;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10032;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$plata;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		
 		$this->titulo->eliminarTitulo();
@@ -406,57 +406,57 @@ class testSetupTitulo extends CI_Controller {
 		$id_usuario=10000;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$diamante;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 	
 		$id_usuario=10001;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$platino;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 	
 		$id_usuario=10002;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$ninguno;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 	
 		$id_usuario=10003;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$plata;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 	
 		$id_usuario=10004;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$ninguno;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 	
 		$id_usuario=10005;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$ninguno;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 	
 		$id_usuario=10006;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$platino;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 	
 		$id_usuario=10007;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$platino;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 	
 		$id_usuario=10008;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$ninguno;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 	
 		$id_usuario=10022;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$oro;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 	
 		$id_usuario=10032;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$oro;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 	
 	
 		$this->titulo->eliminarTitulo();
@@ -480,63 +480,63 @@ class testSetupTitulo extends CI_Controller {
 		$id_usuario=10000;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$oro;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10001;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$plata;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 	
 		$id_usuario=10002;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$plata;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 	
 		$id_usuario=10003;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$bronce;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10004;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$oro;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 	
 		$id_usuario=10005;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$bronce;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 	
 		$id_usuario=10006;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$plata;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10007;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$plata;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 	
 		$id_usuario=10008;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$plata;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10019;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$ninguno;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		
 		$id_usuario=10022;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$oro;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10032;
 		$resultado=$titulo->getTituloAlcanzadoAfiliado($id_usuario,1,$fechaActual);
 		$esperado=$bronce;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		
 		$this->titulo->eliminarTitulo();
@@ -560,57 +560,57 @@ class testSetupTitulo extends CI_Controller {
 		$id_usuario=10000;
 		$resultado=$titulo->getNombreTituloAlcanzadoAfiliado($id_usuario,$fechaActual);
 		$esperado=$diamante;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10001;
 		$resultado=$titulo->getNombreTituloAlcanzadoAfiliado($id_usuario,$fechaActual);
 		$esperado=$diamante;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10002;
 		$resultado=$titulo->getNombreTituloAlcanzadoAfiliado($id_usuario,$fechaActual);
 		$esperado=$ninguno;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10003;
 		$resultado=$titulo->getNombreTituloAlcanzadoAfiliado($id_usuario,$fechaActual);
 		$esperado=$bronce;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10004;
 		$resultado=$titulo->getNombreTituloAlcanzadoAfiliado($id_usuario,$fechaActual);
 		$esperado=$ninguno;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10005;
 		$resultado=$titulo->getNombreTituloAlcanzadoAfiliado($id_usuario,$fechaActual);
 		$esperado=$ninguno;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10006;
 		$resultado=$titulo->getNombreTituloAlcanzadoAfiliado($id_usuario,$fechaActual);
 		$esperado=$diamante;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10007;
 		$resultado=$titulo->getNombreTituloAlcanzadoAfiliado($id_usuario,$fechaActual);
 		$esperado=$diamante;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10008;
 		$resultado=$titulo->getNombreTituloAlcanzadoAfiliado($id_usuario,$fechaActual);
 		$esperado=$ninguno;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10022;
 		$resultado=$titulo->getNombreTituloAlcanzadoAfiliado($id_usuario,$fechaActual);
 		$esperado=$platino;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		$id_usuario=10032;
 		$resultado=$titulo->getNombreTituloAlcanzadoAfiliado($id_usuario,$fechaActual);
 		$esperado=$platino;
-		echo $this->unit->run($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
+		$this->runTest($esperado,$resultado, 'Test get titulo alcanzado por el afiliado '.$id_usuario,'Deberia ser : '.$esperado.'<br>Resultado es :'.$resultado);
 		
 		
 		$this->titulo->eliminarTitulo();

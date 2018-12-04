@@ -141,7 +141,8 @@ function detalles(id)
                                                             if(isset($afiliados[$lados]))
                                                                 $datos = $afiliados[$lados];
 
-                                                            if($datos->lado != $values){
+                                                            $lado = isset($datos->lado) ? $datos->lado : $frontalidad;
+                                                            if ($lado != $values){
                                                                 ?>
                                                                 <li>
                                                                     <a onclick="botbox('Tí',<?= $id ?>,<?= $values ?>)"
@@ -151,7 +152,8 @@ function detalles(id)
                                                                 continue;
                                                             }
 
-                                                            if ($datos->debajo_de != $id)
+                                                            $debajo_de = isset($datos->debajo_de) ? $datos->debajo_de : 0;
+                                                            if ($debajo_de != $id)
                                                                 continue;
 
                                                             $lados++;

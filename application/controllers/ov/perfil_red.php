@@ -755,6 +755,10 @@ class perfil_red extends CI_Controller
 	
 		$id_red          = $_GET['id'];
 		$id              = $this->tank_auth->get_user_id();
+		if(!$id)
+        {																		// logged in
+            redirect('/auth');
+        }
 		$usuario         = $this->model_perfil_red->datos_perfil($id);
 		$telefonos       = $this->model_perfil_red->telefonos($id);
 		$sexo            = $this->model_perfil_red->sexo();

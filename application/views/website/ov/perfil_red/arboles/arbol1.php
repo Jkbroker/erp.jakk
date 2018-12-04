@@ -82,7 +82,8 @@
                                                                             if (isset($afiliadostree[$lados]))
                                                                                 $datos = $afiliadostree[$lados];
 
-                                                                            if ($datos->lado != $values) {
+                                                                            $lado = isset($datos->lado) ? $datos->lado : $frontalidad;
+                                                                            if ($lado != $values) {
                                                                                 ?>
                                                                                 <li>
                                                                                     <a   href='javascript:void(0)'> No hay afiliado</a>
@@ -91,7 +92,8 @@
                                                                                 continue;
                                                                             }
 
-                                                                            if ($datos->debajo_de != $id)
+                                                                            $debajo_de = isset($datos->debajo_de) ? $datos->debajo_de : 0;
+                                                                            if ($debajo_de  != $id)
                                                                                 continue;
 
                                                                             $lados++;
@@ -360,7 +362,7 @@ src="/template/js/plugin/datatable-responsive/datatables.responsive.min.js"></sc
 
 function subred(id, profundidad)
 {
-	$("#t"+id).children(".quitar").attr('onclick','');
+	$("#"+id).children(".quitar").attr('onclick','');
 
 	$.ajax({
 		type: "POST",
@@ -374,6 +376,7 @@ function subred(id, profundidad)
 	.done(function( msg )
 	{
 		$("#"+id).append(msg);
+        $("#"+id).attr("onclick","");
 	});
 }
 

@@ -75,29 +75,48 @@
                                                                      <ul>
                                                                          <?php
                                                                          $aux = 0;
+                                                                             $frontalidad = $frontales[0]->frontal;
+                                                                             $frontales = range(0, $frontalidad - 1);
+                                                                             $lados = 0;
+                                                                             foreach ($frontales as $datos => $values) {
+                                                                                 $datos = false;
+                                                                                  if (isset($afiliados[$lados]))
+                                                                                     $datos = $afiliados[$lados];
 
-                                                                         foreach ($afiliadostree[$id_red] as $key) {
-                                                                             $aux++;
-                                                                             $img = file_exists(getcwd().$key->img) ? $key->img : "/template/img/avatars/male.png";
-                                                                             if ($key->debajo_de == $id) {
+                                                                                 $lado = isset($datos->lado) ? $datos->lado : $frontalidad;
+                                                                                 if ($lado != $values) {
+                                                                                     ?>
+                                                                                     <li>
+                                                                                         <a   href='javascript:void(0)'> No hay afiliado</a>
+                                                                                     </li>
+                                                                                     <?php
+                                                                                     continue;
+                                                                                 }
+
+                                                                                 $debajo_de = isset($datos->debajo_de) ? $datos->debajo_de : 0;
+                                                                                 if ($debajo_de  != $id)
+                                                                                     continue;
+
+                                                                                 $lados++;
+                                                                                 $aux++;
+                                                                                 $img = strlen($datos->img) < 3 ? "/0.png" : $datos->img;
+                                                                                 $img = file_exists(getcwd() . $img) ? $img : "/template/img/avatars/male.png";
+
                                                                                  ?>
-                                                                                 <li id="t<?= $key->id_afiliado ?>">
-                                                                                     <a class="quitar" style="background: url('<?= $img ?>'); background-size: cover; background-position: center;" 
-                                                                                        onclick="subtree(<?= $key->id_afiliado ?>, <?php echo $id_red; ?>)" href="#"></a>
-                                                                                     <div onclick="detalles(<?= $key->id_afiliado ?>)" 
-                                                                                          class="<?= ($key->directo == 0) ? 'todo' : 'todo1' ?>">
-                                                                                                <?= $key->afiliado ?> <?= $key->afiliado_p ?><br />Detalles
+                                                                                 <li id="<?= $datos->id_afiliado ?>">
+                                                                                     <a class="quitar" style="background: url('<?= $img ?>');
+                                                                                             background-size: cover; background-position: center;"
+                                                                                        onclick="subred(<?= $datos->id_afiliado ?>, <?= $id_red; ?>)"
+                                                                                        href="#"></a>
+                                                                                     <div onclick="detalles(<?= $datos->id_afiliado ?>)" 
+                                                                                          class="<?= ($datos->directo == 0) ? 'todo' : 'todo1' ?>">
+                                                                                                <?= $datos->afiliado ?> <?= $datos->afiliado_p ?>
+                                                                                         <br />Detalles
                                                                                      </div>
                                                                                  </li>
                                                                              <?php
-                                                                             }
                                                                          }
-                                                                         for ($i = $aux; $i < $red_frontales[0]->frontal; $i++) {
-                                                                             ?>
-                                                                             <li>
-                                                                                 <a href="#">Sin afiliados</a>
-                                                                                 </li>
-                                                                             <?php } ?>
+                                                                         ?>
                                                                      </ul>
                                                                  </li>
                                                              </ul>
@@ -287,22 +306,27 @@ Thanks :)*/
 		    /* END COLUMN FILTER */
 
           })
-	function subred(id, red)
-	{
-		$("#"+id).children(".quitar").attr('onclick','');
-		$.ajax({
-			type: "POST",
-			url: "/bo/usuarios/subred",
-			data: {
-				id: id,
-				red: red
-			},
-		})
-		.done(function( msg )
-		{
-			$("#"+id).append(msg);
-		});
-	}
+
+
+          function subred(id, profundidad)
+          {
+              $("#"+id).children(".quitar").attr('onclick','');
+
+              $.ajax({
+                  type: "POST",
+                  url: "/ov/perfil_red/get_red_ver",
+                  data: {
+                      id: id,
+                      red: <?php echo $id_red; ?>,
+                      profundidad: profundidad
+                  },
+              })
+                  .done(function( msg )
+                  {
+                      $("#"+id).append(msg);
+                      $("#"+id).attr("onclick","");
+                  });
+          }
 
 	function subtree(id, red)
 	{

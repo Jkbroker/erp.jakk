@@ -94,7 +94,7 @@ class model_perfil_red extends CI_Model
 		return $q->result();
 	}
 	
-	function get_sponsor_id($id,$id_red)
+	function get_sponsor_id($id,$id_red = 1)
 	{
 		$q=$this->db->query('SELECT directo FROM afiliar where id_afiliado='.$id.' and id_red='.$id_red);
 		return $q->result();

@@ -112,7 +112,10 @@ class bono extends CI_Model
 	public function setDatosBono($id_bono){
 		$q=$this->db->query("SELECT id,nombre,descripcion,plan FROM bono where id=".$id_bono);
 		$datosBono=$q->result();
-		
+
+		if(!$datosBono)
+		    return false;
+
 		$this->setId(intval($datosBono[0]->id));
 		$this->setNombre($datosBono[0]->nombre);
 		$this->setDescripcion($datosBono[0]->descripcion);
@@ -223,7 +226,10 @@ class bono extends CI_Model
 	public function setDatosActivacionBono($id_bono){
 		$q=$this->db->query("SELECT id,inicio,fin,mes_desde_afiliacion,mes_desde_activacion,frecuencia,estatus FROM bono where id=".$id_bono);
 		$datosActivacionBono=$q->result();
-		
+
+		if(!$datosActivacionBono)
+		    return false;
+
 		foreach ($datosActivacionBono as $activacionBono){
 			$activacion=new $this->activacion_bono();
 			$activacion->setIdBono(intval($activacionBono->id));

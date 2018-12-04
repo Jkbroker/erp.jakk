@@ -108,11 +108,11 @@
                                         <!-- end widget content -->
                                         </div>
                                         <!-- end widget div -->
-                                   </div>
-                                   <!-- end widget -->
                               </article>
-                              <!-- WIDGET END -->
+                             <!-- WIDGET END -->
                          </div>
+                                   <!-- end widget -->
+
                          <!-- end row -->
                          <!-- row -->
                          <div class="row">         
@@ -127,8 +127,6 @@
                     <!-- end widget grid -->
                </div>
                <!-- END MAIN CONTENT -->
-          </div>
-          <!-- PAGE RELATED PLUGIN(S) -->
 <style type="text/css">
 	/*Now the CSS*/
 * {margin: 0; padding: 0;}

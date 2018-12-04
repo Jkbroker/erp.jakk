@@ -4284,7 +4284,7 @@ function index()
 		$UNILEVEL='UNI';	
 		
 		$mercancias = $this->modelo_compras->consultarMercanciaTotalVenta($id_venta);
-	
+        $this->calcularComisionDirecta($id_venta,$mercancias,$id_afiliado_comprador);
 		foreach ($mercancias as $mercancia){
 				
 			$id_red_mercancia = $this->modelo_compras->ObtenerCategoriaMercancia($mercancia->id);
@@ -4300,7 +4300,40 @@ function index()
 			
 		}
 	}
-	
+
+    function calcularComisionDirecta($id_venta,$mercancia,$id)
+    {
+        $comision = $this->jakkbonos->getBonoValorNiveles(1);
+        $item= $mercancia[0]->id;
+        $tipo = $mercancia[0]->id_tipo_mercancia;
+
+        if($tipo != 2)
+            return false;
+
+        $profundidadRed=1;
+        for ($i = 0; $i < $profundidadRed; $i ++) {
+            $valor = $mercancia[0]->puntos_comisionables;
+            log_message('DEV',"comision ($id)[$item] compra : $valor");
+            $idx = $i+1;
+            $comision = isset($comision[$idx]) ? $comision[$idx]->valor : $comision[1]->valor;
+            $valor *=  $comision/100;
+
+            $directo = $this->model_perfil_red->get_sponsor_id($id);
+
+            if (! $directo || $directo[0]->directo == 1)
+                return false;
+
+            $id_directo = $directo[0]->directo;
+
+            log_message('DEV',"--> $id_directo [".($i+1)."] : $comision -> $valor");
+
+            $this->modelo_compras->set_comision_afiliado($id_venta, 1, $id_directo, $valor);
+
+            $id = $id_directo;
+        }
+
+    }
+
 	public function calcularComisionAfiliado($id_venta,$id_red_mercancia,$costoVenta,$id_afiliado){
 	
 		$valor_comision_por_nivel = $this->modelo_compras->ValorComision($id_red_mercancia);

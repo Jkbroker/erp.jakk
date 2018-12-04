@@ -60,7 +60,7 @@
 						<fieldset>
 							<legend>Datos personales del afiliado</legend>
                             <input required type="hidden" id="id" name="afiliados" value="<?=$id;?>">
-                            <input id="lado" required type="hidden" name="lado" value="<?=$lado;?>">
+                            <input id="lado" required type="hidden" name="lado" value="<?=$lado+1;?>">
 							<div class="row">
 								<section class="col col-6">
 									<label class="input"><i class="icon-prepend fa fa-user"></i>
@@ -101,7 +101,7 @@
 								</div>
 								<div id="" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 								<section class="col col-12">
-									<button type="button" onclick="agregar_red(1)" class="btn btn-primary">&nbsp;Agregar <i class="fa fa-mobile"></i>&nbsp;</button>&nbsp;'
+									<button type="button" onclick="agregar_red(1)" class="btn btn-primary">&nbsp;Agregar <i class="fa fa-mobile"></i>&nbsp;</button>&nbsp;
 									<button type="button" onclick="agregar_red(2)" class="btn btn-primary">&nbsp;Agregar <i class="fa fa-phone"></i>&nbsp;</button>
 								</section>
 								</div>
@@ -140,7 +140,7 @@
 						<fieldset>
 							<legend>Dirección del afiliado</legend>
 							<div id="dir_red" class="row">
-								<section class="col col-6">País'
+								<section class="col col-6">País
 									<label class="select">
 										<select id="pais_red" required name="pais"><?foreach ($pais as $key){?>
 											<option value="<?=$key->Code?>"><?=$key->Name?></option><?}?>
@@ -149,31 +149,31 @@
 								</section>
 								<section id="municipio" class="col col-6">
 									<label class="input">
-									Ciudad - Estado'
+									Ciudad - Estado
 										<input type="text" name="estado" >
 									</label>
 								</section>
 								<section id="municipio_red" class="col col-6">
-									<label class="input">Delegación o Municipio'
+									<label class="input">Delegación o Municipio
 									<input type="text" name="municipio" >
 									</label>
 								</section>
 
 								<section id="colonia_red" class="col col-6">
-									<label class="input">Colonia'
+									<label class="input">Colonia
 									<input type="text" name="colonia" >
 									</label>
 								</section>
 
 								<section class="col col-6">
-									<label class="input">Dirección de domicilio'
+									<label class="input">Dirección de domicilio
 									<input required type="text" name="calle">
-									(Calle,No. Exterior,No. Interior)'
+									(Calle,No. Exterior,No. Interior)
 									</label>
 								</section>
 								
 								<section class="col col-6">
-									<label class="input">Código postal'
+									<label class="input">Código postal
 										<input required type="text" id="cp_red" name="cp">
 									</label>
 								</section>
@@ -183,35 +183,35 @@
 						<fieldset>
 							<legend>Estadistica</legend>
 							<div class="row">
-								<section class="col col-6">Estado civil'
+								<section class="col col-6">Estado civil
 									<label class="select">
 									<select name="civil"><?foreach ($civil as $key){?>
 									<option value="<?=$key->id_edo_civil?>"><?=$key->descripcion?></option><?}?>
 									</select>
 									</label>
 								</section>
-								<section class="col col-6">Género&nbsp;'
+								<section class="col col-6">Género&nbsp;
 									<div class="inline-group"><?foreach ($sexo as $value){?>
 									<label class="radio">
 									<input <?=($value->id_sexo==1) ? "checked" : " " ?> type="radio" value="<?=$value->id_sexo?>" name="sexo" placeholder="sexo"><i></i><?=$value->descripcion?>
 									</label><?}?>
 									</div>
 								</section>
-								<section class="col col-12">Estudio&nbsp;'
+								<section class="col col-12">Estudio&nbsp;
 									<div class="inline-group"><?foreach ($estudios as $value){?>
 									<label class="radio">
 									<input <?=($value->id_estudio==1) ? "checked" : " " ?> type="radio" value="<?=$value->id_estudio?>" name="estudios"><i></i><?=$value->descripcion?>
 									</label><?}?>
 									</div>
 								</section>
-								<section class="col col-6">Ocupación&nbsp;'
+								<section class="col col-6">Ocupación&nbsp;
 									<div class="inline-group"><?foreach ($ocupacion as $value){?>
 									<label class="radio">
 									<input <?=($value->id_ocupacion==1) ? "checked" : " " ?> type="radio" value="<?=$value->id_ocupacion?>" name="ocupacion"><i></i><?=$value->descripcion?>
 									</label><?}?>
 									</div>
 								</section>
-								<section class="col col-6">Tiempo dedicado&nbsp;'
+								<section class="col col-6">Tiempo dedicado&nbsp;
 									<div class="inline-group"><?foreach ($tiempo_dedicado as $value){?>
 									<label class="radio">
 									<input <?=($value->id_tiempo_dedicado==1) ? "checked" : " " ?> type="radio" value="<?=$value->id_tiempo_dedicado?>" name="tiempo_dedicado"><i></i><?=$value->descripcion?>

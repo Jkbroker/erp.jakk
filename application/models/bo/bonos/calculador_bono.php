@@ -247,8 +247,9 @@ class calculador_bono extends CI_Model
 	    if($nivel==0){
 			if($this->usuarioPuedeRecibirBono($id_bono, $id_usuario, $fecha)){
 				$repartidorComisionBono=new $this->repartidor_comision_bono();
-				$valorTotal=(($this->valorCondicion*$valor)/100);
-				$repartidorComisionBono->repartirComisionBono($repartidorComisionBono->getIdTransaccionPagoBono(),$id_usuario,$id_bono,$id_bono_historial,$valorTotal);
+                $valorTotal=$this->valorCondicion;
+                log_message('DEV',"repartirComisionesPorcentaje : $id_usuario | $valorTotal");
+                $repartidorComisionBono->repartirComisionBono($repartidorComisionBono->getIdTransaccionPagoBono(),$id_usuario,$id_bono,$id_bono_historial,$valorTotal);
 			}
 		}else {
 
@@ -264,8 +265,11 @@ class calculador_bono extends CI_Model
 	    
 	    if($nivel==0){
 			if($this->usuarioPuedeRecibirBono($id_bono, $id_usuario, $fecha)){
-				$repartidorComisionBono=new $this->repartidor_comision_bono();
-				$repartidorComisionBono->repartirComisionBono($repartidorComisionBono->getIdTransaccionPagoBono(),$id_usuario,$id_bono,$id_bono_historial,$valor);
+
+                $repartidorComisionBono=new $this->repartidor_comision_bono();
+                $valor=$this->valorCondicion;
+                log_message('DEV',"repartirComisionesCosto : $id_usuario | $valor");
+                $repartidorComisionBono->repartirComisionBono($repartidorComisionBono->getIdTransaccionPagoBono(),$id_usuario,$id_bono,$id_bono_historial,$valor);
 			}
 		}else {
 			$this->repartirComisionesBonoEnLaRed ( $id_bono,$id_bono_historial,$id_usuario,$red,$nivel,$valor,$condicion_red,$verticalidad);
@@ -464,6 +468,8 @@ class calculador_bono extends CI_Model
 			return $this->getInicioAno($fechaActual);
 		else if($frecuencia=="UNI")
 			return "2016-01-01";
+
+		return $fechaActual;
 	}
 	
 	public function getFechaFinPagoDeBono($frecuencia,$fechaActual){
@@ -477,6 +483,8 @@ class calculador_bono extends CI_Model
 			return $this->getFinAno($fechaActual);
 		else if($frecuencia=="UNI")
 			return "2090-01-01";
+
+		return $fechaActual;
 	}
 	
 	private function getValorCondicionUsuario($id_bono,$esUnPlanBinario,$tipoDeCondicion,$id_usuario,$red,$tipoDeAfiliados,$tipoDeBusquedaEnLaRed,$profundidadRed,$fechaInicio,$fechaFin,$condicion1,$condicion2) {

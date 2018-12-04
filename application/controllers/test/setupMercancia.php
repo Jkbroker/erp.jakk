@@ -1,10 +1,10 @@
-<?php
-class testSetupMercanciaBaseDeDatos extends CI_Controller {
+<?php 
+require_once APPPATH.'controllers/ctest.php';
+class setupMercancia extends ctest {
 
 
 	public function __construct() {
 		parent::__construct();
-		$this->load->library('unit_test');
 		$this->load->model('/bo/bonos/mercancia');
 
 	}
@@ -56,16 +56,16 @@ class testSetupMercanciaBaseDeDatos extends CI_Controller {
 		$mercancia=$this->mercancia;
 		
 		$resultado=$mercancia->getIdMercancia();
-		echo $this->unit->run(500,$resultado, 'Test set Base de datos Id Mercancia','Resultado es :'.$resultado);
+		$this->runTest(500,$resultado, 'Test set Base de datos Id Mercancia');
 
 		$resultado=$mercancia->getIdTipoMercancia();
-		echo $this->unit->run(2,$resultado, 'Test set Base de datos Id Tipo Mercancia','Resultado es :'.$resultado);
+		$this->runTest(2,$resultado, 'Test set Base de datos Id Tipo Mercancia');
 		
 		$resultado=$mercancia->getCosto();
-		echo $this->unit->run(150,$resultado, 'Test set Base de datos Costo','Resultado es :'.$resultado);
+		$this->runTest(150,$resultado, 'Test set Base de datos Costo');
 		
 		$resultado=$mercancia->getPuntosComisionables();
-		echo $this->unit->run(100,$resultado, 'Test set Base de datos Puntos Comisionables','Resultado es :'.$resultado);
+		$this->runTest(100,$resultado, 'Test set Base de datos Puntos Comisionables');
 		
 	}
 	
@@ -75,29 +75,29 @@ class testSetupMercanciaBaseDeDatos extends CI_Controller {
 		$mercancia->setUpMercancia(500);
 		
 		$resultado=$mercancia->getIdMercancia();
-		echo $this->unit->run(500,$resultado, 'Test set Base de datos Id Mercancia','Resultado es :'.$resultado);
+		$this->runTest(500,$resultado, 'Test set Base de datos Id Mercancia');
 
 		$resultado=$mercancia->getSku();
-		echo $this->unit->run(500,$resultado, 'Test set Base de datos sku','Resultado es :'.$resultado);
+		$this->runTest(500,$resultado, 'Test set Base de datos sku');
 		
 		
 		$resultado=$mercancia->getIdTipoMercancia();
-		echo $this->unit->run(2,$resultado, 'Test set Base de datos Id Tipo Mercancia','Resultado es :'.$resultado);
+		$this->runTest(2,$resultado, 'Test set Base de datos Id Tipo Mercancia');
 		
 		$resultado=$mercancia->getCosto();
-		echo $this->unit->run(150,$resultado, 'Test set Base de datos Costo','Resultado es :'.$resultado);
+		$this->runTest(150,$resultado, 'Test set Base de datos Costo');
 		
 		$resultado=$mercancia->getPuntosComisionables();
-		echo $this->unit->run(100,$resultado, 'Test set Base de datos Puntos Comisionables','Resultado es :'.$resultado);
+		$this->runTest(100,$resultado, 'Test set Base de datos Puntos Comisionables');
 		
 		$resultado=$mercancia->getPuntosComisionables();
-		echo $this->unit->run(100,$resultado, 'Test set Base de datos Puntos Comisionables','Resultado es :'.$resultado);
+		$this->runTest(100,$resultado, 'Test set Base de datos Puntos Comisionables');
 		
 		$resultado=$mercancia->getIdRed();
-		echo $this->unit->run(300,$resultado, 'Test set Base de datos Puntos id red','Resultado es :'.$resultado);
+		$this->runTest(300,$resultado, 'Test set Base de datos Puntos id red');
 		
 		$resultado=$mercancia->getIdCategoria();
-		echo $this->unit->run(250,$resultado, 'Test set Base de datos Puntos id categoria','Resultado es :'.$resultado);
+		$this->runTest(250,$resultado, 'Test set Base de datos Puntos id categoria');
 		
 		
 	}
@@ -131,29 +131,29 @@ class testSetupMercanciaBaseDeDatos extends CI_Controller {
 		$mercancia->setUpMercancia(500);
 		
 		$resultado=$mercancia->getIdMercancia();
-		echo $this->unit->run(500,$resultado, 'Test set Base de datos Id Mercancia','Resultado es :'.$resultado);
+		$this->runTest(500,$resultado, 'Test set Base de datos Id Mercancia');
 		
 		$resultado=$mercancia->getSku();
-		echo $this->unit->run(500,$resultado, 'Test set Base de datos sku','Resultado es :'.$resultado);
+		$this->runTest(500,$resultado, 'Test set Base de datos sku');
 		
 		
 		$resultado=$mercancia->getIdTipoMercancia();
-		echo $this->unit->run(1,$resultado, 'Test set Base de datos Id Tipo Mercancia','Resultado es :'.$resultado);
+		$this->runTest(1,$resultado, 'Test set Base de datos Id Tipo Mercancia');
 		
 		$resultado=$mercancia->getCosto();
-		echo $this->unit->run(150,$resultado, 'Test set Base de datos Costo','Resultado es :'.$resultado);
+		$this->runTest(150,$resultado, 'Test set Base de datos Costo');
 		
 		$resultado=$mercancia->getPuntosComisionables();
-		echo $this->unit->run(100,$resultado, 'Test set Base de datos Puntos Comisionables','Resultado es :'.$resultado);
+		$this->runTest(100,$resultado, 'Test set Base de datos Puntos Comisionables');
 		
 		$resultado=$mercancia->getPuntosComisionables();
-		echo $this->unit->run(100,$resultado, 'Test set Base de datos Puntos Comisionables','Resultado es :'.$resultado);
+		$this->runTest(100,$resultado, 'Test set Base de datos Puntos Comisionables');
 		
 		$resultado=$mercancia->getIdRed();
-		echo $this->unit->run(300,$resultado, 'Test set Base de datos Puntos id red','Resultado es :'.$resultado);
+		$this->runTest(300,$resultado, 'Test set Base de datos Puntos id red');
 		
 		$resultado=$mercancia->getIdCategoria();
-		echo $this->unit->run(250,$resultado, 'Test set Base de datos Puntos id categoria','Resultado es :'.$resultado);
+		$this->runTest(250,$resultado, 'Test set Base de datos Puntos id categoria');
 		
 	}
 	
@@ -186,29 +186,29 @@ class testSetupMercanciaBaseDeDatos extends CI_Controller {
 		$mercancia->setUpMercancia(500);
 	
 		$resultado=$mercancia->getIdMercancia();
-		echo $this->unit->run(500,$resultado, 'Test set Base de datos Id Mercancia','Resultado es :'.$resultado);
+		$this->runTest(500,$resultado, 'Test set Base de datos Id Mercancia');
 	
 		$resultado=$mercancia->getSku();
-		echo $this->unit->run(500,$resultado, 'Test set Base de datos sku','Resultado es :'.$resultado);
+		$this->runTest(500,$resultado, 'Test set Base de datos sku');
 	
 	
 		$resultado=$mercancia->getIdTipoMercancia();
-		echo $this->unit->run(3,$resultado, 'Test set Base de datos Id Tipo Mercancia','Resultado es :'.$resultado);
+		$this->runTest(3,$resultado, 'Test set Base de datos Id Tipo Mercancia');
 	
 		$resultado=$mercancia->getCosto();
-		echo $this->unit->run(150,$resultado, 'Test set Base de datos Costo','Resultado es :'.$resultado);
+		$this->runTest(150,$resultado, 'Test set Base de datos Costo');
 	
 		$resultado=$mercancia->getPuntosComisionables();
-		echo $this->unit->run(100,$resultado, 'Test set Base de datos Puntos Comisionables','Resultado es :'.$resultado);
+		$this->runTest(100,$resultado, 'Test set Base de datos Puntos Comisionables');
 	
 		$resultado=$mercancia->getPuntosComisionables();
-		echo $this->unit->run(100,$resultado, 'Test set Base de datos Puntos Comisionables','Resultado es :'.$resultado);
+		$this->runTest(100,$resultado, 'Test set Base de datos Puntos Comisionables');
 	
 		$resultado=$mercancia->getIdRed();
-		echo $this->unit->run(300,$resultado, 'Test set Base de datos Puntos id red','Resultado es :'.$resultado);
+		$this->runTest(300,$resultado, 'Test set Base de datos Puntos id red');
 	
 		$resultado=$mercancia->getIdCategoria();
-		echo $this->unit->run(250,$resultado, 'Test set Base de datos Puntos id categoria','Resultado es :'.$resultado);
+		$this->runTest(250,$resultado, 'Test set Base de datos Puntos id categoria');
 	
 	}
 
@@ -241,29 +241,29 @@ class testSetupMercanciaBaseDeDatos extends CI_Controller {
 		$mercancia->setUpMercancia(500);
 	
 		$resultado=$mercancia->getIdMercancia();
-		echo $this->unit->run(500,$resultado, 'Test set Base de datos Id Mercancia','Resultado es :'.$resultado);
+		$this->runTest(500,$resultado, 'Test set Base de datos Id Mercancia');
 	
 		$resultado=$mercancia->getSku();
-		echo $this->unit->run(500,$resultado, 'Test set Base de datos sku','Resultado es :'.$resultado);
+		$this->runTest(500,$resultado, 'Test set Base de datos sku');
 	
 	
 		$resultado=$mercancia->getIdTipoMercancia();
-		echo $this->unit->run(4,$resultado, 'Test set Base de datos Id Tipo Mercancia','Resultado es :'.$resultado);
+		$this->runTest(4,$resultado, 'Test set Base de datos Id Tipo Mercancia');
 	
 		$resultado=$mercancia->getCosto();
-		echo $this->unit->run(150,$resultado, 'Test set Base de datos Costo','Resultado es :'.$resultado);
+		$this->runTest(150,$resultado, 'Test set Base de datos Costo');
 	
 		$resultado=$mercancia->getPuntosComisionables();
-		echo $this->unit->run(100,$resultado, 'Test set Base de datos Puntos Comisionables','Resultado es :'.$resultado);
+		$this->runTest(100,$resultado, 'Test set Base de datos Puntos Comisionables');
 	
 		$resultado=$mercancia->getPuntosComisionables();
-		echo $this->unit->run(100,$resultado, 'Test set Base de datos Puntos Comisionables','Resultado es :'.$resultado);
+		$this->runTest(100,$resultado, 'Test set Base de datos Puntos Comisionables');
 	
 		$resultado=$mercancia->getIdRed();
-		echo $this->unit->run(300,$resultado, 'Test set Base de datos Puntos id red','Resultado es :'.$resultado);
+		$this->runTest(300,$resultado, 'Test set Base de datos Puntos id red');
 	
 		$resultado=$mercancia->getIdCategoria();
-		echo $this->unit->run(250,$resultado, 'Test set Base de datos Puntos id categoria','Resultado es :'.$resultado);
+		$this->runTest(250,$resultado, 'Test set Base de datos Puntos id categoria');
 	
 	}
 	
@@ -296,29 +296,29 @@ class testSetupMercanciaBaseDeDatos extends CI_Controller {
 		$mercancia->setUpMercancia(500);
 	
 		$resultado=$mercancia->getIdMercancia();
-		echo $this->unit->run(500,$resultado, 'Test set Base de datos Id Mercancia','Resultado es :'.$resultado);
+		$this->runTest(500,$resultado, 'Test set Base de datos Id Mercancia');
 	
 		$resultado=$mercancia->getSku();
-		echo $this->unit->run(500,$resultado, 'Test set Base de datos sku','Resultado es :'.$resultado);
+		$this->runTest(500,$resultado, 'Test set Base de datos sku');
 	
 	
 		$resultado=$mercancia->getIdTipoMercancia();
-		echo $this->unit->run(5,$resultado, 'Test set Base de datos Id Tipo Mercancia','Resultado es :'.$resultado);
+		$this->runTest(5,$resultado, 'Test set Base de datos Id Tipo Mercancia');
 	
 		$resultado=$mercancia->getCosto();
-		echo $this->unit->run(150,$resultado, 'Test set Base de datos Costo','Resultado es :'.$resultado);
+		$this->runTest(150,$resultado, 'Test set Base de datos Costo');
 	
 		$resultado=$mercancia->getPuntosComisionables();
-		echo $this->unit->run(100,$resultado, 'Test set Base de datos Puntos Comisionables','Resultado es :'.$resultado);
+		$this->runTest(100,$resultado, 'Test set Base de datos Puntos Comisionables');
 	
 		$resultado=$mercancia->getPuntosComisionables();
-		echo $this->unit->run(100,$resultado, 'Test set Base de datos Puntos Comisionables','Resultado es :'.$resultado);
+		$this->runTest(100,$resultado, 'Test set Base de datos Puntos Comisionables');
 	
 		$resultado=$mercancia->getIdRed();
-		echo $this->unit->run(300,$resultado, 'Test set Base de datos Puntos id red','Resultado es :'.$resultado);
+		$this->runTest(300,$resultado, 'Test set Base de datos Puntos id red');
 	
 		$resultado=$mercancia->getIdCategoria();
-		echo $this->unit->run(250,$resultado, 'Test set Base de datos Puntos id categoria','Resultado es :'.$resultado);
+		$this->runTest(250,$resultado, 'Test set Base de datos Puntos id categoria');
 	
 	}
 }

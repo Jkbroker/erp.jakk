@@ -1,13 +1,12 @@
 <?php
-
-class testActivacionBono extends CI_Controller
+require_once APPPATH.'controllers/ctest.php';
+class activacionBono extends ctest
 {
     private $counter = 0;
 
     public function __construct()
     {
         parent::__construct();
-        $this->load->library('unit_test');
         $this->load->model('/bo/bonos/modelo_bono');
         $this->load->model('/bo/bonos/bono');
         $this->load->model('/bo/bonos/calculador_bono');
@@ -163,13 +162,13 @@ class testActivacionBono extends CI_Controller
         $bono->getActivacionBono()->setFin(date('Y-m-d'));
 
         $resultado = $this->calculador_bono->isVigente($bono);
-        echo $this->unit->run(true, $resultado, '¿estado Vigente fecha de Inicio 1 dia antes Fin mismo dia', 'Resultado es :' . $resultado);
+        $this->runTest(true, $resultado, '¿estado Vigente fecha de Inicio 1 dia antes Fin mismo dia');
 
         $bono->getActivacionBono()->setInicio(date('Y-m-d'));
         $bono->getActivacionBono()->setFin(date('Y-m-d', strtotime(date('Y-m-d') . ' + 1 days')));
 
         $resultado = $this->calculador_bono->isVigente($bono);
-        echo $this->unit->run(true, $resultado, '¿estado Vigente fecha de Inicio mismo dia fin 1 dias mas', 'Resultado es :' . $resultado);
+        $this->runTest(true, $resultado, '¿estado Vigente fecha de Inicio mismo dia fin 1 dias mas');
 
     }
 
@@ -181,35 +180,35 @@ class testActivacionBono extends CI_Controller
         $bono->getActivacionBono()->setFin('2100-01-01');
 
         $resultado = $this->calculador_bono->isVigente($bono);
-        echo $this->unit->run(false, $resultado, '¿estado Vigente', 'Resultado es :' . $resultado);
+        $this->runTest(false, $resultado, '¿estado Vigente');
 
         $bono->getActivacionBono()->setInicio(date('Y-m-d', strtotime(date('Y-m-d') . ' - 1 days')));
         $bono->getActivacionBono()->setFin(date('Y-m-d', strtotime(date('Y-m-d') . ' - 1 days')));
 
         $resultado = $this->calculador_bono->isVigente($bono);
-        echo $this->unit->run(false, $resultado, '¿estado No Vigente fecha de Inicio y fin igual ', 'Resultado es :' . $resultado);
+        $this->runTest(false, $resultado, '¿estado No Vigente fecha de Inicio y fin igual ');
 
         $bono->getActivacionBono()->setInicio(date('Y-m-d', strtotime(date('Y-m-d') . ' - 10 days')));
         $bono->getActivacionBono()->setFin(date('Y-m-d', strtotime(date('Y-m-d') . ' - 1 days')));
 
         $resultado = $this->calculador_bono->isVigente($bono);
-        echo $this->unit->run(false, $resultado, '¿estado No Vigente por 1 dia de fin', 'Resultado es :' . $resultado);
+        $this->runTest(false, $resultado, '¿estado No Vigente por 1 dia de fin');
 
         $bono->getActivacionBono()->setInicio(date('Y-m-d', strtotime(date('Y-m-d') . ' + 1 days')));
         $bono->getActivacionBono()->setFin(date('Y-m-d', strtotime(date('Y-m-d') . ' + 10 days')));
 
         $resultado = $this->calculador_bono->isVigente($bono);
-        echo $this->unit->run(false, $resultado, '¿estado No Vigente falta 1 dia de inicio', 'Resultado es :' . $resultado);
+        $this->runTest(false, $resultado, '¿estado No Vigente falta 1 dia de inicio');
 
         /*	
             $resultado=$this->calculador_bono->isVigente($bono);
-            echo $this->unit->run(true,$resultado, '¿estado Vigente fecha de Inicio 1 dia antes Fin mismo dia','Resultado es :'.$resultado);
+            $this->runTest(true,$resultado, '¿estado Vigente fecha de Inicio 1 dia antes Fin mismo dia','Resultado es :'.$resultado);
                 
             $bono->getActivacionBono()->setInicio(date('Y-m-d'));
             $bono->getActivacionBono()->setFin(date('Y-m-d', strtotime(date('Y-m-d'). ' + 1 days')));
             
             $resultado=$this->calculador_bono->isVigente($bono);
-            echo $this->unit->run(true,$resultado, '¿estado Vigente fecha de Inicio mismo dia fin 1 dias mas','Resultado es :'.$resultado);
+            $this->runTest(true,$resultado, '¿estado Vigente fecha de Inicio mismo dia fin 1 dias mas','Resultado es :'.$resultado);
             */
     }
 
@@ -219,7 +218,7 @@ class testActivacionBono extends CI_Controller
         $bono->setUpBono(50);
 
         $resultado = $this->calculador_bono->isDisponibleCobrar($bono);
-        echo $this->unit->run(true, $resultado, '¿si esta disponble para cobrar', 'Resultado es :' . $resultado);
+        $this->runTest(true, $resultado, '¿si esta disponble para cobrar');
 
     }
 
@@ -229,31 +228,22 @@ class testActivacionBono extends CI_Controller
         $bono->setUpBono(50);
 
         $resultado = $this->calculador_bono->isDisponibleCobrar($bono);;
-        echo $this->unit->run(true, $resultado, '¿si no esta disponble para cobrar', 'Resultado es :' . $resultado);
+        $this->runTest(true, $resultado, '¿si no esta disponble para cobrar');
 
         $bono->getActivacionBono()->setInicio('2099-01-01');
         $bono->getActivacionBono()->setFin('2100-01-01');
 
         $resultado = $this->calculador_bono->isDisponibleCobrar($bono);
-        echo $this->unit->run(false, $resultado, '¿no esta disponble para cobrar estado fecha todavia no es la fecha', 'Resultado es :' . $resultado);
+        $this->runTest(false, $resultado, '¿no esta disponble para cobrar estado fecha todavia no es la fecha');
 
         $bono = new $this->bono ();
         $bono->setUpBono(50);
         $bono->getActivacionBono()->setEstado('DES');
 
         $resultado = $this->calculador_bono->isDisponibleCobrar($bono);
-        echo $this->unit->run(false, $resultado, '¿no esta disponble para cobrar estado Desactivado', 'Resultado es :' . $resultado);
+        $this->runTest(false, $resultado, '¿no esta disponble para cobrar estado Desactivado');
 
     } 
     
-    private function runTest($assert,$excepted = false, $title = false)
-    {
-        if(!$title){
-            $this->counter++;
-            $title = "#".$this->counter;
-        }
-            
-        $run = $this->unit->run($excepted, $assert, "TEST: ".$title, "RESULTADO ES : ".$assert);
-        echo $run;
-    }
+
 }

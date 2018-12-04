@@ -316,13 +316,13 @@ class CI_Unit_test {
 	 */
 	function _default_template()
 	{
-		$this->_template = "\n".'<table style="width:100%; font-size:small; margin:10px 0; border-collapse:collapse; border:1px solid #CCC;">';
+		$this->_template = "\n".'<table style="width:auto;font-family: Verdana; margin: 2em; font-size:medium;  border-collapse:collapse; border:1px solid #CCC;">';
 		$this->_template .= '{rows}';
 		$this->_template .= "\n".'</table>';
 
 		$this->_template_rows = "\n\t".'<tr>';
-		$this->_template_rows .= "\n\t\t".'<th style="text-align: left; border-bottom:1px solid #CCC;">{item}</th>';
-		$this->_template_rows .= "\n\t\t".'<td style="border-bottom:1px solid #CCC;">{result}</td>';
+		$this->_template_rows .= "\n\t\t".'<th style="text-align: left; padding:0.4em 2em 0.4em 0.4em; border-bottom:1px solid #CCC;">{item}</th>';
+		$this->_template_rows .= "\n\t\t".'<td style=" padding:0.4em 2em 0.4em 0; border-bottom:1px solid #CCC;">{result}</td>';
 		$this->_template_rows .= "\n\t".'</tr>';
 	}
 

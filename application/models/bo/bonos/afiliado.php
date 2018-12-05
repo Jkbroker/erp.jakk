@@ -765,9 +765,12 @@ class afiliado extends CI_Model
 			return $this->getVentasTodaLaRedEquilibrada( $id_afiliado, $red,$tipo,$nivel,$fechaInicio,$fechaFin,$limite,$id_tipo_mercancia,$id_mercancia,$datoVenta);
 
 		}else if($condicionRed=="DEB") {
-			return $this->getVentasTodaLaRedPataDebil($id_afiliado, $red,$tipo,$nivel,$fechaInicio,$fechaFin,$id_tipo_mercancia,$id_mercancia,$datoVenta)["total"];
+            $ventasTodaLaRedPataDebil = $this->getVentasTodaLaRedPataDebil($id_afiliado, $red, $tipo, $nivel, $fechaInicio, $fechaFin, $id_tipo_mercancia, $id_mercancia, $datoVenta);
+            return $ventasTodaLaRedPataDebil["total"];
 
 		}
+
+		return false;
 	}
 	
 	function getAfiliadosPorNivel($id_afiliado,$red,$nivel,$tipo,$limite,$verticalidad){
@@ -839,6 +842,9 @@ class afiliado extends CI_Model
 	}
 	
 	private function getValorPataMasDebil($patas) {
+
+	    return 0;
+
 		$pataMasdebil=array(
 					'id_pata' => $patas[0]["id_pata"],
 					'total'   => $patas[0]["total"]
@@ -871,12 +877,8 @@ class afiliado extends CI_Model
 			$totalPata+=$this->getComprasPersonalesIntervaloDeTiempo($idAfiliadopata, $red,$fechaInicio,$fechaFin,$id_tipo_mercancia,$id_mercancia,$datoVenta);
 
 				$remanente=$this->getPatasPuntosRemanentesAfiliadoBonoPorPata($this->getIdBono(), $id_afiliado,$i);
-				$pata = array(
-						'id_pata' => $i,
-						'total'   => $totalPata+$remanente
-				);
 
-			array_push($patas, $pata);
+			array_push($patas, $remanente);
 		}
 		return $patas;
 	}
@@ -928,19 +930,19 @@ class afiliado extends CI_Model
 	}
 	
 	function getPatasPuntosRemanentesAfiliadoBono($id_bono,$id_afiliado){
-		$q=$this->db->query("SELECT id_usuario,id_bono,total,id_pata FROM comisionPuntosRemanentes 
+		$q=$this->db->query("SELECT id_usuario,id_bono,izquierda,derecha FROM comisionPuntosRemanentes 
 							 where (id_usuario='".$id_afiliado."') and id_bono=".$id_bono." order by id desc limit 0,1");
 	
 		return $q->result();
 	}
 	
 	function getPatasPuntosRemanentesAfiliadoBonoPorPata($id_bono,$id_afiliado,$id_pata){
-		$q=$this->db->query("SELECT id_usuario,id_bono,total,id_pata FROM comisionPuntosRemanentes
-							 where (id_usuario='".$id_afiliado."') and id_bono=".$id_bono." and id_pata=".$id_pata." order by id desc limit 0,1");
+		$q=$this->db->query("SELECT id_usuario,id_bono,izquierda,derecha FROM comisionPuntosRemanentes
+							 where (id_usuario='".$id_afiliado."') and id_bono=".$id_bono." order by id desc limit 0,1");
 		$datos=$q->result();
 		if($datos==null)
-			return 0;
-		return $datos[0]->total;
+			return array(0,0);
+		return $datos;
 	}
 	
 	public function getIdUsuario() {

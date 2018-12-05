@@ -69,4 +69,16 @@ WHERE id_rango =  '1';
   ALTER TABLE billetera
   ADD inversion int DEFAULT 0 NULL COMMENT 'id de nivel bono 3, 0 es ninguno';
 
+  -- ventas en bonos
 
+  ALTER TABLE comision_bono
+  ADD extra varchar(150) DEFAULT '' NULL COMMENT '[id_venta : puntos, ...] ';
+
+  -- remanentes
+
+ALTER TABLE comisionPuntosRemanentes
+MODIFY id_bono int(11) NOT NULL DEFAULT 2 COMMENT '2 es Bono Binario',
+MODIFY id_bono_historial int(11) NULL DEFAULT 1 COMMENT 'actualizacion reciente',
+CHANGE total izquierda VARCHAR(255) NULL DEFAULT '' COMMENT '[id_venta : puntos, ...]',
+CHANGE id_pata derecha VARCHAR(255) NULL DEFAULT '' COMMENT '[id_venta : puntos, ...]',
+MODIFY fecha timestamp DEFAULT current_timestamp;

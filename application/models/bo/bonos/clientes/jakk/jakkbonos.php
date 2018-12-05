@@ -492,12 +492,16 @@ class jakkbonos extends CI_Model
         if(!$afiliados)
             return 0;
 
-        $ganancia = $this->getGananciaBinario($afiliados,$valores,$fechaInicio, $fechaFin);
+        $ganancia = $this->getGananciaBinario($id_usuario,$afiliados,$valores,$fechaInicio, $fechaFin);
+        if($ganancia==0)
+            return 0;
 
-        if($pagar&&$ganancia>0)
-            $this->repartirBono($id_bono, $id_usuario, $ganancia,"",$fechaFin);
+        list($ganancia,$reporte) = $ganancia;
 
-        return $ganancia;
+        #if($pagar)
+            $this->repartirBono($id_bono, $id_usuario, $ganancia,$reporte,$fechaFin);
+
+        return 0;
     }
 
     private function getAfiliadosMatriz($valores, $id)
@@ -524,7 +528,75 @@ class jakkbonos extends CI_Model
         return $afiliados;
     }
 
-    private function setRemanente($id,$bono,$remanente){
+    function getGananciaBinario($id_usuario,$afiliados,$valores,$fechaInicio, $fechaFin) {
+
+        $datos = $this->ComprobarBrazos($afiliados);
+
+        if(!$datos)
+            return 0;
+
+        list($afiliados,$brazos) = $datos;
+
+        log_message('DEV',"NIVEL 1 : ".json_encode($brazos));
+        list($puntos, $ventas) = $this->setPuntosFrontales($id_usuario,$fechaInicio, $fechaFin, $brazos);
+
+        if(!$afiliados)
+            return $puntos;
+
+        $uplines =$brazos;
+
+        foreach ($afiliados as $n => $nivel){
+            $idx = $n+1;
+            log_message('DEV',"NIVEL $idx : ".json_encode($nivel));
+            foreach ($nivel as $key => $afiliado){
+                $venta = $this->getVentaMercancia($afiliado,$fechaInicio,$fechaFin,2,false);
+
+                if(!$venta)
+                    continue;
+
+                $this->setPuntosDerrame($venta, $afiliado, $uplines, $puntos, $ventas);
+
+                log_message('DEV',"lados [$key] : ".json_encode($uplines));
+            }
+        }
+        log_message('DEV',"ventas  : ".json_encode($ventas));
+
+        $conteo = $puntos;
+
+        $puntos = $this->setPuntosTotales($conteo);
+        $puntos = $this->setBrazoMenor($puntos);
+
+        if(!$puntos)
+            return false;
+
+        list($puntos,$debil) = $puntos;
+
+        $remanente = $this->setDatosArrayUnset($ventas, $debil);
+        $conteo = $this->setDatosArrayUnset($conteo, $debil);
+        $remanente = $this->setRemanentesBinario($puntos,  $remanente, $conteo);
+        $remanente = json_encode($remanente);
+
+        $this->updateRemanente($id_usuario, $debil, $remanente);
+
+        $ganados = $ventas[$debil];
+        if($ganados == 0)
+            return 0;
+
+        $ganados = explode(",", $ventas[$debil]);
+        $pagadas = $uplines[$debil];
+
+        $reporte = $this->setReporteBinario($fechaInicio, $fechaFin, $ganados, $pagadas);
+        $reporte =  json_encode($reporte);
+
+        $per = $valores[1]->valor / 100;
+        $ganancia = $puntos*$per;
+
+        log_message('DEV',">>> BINARIO -> $puntos * $per V:$reporte R:$remanente");
+        return array($ganancia,$reporte);
+    }
+
+
+    private function setRemanente($id,$remanente,$bono = 2){
 
         $exist = $this->getRemanente($id, $bono);
 
@@ -540,7 +612,7 @@ class jakkbonos extends CI_Model
 
     }
 
-    private function getBonoRemanente($id,$bono) {
+    private function getBonoRemanente($id,$bono = 2) {
 
         $q = $this->getRemanente ($id,$bono);
 
@@ -562,64 +634,116 @@ class jakkbonos extends CI_Model
     }
 
 
-    function getGananciaBinario($afiliados,$valores,$fechaInicio, $fechaFin) {
+    private function setValoresRemanente($id_usuario)
+    {
+        $remanentes = $this->getBonoRemanente($id_usuario);
+        $puntos = array(0, 0);
+        $ventas = array(0, 0);
+        foreach ($remanentes as $key => $pata) {
+            $datos = json_decode($pata);
+            log_message('DEV', "pata $key :: $pata ");
+            if (json_encode($datos) == "0")
+                continue;
 
-        $datos = $this->ComprobarBrazos($afiliados);
-
-        if(!$datos)
-            return 0;
-
-        list($afiliados,$brazos) = $datos;
-
-        $puntos = array(0,0);
-        foreach ($brazos as $key => $brazo){
-            $venta = $this->getVentaMercancia($brazo,$fechaInicio,$fechaFin,2,false);
-            $valor = 0;
-            if($venta)
-                $valor = $venta[0]->puntos_comisionables;
-
-            log_message('DEV', "Binario : A1:$brazo N:1 V:$valor K:$key");
-
-            $puntos[$key] += $valor;
-        }
-
-        if(!$afiliados)
-            return $puntos;
-
-        $debajo_de =$brazos;
-        foreach ($afiliados as $n => $nivel){
-            log_message('DEV',"nivel $n: ".json_encode($nivel));
-            foreach ($nivel as $key => $afiliado){
-                $venta = $this->getVentaMercancia($afiliado,$fechaInicio,$fechaFin,2,false);
-                $valor = 0;
-                if($venta)
-                    $valor = $venta[0]->puntos_comisionables;
-                log_message('DEV', "Binario : A2:$afiliado N:$n V:$valor K:$key");
-                foreach ($debajo_de as $p => $upline){
-                    $isUpline =  $this->isUpline($afiliado,$upline);
-                    if($isUpline){
-                        $debajo_de[$p] .= ",$afiliado";
-                        $puntos[$p] += $valor;
-                    }
-                }
+            foreach ($datos as $id_venta => $valor) {
+                $puntos = $this->setValueSeparated($puntos, $key, $valor);
+                $ventas = $this->setValueSeparated($ventas, $key, $id_venta);
             }
-            log_message('DEV',"lados $n: ".json_encode($debajo_de));
         }
-        $menor = 0;
-        foreach ($puntos as $key => $punto){
-            if($punto === 0)
-                return 0;
-            if($menor==0 || $punto < $menor)
-                $menor = $punto;
-        }
-
-        $per = $valores[1]->valor / 100;
-        $ganancia = $menor*$per;
-
-        log_message('DEV',">>> PUNTOS -> $per % : ".json_encode($puntos));
-        return $ganancia;
+        $json_1 = json_encode($puntos);
+        $json_2 = json_encode($ventas);
+        log_message('DEV', "remanente : P:$json_1 V:$json_2");
+        return array($puntos, $ventas);
     }
 
+    private function setValueSeparated($datos, $key, $value)
+    {
+        if ($datos[$key] == 0)
+            $datos[$key] = $value;
+        else
+            $datos[$key] .= ",$value";
+        return $datos;
+    }
+
+    private function setPuntosTotales($datos)
+    {
+        $puntos = array(0, 0);
+        foreach ($datos as $key => $dato) {
+            $values = explode(",", $dato);
+            $puntos[$key] = array_sum($values);
+        }
+        return $puntos;
+    }
+
+    private function setDatosArrayUnset($datos, $unset = 0)
+    {
+        $newDatos = $datos;
+        unset($newDatos[$unset]);
+        $newDatos = explode(",", implode(",", $newDatos));
+        return $newDatos;
+    }
+
+    private function setDatosUnset($datos, $unset = 0)
+    {
+        $newDatos = $datos;
+        unset($newDatos[$unset]);
+
+        $newDatos = implode(",", $newDatos);
+        return $newDatos;
+    }
+
+    private function setReporteBinario($fechaInicio, $fechaFin, $ganados, $pagadas)
+    {
+        $reporte = array();
+        foreach ($ganados as $id_venta) {
+            $where = "AND v.id_venta = $id_venta";
+            $venta = $this->getVentaMercancia($pagadas, $fechaInicio, $fechaFin, 2, false, $where);
+
+            if (!$venta)
+                continue;
+
+            $valor = $venta[0]->puntos_comisionables;
+            $reporte[$id_venta] = $valor;
+        }
+        return $reporte;
+    }
+
+    private function setRemanentesBinario($puntos, $remanente, $conteo)
+    {
+        $monto = 0;
+        $sobrantes = array();
+        foreach ($remanente as $key => $id_venta) {
+
+            $valor = $conteo[$key];
+
+            $suma = $monto + $valor;
+
+            if ($suma > $puntos ){
+
+                if($monto < $puntos)
+                    $valor = $suma-$puntos;
+
+                $sobrantes[$id_venta] = $valor;
+            }
+
+            $monto = $suma;
+        }
+        return $sobrantes;
+    }
+
+    private function updateRemanente($id_usuario, $debil, $remanente)
+    {
+        $lados = array(
+            "izquierda" => 0,
+            "derecha" => 0
+        );
+
+        $ladomayor = ($debil == 0) ? "derecha" : "izquierda";
+
+        $lados[$ladomayor] = $remanente;
+
+        $this->setRemanente($id_usuario, $lados, 2);
+    }
 
     function ComprobarBrazos($afiliados){
         if(!isset($afiliados[0]))
@@ -647,6 +771,64 @@ class jakkbonos extends CI_Model
 
         $lados = $query->result();
         return $lados;
+    }
+
+
+    private function setBrazoMenor($puntos)
+    {
+        $menor = 0;$debil=false;$aplica = false;
+        foreach ($puntos as $key => $punto) {
+            if ($punto != 0 && !$aplica)
+                $aplica=true;
+            if ($menor == 0 || $punto < $menor){
+                $debil = $key;
+                $menor = $punto;
+            }
+        }
+        $json = json_encode($puntos);
+        log_message('DEV',">>> PUNTOS : $json -> $menor");
+        return $aplica ? array($menor,$debil) : false;
+    }
+
+    private function setPuntosFrontales($id_usuario,$fechaInicio, $fechaFin, $brazos)
+    {
+        list($puntos, $ventas) = $this->setValoresRemanente($id_usuario);
+
+        foreach ($brazos as $key => $brazo) {
+            $venta = $this->getVentaMercancia($brazo, $fechaInicio, $fechaFin, 2, false);
+
+            if (!$venta)
+                continue;
+
+            $valor = $venta[0]->puntos_comisionables;
+            $id_venta = $venta[0]->id_venta;
+            log_message('DEV', "Frontales : A1:$brazo N:1 V:$valor K:$key");
+
+            $puntos = $this->setValueSeparated($puntos, $key, $valor);
+            $ventas = $this->setValueSeparated($ventas, $key, $id_venta);
+        }
+
+        return array($puntos, $ventas);
+    }
+
+    private function setPuntosDerrame($venta, $afiliado, &$uplines, &$puntos, &$ventas)
+    {
+        $valor = $venta[0]->puntos_comisionables;
+        $id_venta = $venta[0]->id_venta;
+
+        foreach ($uplines as $key => $upline) {
+            $isUpline = $this->isUpline($afiliado, $upline);
+            if (!$isUpline)
+                continue;
+
+            $uplines[$key] .= ",$afiliado";
+
+            $puntos = $this->setValueSeparated($puntos, $key, $valor);
+            $ventas = $this->setValueSeparated($ventas, $key, $id_venta);
+
+        }
+
+        log_message('DEV', "Derrame : A2:$afiliado V:$valor I:$id_venta");
     }
 
 
@@ -1514,6 +1696,5 @@ class jakkbonos extends CI_Model
         $isMax = ($negocio<$negocioSponsor);
         $subquery ="AND lider = $padre ";
     }
-
 
 }

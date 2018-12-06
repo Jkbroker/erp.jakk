@@ -572,8 +572,8 @@ class jakkbonos extends CI_Model
         list($puntos,$debil) = $puntos;
 
         $remanente = $this->setDatosArrayUnset($ventas, $debil);
-        $conteo = $this->setDatosArrayUnset($conteo, $debil);
-        $remanente = $this->setRemanentesBinario($puntos,  $remanente, $conteo);
+        $sobrante= $this->setDatosArrayUnset($conteo, $debil);
+        $remanente = $this->setRemanentesBinario($puntos,  $remanente, $sobrante);
         $remanente = json_encode($remanente);
 
         $this->updateRemanente($id_usuario, $debil, $remanente);
@@ -583,9 +583,9 @@ class jakkbonos extends CI_Model
             return 0;
 
         $ganados = explode(",", $ventas[$debil]);
-        $pagadas = $uplines[$debil];
+        $pagadas = explode(",", $conteo[$debil]);
 
-        $reporte = $this->setReporteBinario($fechaInicio, $fechaFin, $ganados, $pagadas);
+        $reporte = $this->setReporteBinario($ganados, $pagadas);
         $reporte =  json_encode($reporte);
 
         $per = $valores[1]->valor / 100;
@@ -692,17 +692,11 @@ class jakkbonos extends CI_Model
         return $newDatos;
     }
 
-    private function setReporteBinario($fechaInicio, $fechaFin, $ganados, $pagadas)
+    private function setReporteBinario($ganados, $pagadas)
     {
         $reporte = array();
-        foreach ($ganados as $id_venta) {
-            $where = "AND v.id_venta = $id_venta";
-            $venta = $this->getVentaMercancia($pagadas, $fechaInicio, $fechaFin, 2, false, $where);
-
-            if (!$venta)
-                continue;
-
-            $valor = $venta[0]->puntos_comisionables;
+        foreach ($ganados as $key => $id_venta) {
+            $valor = $pagadas[$key];
             $reporte[$id_venta] = $valor;
         }
         return $reporte;
@@ -800,8 +794,8 @@ class jakkbonos extends CI_Model
             if (!$venta)
                 continue;
 
-            $valor = $venta[0]->puntos_comisionables;
-            $id_venta = $venta[0]->id_venta;
+            $valor = $this->issetVar($venta,"puntos_comisionables",0);
+            $id_venta = $this->issetVar($venta,"id_venta",1);
             log_message('DEV', "Frontales : A1:$brazo N:1 V:$valor K:$key");
 
             $puntos = $this->setValueSeparated($puntos, $key, $valor);

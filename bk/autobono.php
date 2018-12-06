@@ -46,9 +46,7 @@ class autobono
 	/** principal **/
 	
 	public function calcular(){
-		
-		isPeriodo();
-		
+
 		$usuario= new calculo($this->db);
 		$afiliados = $usuario->getUsuariosRed();
 		
@@ -62,7 +60,7 @@ class autobono
 			
 			$reparticion[$afiliado] = $calcular;
 			
-			$this->activos_procedure($afiliado);
+			#TODO: $this->activos_procedure($afiliado);
 		}
 		
 		return $reparticion;
@@ -122,8 +120,11 @@ class autobono
 	}
 	
 	private function repartirBono($id_bono, $id_usuario, $valor) {
-		$fechaInicio = $this->getPeriodoFecha ( "QUI", "INI", '' );
-		$fechaFin = $this->getPeriodoFecha ( "QUI", "FIN", '' );
+        $bono = $this->getBono($id_bono);
+        $periodo = $this->issetVar($bono,"frecuencia","UNI");
+
+		$fechaInicio = $this->getPeriodoFecha ( $periodo, "INI", '' );
+		$fechaFin = $this->getPeriodoFecha ( $periodo, "FIN", '' );
 		
 		$historial = $this->getHistorialBono ( $id_bono, $fechaInicio, $fechaFin );
 		
@@ -131,7 +132,7 @@ class autobono
 			$historial = $this->newHistorialBono ( $id_bono, $fechaInicio, $fechaFin );
 		
 		if ($valor > 0)
-			echo "PAGO $id_usuario : $ $valor | OK! \n\n";
+			echo "\n PAGO $id_usuario : $ $valor | OK! \n\n";
 		
 		$data = "INSERT INTO comision_bono
 				(id_usuario,id_bono,id_bono_historial,valor)
@@ -231,24 +232,28 @@ class autobono
 	/** preproceso **/
 
 	function isActived ( $id_usuario,$id_bono = 0,$red = 1,$fecha = '' ){
-		
-		$this->setFechaInicio($this->getPeriodoFecha("QUI", "INI", $fecha));
-		$this->setFechaFin($this->getPeriodoFecha("QUI", "FIN", $fecha));
-		
-		#if($id_bono==1)
-		#    $fecha = $this->setFechaQuincena($fecha);
+
+        $bono = $this->getBono($id_bono);
+        $periodo = $this->issetVar($bono,"frecuencia","UNI");
+
+		$this->setFechaInicio($this->getPeriodoFecha($periodo, "INI", $fecha));
+		$this->setFechaFin($this->getPeriodoFecha($periodo, "FIN", $fecha));
+
 		$isPaid = $this->isPaid($id_usuario,$id_bono);
 		
 		if($isPaid){
 			return false;
 		}		
 		
-		$isActived = $this->isActivedAfiliado($id_usuario,$red,$fecha,$id_bono);
+		$isActived = $this->isActivedAfiliado($id_usuario,$id_bono);
 		
-		$isScheduled = ($id_bono > 2)
-		? $this->isScheduled($id_usuario,$id_bono,$this->fechaFin) : true;
-		
-		echo "ID : $id_usuario -[$id_bono] PAGADO >> ".intval($isPaid)." | ACTIVO !! ".intval($isActived)." | AGENDADO :: ".intval($isScheduled)."\n";
+		$isScheduled = ($id_bono == 1) ? false
+		: $this->isValidDate($id_usuario,$id_bono,$this->fechaFin) ;
+
+        $valActived = intval($isActived);
+        $valPaid = intval($isPaid);
+        $valScheduled = intval($isScheduled);
+        echo "\n ID : $id_usuario -[$id_bono] PAGADO >> $valPaid | ACTIVO !!  $valActived | AGENDADO :: $valScheduled  \n";
 		
 		if(!$isActived||!$isScheduled){
 			return false;
@@ -257,26 +262,36 @@ class autobono
 		return true;
 		
 	}
-	
-	function isActivedAfiliado($id_usuario,$red = 1,$fecha = false,$bono = false){
-		
-		if (! $fecha)
-			$fecha = date ( 'Y-m-d' );
-		
-		$isRecent = date ( 'Y-m', strtotime ( $fecha ) ) == date ( 'Y-m' );
-		if (! $isRecent)
-			return $this->isActivedAfiliado_bk ( $id_usuario, $red, $fecha, $bono );
-		
-		$q = newQuery($this->db, "select * from red where id_usuario = $id_usuario and estatus = 'ACT'" );
-				
-		if (! $q)
-			return false;
-		
-		return true;
-					
-	}
-	
-	function activos_procedure($id_usuario = 2)
+
+	function isActivedAfiliado($id_usuario,$bono = 1)
+    {
+        if($id_usuario==2)
+            return true;
+
+        $fechaInicio=$this->getPeriodoFecha("UNI", "INI", '');
+        $fechaFin=$this->getPeriodoFecha("UNI", "FIN", '');
+
+        $cumple = $this->getVentaMercancia($id_usuario,$fechaInicio,$fechaFin,2,false);
+
+        if($bono != 2)
+            return $cumple;
+
+        $valores = $this->getBonoValorNiveles(1);
+        $afiliados = $this->getAfiliadosInicial($valores, $id_usuario, $fechaInicio, $fechaFin);
+
+        if(!$afiliados)
+            return false;
+
+        $afiliados = $afiliados[0];
+
+        $nAfiliados = sizeof($afiliados);
+        $cumple &= ($nAfiliados > 1);
+
+        return $cumple;
+    }
+
+
+    function activos_procedure($id_usuario = 2)
 	{	    
 	    
 	    $fechainicio = $this->getPeriodoFecha("QUI", "INI", '');
@@ -509,17 +524,17 @@ class autobono
 	private function isPaid($id_usuario,$id_bono){
 		
 		$query = "SELECT
-		*
-		FROM
-		comision_bono c,
-		comision_bono_historial h
-		WHERE
-		c.id_bono_historial = h.id
-		AND c.id_bono = h.id_bono
-		AND h.id_bono = $id_bono
-		AND c.id_usuario = $id_usuario
-		AND h.fecha BETWEEN '$this->fechaInicio' AND '$this->fechaFin'
-		#AND c.valor > 0";
+                    *
+                    FROM
+                        comision_bono c,
+                        comision_bono_historial h
+                    WHERE
+                        c.id_bono_historial = h.id
+                        AND c.id_bono = h.id_bono
+                        AND h.id_bono = $id_bono
+                        AND c.id_usuario = $id_usuario
+                        AND h.fecha BETWEEN '$this->fechaInicio' AND '$this->fechaFin'
+                    -- AND c.valor > 0";
 		
 		$q = newQuery($this->db, $query);
 		
@@ -650,155 +665,488 @@ class autobono
 	}
 	
 	/** calculo **/
-	
-	function getValorBonoBy($id_bono,$parametro){
-		switch ($id_bono){
-			
-			case 1 :
-				
-				return $this->getValorBono($parametro);
-				
-				break;
-				
-			default:
-				return 0;
-				break;
-				
-		}
-		
-	}
-	
-	private function getValorBono($parametro){
-		
-		$valores = $this->getBonoValorNiveles(1);
-		
-		$bono = $this->getBono(1);
-		$periodo = isset($bono[1]["frecuencia"]) ? $bono[1]["frecuencia"] : "UNI";
-		
-		$fechaInicio=$this->getPeriodoFecha($periodo, "INI", $parametro["fecha"]);
-		$fechaFin=$this->getPeriodoFecha($periodo, "FIN", $parametro["fecha"]);
-		
-		$id_usuario = $parametro["id_usuario"];
-		
-		echo "between: $fechaInicio - $fechaFin";
-		
-		$afiliados = $this->getAfiliados_A($id_usuario,1,$fechaInicio,$fechaFin);
-		
-		$monto = $this->getMonto_A ($id_usuario,$afiliados,$valores,$fechaInicio,$fechaFin);
-		
-		return $monto;
-	}
-	
-	private function getAfiliados_A($id,$nivel,$fechaInicio,$fechaFin) {
-		
-		
-		$where = "";#" AND u.created BETWEEN '$fechaInicio' AND '$fechaFin 23:59:59'";
-		
-		$afiliados = array();
-		for ($i=1; $i <= $nivel; $i++) {
-			
-			$this->getDirectosBy($id,  $i, $where);
-			$directos = $this->getAfiliados();
-			#echo ">> ".json_encode($directos));
-			array_push($afiliados, implode(",", $directos));
-		}
-		
-		$afiliados = implode(",", $afiliados);
-		$afiliados = explode(",", $afiliados);
-		
-		#echo ">>> ".json_encode($afiliados));
-		return $afiliados;
-	}
-	
-	private function getMonto_A($id_usuario,$afiliados,$valores,$fechaInicio,$fechaFin,$red = 1) {
-		
-		$inscritos=array();
-		
-		#echo "afiliados: ".json_encode($afiliados));
-		
-		foreach ($afiliados as $afiliado){
-			$valor=0;
-			if($afiliado>0)
-				$valor=$this->getComprasUnidades($afiliado,$fechaInicio,$fechaFin,5);
-				#echo ">> $afiliado :  ".$valor);
-				if($valor>0)
-					#if($afiliado>0)
-						array_push($inscritos, $afiliado);
-		}
-		
-		$monto = 0;
-		$cantidad = sizeof($inscritos);
-		
-		/*$trio = 0;
-		foreach ($valores as $valor){
-			$tri = ($valor["nivel"]*3);
-			if($tri<=$cantidad){
-				$monto = $valor["valor"];
-				$trio = $tri;
-			}
-		}
-		
-		$fechaInicio=$this->getPeriodoFecha("ANO", "INI", '');
-		$fechaFin=$this->getPeriodoFecha("ANO", "FIN", '');
-		
-		$membresia = array(7,8);
-		$valor=$this->getComprasUnidades($id_usuario,$fechaInicio,$fechaFin,5,$membresia);
-		
-		if($trio>=9&&$valor>0){
-			$monto*=2;
-		}*/
-		
-		$monto = $valores[1]["valor"];
-		
-		echo "->> ".json_encode($inscritos)." : $monto X $cantidad ";
-		
-		$monto *= $cantidad;
-		
-		return $monto;
-	}
+
+    function getValorBonoBy($id_bono,$parametro)
+    {
+        switch ($id_bono){
+
+            case 1 :
+                return $this->getValorBonoDirectos($parametro);
+                break;
+
+            case 2 :
+                return $this->getValorBonoBinario($parametro);
+                break;
+
+            case 3 :
+                return $this->getValorBonoInversion($parametro);
+                break;
+
+            default:
+                return 0;
+                break;
+
+        }/* switch: $id_bono */
+    }
+
+    private function getValorBonoDirectos($parametro)
+    {
+        $id_bono = 1;
+        $valores = $this->getBonoValorNiveles($id_bono);
+
+        $bono = $this->getBono($id_bono);
+        $periodo = $this->issetVar($bono,"frecuencia","UNI");
+
+        $fechaInicio=$this->getPeriodoFecha($periodo, "INI", $parametro["fecha"]);
+        $fechaFin=$this->getPeriodoFecha($periodo, "FIN", $parametro["fecha"]);
+
+        $id_usuario = $parametro["id_usuario"];
+        $id_red = isset($parametro["red"]) ?  $parametro["red"] : 1;
+
+        echo ("\n BONO $id_bono between: $fechaInicio - $fechaFin");
+
+        $afiliados = $this->getAfiliadosInicial($valores, $id_usuario, $fechaInicio, $fechaFin);
+
+        $monto = $this->getMontoInicial($valores, $afiliados, $fechaInicio, $fechaFin);
+
+        return $monto;
+    }
+
+    private function getAfiliadosInicial($valores, $id, $fechaInicio, $fechaFin)
+    {
+        $where = ""; #@test: 1
+
+        $afiliados = array();
+
+        foreach ($valores as $nivel) {
+
+            if ($nivel["nivel"] > 0) {
+
+                $this->getDirectosBy($id, $nivel["nivel"], $where);
+                array_push($afiliados, $this->getAfiliados());
+
+            }/* if: $nivel */
+        }/* foreach: $valores */
+
+        return $afiliados;
+    }
+
+    private function getMontoInicial($valores, $afiliados, $fechaInicio, $fechaFin, $red = 1)
+    {
+        $monto = 0; $lvl = 0;
+        $where = "AND v.id_venta not in (select id_venta from comision)";
+        for ($i = 0; $i < sizeof($valores); $i ++) {
+            $Corre = ($i > 0) && isset($afiliados[$lvl]);
+            if ($Corre) {
+                $per = $valores[$i]["valor"] / 100;
+                #@test: 2
+                $afiliado = implode(",", $afiliados[$lvl]);
+                $venta = $this->getVentaMercancia($afiliado,$fechaInicio,$fechaFin,2,false,$where);
+                $valor = 0;
+                if($venta)
+                    $valor = $venta[1]["puntos_comsionables"];
+                $valor*=$per;
+                #@test: 3
+                echo ("\n A:$afiliado N:$i P:".($per * 100)."% V:$valor S:$monto");
+                $monto += $valor;
+                #@test: 4
+                $lvl ++;
+            }/* if: $corre */
+        }/* for: $valores */
+        return $monto;
+    }
+
+    private function getValorBonoBinario($parametro,$pagar=false)
+    {
+        if(!isset($parametro["fecha"]))
+            $parametro["fecha"] = date('Y-m-d');
+
+        $id_bono = 2;
+        $valores = $this->getBonoValorNiveles($id_bono);
+
+        $bono = $this->getBono(1);
+        $periodo = $this->issetVar($bono,"frecuencia","UNI");
+
+        $fechaInicio=$this->getPeriodoFecha($periodo, "INI", $parametro["fecha"]);
+        $fechaFin=$this->getPeriodoFecha($periodo, "FIN", $parametro["fecha"]);
+
+        $id_usuario = $parametro["id_usuario"];
+        $id_red = isset($parametro["red"]) ?  $parametro["red"] : 1;
+        echo ("\n BONO $id_bono between: $fechaInicio - $fechaFin");
+
+        $afiliados = $this->getAfiliadosMatriz($valores,$id_usuario);
+
+        if(!$afiliados)
+            return 0;
+
+        $ganancia = $this->getGananciaBinario($id_usuario,$afiliados,$valores,$fechaInicio, $fechaFin);
+        if($ganancia==0)
+            return 0;
+
+        list($ganancia,$reporte) = $ganancia;
+
+        #if($pagar)
+        $this->repartirBono($id_bono, $id_usuario, $ganancia,$reporte,$fechaFin);
+
+        return 0;
+    }
+
+    private function getAfiliadosMatriz($valores, $id)
+    {
+        $where = ""; #@test: 1
+
+        $afiliados = array();
+
+        if(!$valores)
+            return array();
+
+        $limite = $valores[1]["valor"];
+
+        for($key = 0;$key<$limite; $key++) {
+
+            $nivel = $key + 1;
+
+            $this->getAfiliadosBy($id, $nivel, "RED", $where);
+            array_push($afiliados, $this->getAfiliados());
+
+
+        }/* foreach: $valores */
+        echo ("\n afiliados ".json_encode($afiliados));
+        return $afiliados;
+    }
+
+    function getGananciaBinario($id_usuario,$afiliados,$valores,$fechaInicio, $fechaFin) {
+
+        $datos = $this->ComprobarBrazos($afiliados);
+
+        if(!$datos)
+            return 0;
+
+        list($afiliados,$brazos) = $datos;
+
+        echo ("\n NIVEL 1 : ".json_encode($brazos));
+        list($puntos, $ventas) = $this->setPuntosFrontales($id_usuario,$fechaInicio, $fechaFin, $brazos);
+
+        if(!$afiliados)
+            return $puntos;
+
+        $uplines =$brazos;
+
+        foreach ($afiliados as $n => $nivel){
+            $idx = $n+1;
+            echo ("\n NIVEL $idx : ".json_encode($nivel));
+            foreach ($nivel as $key => $afiliado){
+                $venta = $this->getVentaMercancia($afiliado,$fechaInicio,$fechaFin,2,false);
+
+                if(!$venta)
+                    continue;
+
+                $this->setPuntosDerrame($venta, $afiliado, $uplines, $puntos, $ventas);
+
+                echo ("\n lados [$key] : ".json_encode($uplines));
+            }
+        }
+        echo ("\n ventas  : ".json_encode($ventas));
+
+        $conteo = $puntos;
+
+        $puntos = $this->setPuntosTotales($conteo);
+        $puntos = $this->setBrazoMenor($puntos);
+
+        if(!$puntos)
+            return false;
+
+        list($puntos,$debil) = $puntos;
+
+        $remanente = $this->setDatosArrayUnset($ventas, $debil);
+        $sobrante= $this->setDatosArrayUnset($conteo, $debil);
+        $remanente = $this->setRemanentesBinario($puntos,  $remanente, $sobrante);
+        $remanente = json_encode($remanente);
+
+        $this->updateRemanente($id_usuario, $debil, $remanente);
+
+        $ganados = $ventas[$debil];
+        if($ganados == 0)
+            return 0;
+
+        $ganados = explode(",", $ventas[$debil]);
+        $pagadas = explode(",", $conteo[$debil]);
+
+        $reporte = $this->setReporteBinario($ganados, $pagadas);
+        $reporte =  json_encode($reporte);
+
+        $per = $valores[2]["valor"] / 100;
+        $ganancia = $puntos*$per;
+
+        echo ("\n >>> BINARIO -> $puntos * $per V:$reporte R:$remanente");
+        return array($ganancia,$reporte);
+    }
+
+
+    private function setRemanente($id,$remanente,$bono = 2){
+
+        $exist = $this->getRemanente($id, $bono);
+
+        if($exist){
+            $where = "id_usuario =  $id";
+            $where .= " and id_bono =  $bono";
+            $this->updateDatos('comisionPuntosRemanentes',$remanente,$where);
+        }else{
+            $remanente['id_usuario'] = $id;
+            $remanente['id_bono'] = $bono;
+            $this->insertDatos('comisionPuntosRemanentes',$remanente);
+        }
+
+    }
+
+    private function getBonoRemanente($id,$bono = 2) {
+
+        $q = $this->getRemanente ($id,$bono);
+
+        if (!$q)
+            return array (0,0);
+
+        $remanente = array (
+            $q[1]["izquierda"],
+            $q[1]["derecha"]
+        );
+
+        return $remanente;
+    }
+
+    private function getRemanente($id,$bono) {
+        $q = newQuery($this->db, "SELECT * FROM comisionPuntosRemanentes WHERE id_bono = $bono and id_usuario = $id" );
         
-	private function getAfiliados_B($valores,$id,$fechaInicio,$fechaFin) {
-		
-		
-		$where = "";#" AND u.created BETWEEN '$fechaInicio' AND '$fechaFin 23:59:59'";
-		
-		$afiliados = array();
-		
-		foreach ($valores as $nivel){
-			
-			if($nivel["nivel"]>0){
-				
-				$this->getDirectosBy($id,  $nivel["nivel"], $where);
-				array_push($afiliados, $this->getAfiliados());
-			}
-		}
-		
-		return $afiliados;
-	}
-	
-	private function getMonto_B($valores, $afiliados,$fechaInicio,$fechaFin,$red = 1) {
-		$monto = 0;$lvl=0;
-		$usuario= new calculo($this->db);
-		$afiliados = $this->setScheduled($valores,$afiliados, $fechaInicio,2);
-		for($i = 1;$i<=sizeof($valores);$i++){
-			$Corre = ($i>1)&&isset($afiliados[$lvl]);
-			if($Corre){
-				$per = $valores[$i]["valor"]/100;
-				#foreach ($afiliados[$lvl] as $afiliado){
-				$afiliado = implode(",", $afiliados[$lvl]);
-				$valor=$usuario->getCalculoPersonal($afiliado,$fechaInicio,$fechaFin,"0","0","PUNTOS");
-				$valor*=$per;
-				#$activoAfiliado = $this->isActivedAfiliado($afiliado);
-				echo "->> $afiliado [2]: $i | ".($per*100)." % | ".$valor." | ".$monto;
-				$monto+= $valor;
-				#TODO:}
-				$lvl++;
-			}
-		}
-		return $monto;
-	}
-	
-	private function setScheduled($valores,$afiliados,$fechaInicio,$id_bono=1){
+        return $q;
+    }
+
+
+    private function setValoresRemanente($id_usuario)
+    {
+        $remanentes = $this->getBonoRemanente($id_usuario);
+        $puntos = array(0, 0);
+        $ventas = array(0, 0);
+        foreach ($remanentes as $key => $pata) {
+            $datos = json_decode($pata);
+            echo ("\n pata $key :: $pata ");
+            if (json_encode($datos) == "0")
+                continue;
+
+            foreach ($datos as $id_venta => $valor) {
+                $puntos = $this->setValueSeparated($puntos, $key, $valor);
+                $ventas = $this->setValueSeparated($ventas, $key, $id_venta);
+            }
+        }
+        $json_1 = json_encode($puntos);
+        $json_2 = json_encode($ventas);
+        echo ("\n remanente : P:$json_1 V:$json_2");
+        return array($puntos, $ventas);
+    }
+
+    private function setValueSeparated($datos, $key, $value)
+    {
+        if ($datos[$key] == 0)
+            $datos[$key] = $value;
+        else
+            $datos[$key] .= ",$value";
+        return $datos;
+    }
+
+    private function setPuntosTotales($datos)
+    {
+        $puntos = array(0, 0);
+        foreach ($datos as $key => $dato) {
+            $values = explode(",", $dato);
+            $puntos[$key] = array_sum($values);
+        }
+        return $puntos;
+    }
+
+    private function setDatosArrayUnset($datos, $unset = 0)
+    {
+        $newDatos = $datos;
+        unset($newDatos[$unset]);
+        $newDatos = explode(",", implode(",", $newDatos));
+        return $newDatos;
+    }
+
+    private function setDatosUnset($datos, $unset = 0)
+    {
+        $newDatos = $datos;
+        unset($newDatos[$unset]);
+
+        $newDatos = implode(",", $newDatos);
+        return $newDatos;
+    }
+
+    private function setReporteBinario($ganados, $pagadas)
+    {
+        $reporte = array();
+        foreach ($ganados as $key => $id_venta) {
+            $valor = $pagadas[$key];
+            $reporte[$id_venta] = $valor;
+        }
+        return $reporte;
+    }
+
+    private function setRemanentesBinario($puntos, $remanente, $conteo)
+    {
+        $monto = 0;
+        $sobrantes = array();
+        foreach ($remanente as $key => $id_venta) {
+
+            $valor = $conteo[$key];
+
+            $suma = $monto + $valor;
+
+            if ($suma > $puntos ){
+
+                if($monto < $puntos)
+                    $valor = $suma-$puntos;
+
+                $sobrantes[$id_venta] = $valor;
+            }
+
+            $monto = $suma;
+        }
+        return $sobrantes;
+    }
+
+    private function updateRemanente($id_usuario, $debil, $remanente)
+    {
+        $lados = array(
+            "izquierda" => 0,
+            "derecha" => 0
+        );
+
+        $ladomayor = ($debil == 0) ? "derecha" : "izquierda";
+
+        $lados[$ladomayor] = $remanente;
+
+        $this->setRemanente($id_usuario, $lados, 2);
+    }
+
+    function ComprobarBrazos($afiliados){
+        if(!isset($afiliados[0]))
+            return false;
+
+        $brazos =  $afiliados[0];
+
+        $nBrazos = sizeof($brazos);
+        if($nBrazos <2)
+            return false;
+
+        unset($afiliados[0]);
+
+        echo ("\n brazos $nBrazos : ".json_encode($brazos));
+        return array($afiliados,$brazos);
+    }
+
+    private function isUpline($id,$id_debajo = 2, $red = 1)
+    {
+        $query = "select * from afiliar 
+                    where debajo_de in ($id_debajo)
+                      and id_afiliado = $id
+                      and id_red = $red ";
+        $query = newQuery($this->db,$query);
+
+        $lados = $query;
+        return $lados;
+    }
+
+
+    private function setBrazoMenor($puntos)
+    {
+        $menor = 0;$debil=false;$aplica = false;
+        foreach ($puntos as $key => $punto) {
+            if ($punto != 0 && !$aplica)
+                $aplica=true;
+            if ($menor == 0 || $punto < $menor){
+                $debil = $key;
+                $menor = $punto;
+            }
+        }
+        $json = json_encode($puntos);
+        echo ("\n >>> PUNTOS : $json -> $menor");
+        return $aplica ? array($menor,$debil) : false;
+    }
+
+    private function setPuntosFrontales($id_usuario,$fechaInicio, $fechaFin, $brazos)
+    {
+        list($puntos, $ventas) = $this->setValoresRemanente($id_usuario);
+
+        foreach ($brazos as $key => $brazo) {
+            $venta = $this->getVentaMercancia($brazo, $fechaInicio, $fechaFin, 2, false);
+
+            if (!$venta)
+                continue;
+
+            $valor = $this->issetVar($venta,"puntos_comisionables",0);
+            $id_venta = $this->issetVar($venta,"id_venta",1);
+            echo ("\n Frontales : A1:$brazo N:1 V:$valor K:$key");
+
+            $puntos = $this->setValueSeparated($puntos, $key, $valor);
+            $ventas = $this->setValueSeparated($ventas, $key, $id_venta);
+        }
+
+        return array($puntos, $ventas);
+    }
+
+    private function setPuntosDerrame($venta, $afiliado, &$uplines, &$puntos, &$ventas)
+    {#echo ("\n Venta ($afiliado) : ".json_encode($venta));
+        $valor = $this->issetVar($venta,"puntos_comisionables",0);
+        $id_venta = $this->issetVar($venta,"id_venta",1);
+
+        foreach ($uplines as $key => $upline) {
+            $isUpline = $this->isUpline($afiliado, $upline);
+            if (!$isUpline)
+                continue;
+
+            $uplines[$key] .= ",$afiliado";
+
+            $puntos = $this->setValueSeparated($puntos, $key, $valor);
+            $ventas = $this->setValueSeparated($ventas, $key, $id_venta);
+
+        }
+
+        echo ("\n Derrame : A2:$afiliado V:$valor I:$id_venta");
+    }
+
+    function getValorBonoInversion($parametro,$pagar = false)
+    {
+        if(!isset($parametro["fecha"]))
+            $parametro["fecha"] = date('Y-m-d');
+
+        $valores = $this->getBonoValorNiveles(3);
+
+        $bono = $this->getBono(1);
+        $periodo = $this->issetVar($bono,"frecuencia","UNI");
+
+        $fechaInicio=$this->getPeriodoFecha($periodo, "INI", $parametro["fecha"]);
+        $fechaFin=$this->getPeriodoFecha($periodo, "FIN", $parametro["fecha"]);
+
+        $id_usuario = $parametro["id_usuario"];
+        $id_red = isset($parametro["red"]) ?  $parametro["red"] : 1;
+
+        $Ganancia = $this->getGananciaInversion($id_usuario,$valores,$id_red,$fechaInicio,$fechaFin);
+
+        if($pagar&&$Ganancia>0)
+            $this->repartirBono(3, $id_usuario, $Ganancia,"",$fechaFin);
+
+        return $Ganancia;
+    }
+
+    private function getGananciaInversion($id_usuario,$valores,$id_red,$fechaInicio=false,$fechaFin=false)
+    {
+        if($id_usuario == 1)
+            return 0;
+
+        $Ganancia = 0;
+
+        return $Ganancia;
+    }
+
+    private function setScheduled($valores,$afiliados,$fechaInicio,$id_bono=1){
 		
 		for ($i = 0; $i < sizeof($valores); $i ++) {
 			$afiliados_scheduled = array();
@@ -839,156 +1187,44 @@ class autobono
 		return $afiliados;
 		
 	}
-	
-	private function getValoresMatriz($id,$valores,$fechaInicio,$fechaFin){
-		
-		$isActivoMatriz = $this->isActivoMatriz($id,$fechaInicio,$fechaFin);
-		
-		if(!$isActivoMatriz){
-			for ($i=(sizeof($valores)); $i > 3; $i--) {
-				unset($valores[$i]);
-			}
-		}
-		
-		return $valores;
-		
-	}
-	
-	private function isActivoMatriz($id,$fechaInicio,$fechaFin)
-	{
-		$this->getDirectosBy($id, 1);
-		$afiliados = $this->getAfiliados();
-		
-		$puntos = $this->getEmpresa ("puntos_personales");
-		$usuario= new calculo($this->db);
-		$inscritos = array();
-		
-		foreach ($afiliados as $afiliado){
-			$valor=0;
-			if($afiliado>0)
-				$valor=$this->isActivedAfiliado($afiliado,1,$fechaFin,3);
-				#$valor=$this->getComprasUnidades($afiliado,$fechaInicio,$fechaFin,1);
-				if($valor>=$puntos)
-					#if($valor>0)
-						array_push($inscritos, $afiliado);
-		}
-		
-		$afiliados = $inscritos;
-		#echo json_encode($afiliados));
-		
-		$isActivoMatriz = (sizeof($afiliados)<3) ? false : true;
-		return $isActivoMatriz;
-	}
-	
-	
-	private function getAfiliados_C($valores,$id) {
-		
-		$where = "";
-		
-		$afiliados = array();
-		
-		foreach ($valores as $nivel){
-			
-			if($nivel["nivel"]>0){
-				$this->getAfiliadosBy($id,  $nivel["nivel"], $nivel["condicion_red"], $where,$id);
-				
-				array_push($afiliados, $this->getAfiliados());
-			}
-		}
-		return $afiliados;
-	}
-	
-	private function getMonto_C($valores, $afiliados,$fechaInicio,$fechaFin,$red = 1) {
-		$monto = 0;$lvl=0;
-		$usuario= new calculo($this->db);
-		$afiliados = $this->setScheduled($valores,$afiliados, $fechaInicio,3);	
-		
-		for($i = 1;$i<=sizeof($valores);$i++){
-			$Corre = ($i>1)&&isset($afiliados[$lvl]);
-			if($Corre){
-				$per = $valores[$i]["valor"]/100;
-				#foreach ($afiliados[$lvl] as $afiliado){
-				$afiliado = implode(",", $afiliados[$lvl]);
-				$valor=$usuario->getCalculoPersonal($afiliado,$fechaInicio,$fechaFin,1,"0","PUNTOS");
-				$valor*=$per;
-				#$activoAfiliado = $this->isActivedAfiliado($afiliado);
-				echo "->> $afiliado [3]: $i | ".($per*100)." % | ".$valor." | ".$monto;
-				$monto+= $valor;
-				#TODO:}
-				$lvl++;
-			}
-		}
-		return $monto;
-	}	
-	
-	private function getMonto_D($valores, $afiliados,$fechaInicio,$fechaFin,$red = 1) {
-		$monto = 0;$lvl=0;
-		$afiliados = $this->setScheduled($valores,$afiliados, $fechaInicio,3);
-		$afiliados = $this->setActivedAfiliados($valores,$afiliados, $fechaInicio,3);
-		for($i = 1;$i<=sizeof($valores);$i++){
-			$Corre = ($i>1)&&isset($afiliados[$lvl]);
-			if($Corre){
-				$per = $valores[$i]["valor"]/100;
-				foreach ($afiliados[$lvl] as $afiliado){
-					$valor=$this->getMontoBono($afiliado,3,$fechaInicio,$fechaFin);
-					$valor*=$per;
-					echo "->> $afiliado [4]: $i | ".($per*100)." % | ".$valor;
-					$monto+= $valor;
-				}
-				$lvl++;
-			}
-		}
-		return $monto;
-	}
-	
-	private function duplicarRed($id_usuario,$red=1){
-		
-		$query = "UPDATE afiliar SET duplicado = 'ACT' WHERE id_red = $red AND id_afiliado = $id_usuario";
-		$q = newQuery($this->db, $query);
-		return true;
-		
-	}
-	
-	private function getMonto_E($valores, $afiliados,$fechaInicio,$fechaFin,$red = 1) {
-		$monto = 0;$lvl=0;
-		$usuario= new calculo($this->db);
-		$afiliados = $this->setActivedAfiliados($valores, $afiliados, $fechaInicio,3);
-		for($i = 1;$i<=sizeof($valores);$i++){
-			$Corre = ($i>1)&&isset($afiliados[$lvl]);
-			if($Corre){
-				#foreach ($afiliados[$lvl] as $afiliado){
-				$afiliado = ($afiliados[$lvl]) ? implode(",", $afiliados[$lvl]) : 0;
-					$valor=$usuario->getComprasPersonalesIntervaloDeTiempo($afiliado,$red,$fechaInicio,$fechaFin,"0","0","COSTO");
-					$monto+= $valor;
-				#TODO:}
-				$lvl++;
-			}
-		}
-		return $monto;
-	}
-	
-	private function isLlenadoRed($opcion_red, $afiliados)
-	{
-		unset($opcion_red[0]);
-		
-		$lvl=0;
-		foreach ($opcion_red as $red){
-			$frontales = sizeof($afiliados[$lvl]);
-			if($frontales<$red["valor"]){
-				$lvl = 0;
-				break;
-			}
-			$lvl++;
-		}
-		
-		if($lvl>0)
-			return true;
-			
-			return false;
-	}
-	
-	
-	private function getMontoBono($id_usuario,$id_bono,$fechaInicio,$fechaFin){
+
+    private function insertDatos($table,$datos){
+        $attribs = array();$values=array();
+
+        foreach ($datos as $key => $value){
+            array_push($attribs, $key);
+            $value = "'$value'";
+            array_push($values, $value);
+        }
+
+        $query = "INSERT INTO $table (".implode(",", $attribs).")
+                        VALUES (".implode(",", $values).")";
+
+        newQuery($this->db,$query);
+
+        return true;
+    }
+
+    private function updateDatos($table,$datos,$where = false){
+
+        $values=array();
+
+        foreach ($datos as $key => $value){
+            $value = "$key = '$value'";
+            array_push($values, $value);
+        }
+
+        if($where)
+            $where = " WHERE ".$where;
+
+        $query = "UPDATE $table SET ".implode(",", $values).$where;
+
+        newQuery($this->db,$query);
+
+        return true;
+    }
+
+    private function getMontoBono($id_usuario,$id_bono,$fechaInicio,$fechaFin){
 		$query = "SELECT
 		max(c.valor) valor
 		FROM
@@ -1064,15 +1300,15 @@ class autobono
 		$is = array("DIRECTOS" =>"a.directo","RED"=>"a.debajo_de");
 		
 		$query = "SELECT
-		a.id_afiliado id,
-		a.directo
-		FROM
-		afiliar a,
-		users u
-		WHERE
-		u.id = a.id_afiliado
-		AND a.id_red = $red
-		AND a.debajo_de = $id
+                        a.id_afiliado id,
+                        a.directo
+                    FROM
+                        afiliar a,
+                        users u
+                    WHERE
+                        u.id = a.id_afiliado
+                        AND a.id_red = $red
+                        AND a.debajo_de = $id
 		$where";
 		
 		$q = newQuery($this->db, $query);
@@ -1116,11 +1352,68 @@ class autobono
 		return $q[1][$attrib];
 		
 	}
-	
-	
+
+    function issetVar($var,$type=false,$novar = false){
+
+        $result = isset($var) ? $var : $novar;
+
+        if($type)
+            $result = isset($var[1][$type]) ? $var[1][$type] : $novar;
+
+        if(!isset($var[1][$type]))
+            echo ("\n issetVar T:($type) :: ".json_encode($var));
+
+        return $result;
+    }
+
+    /** ARGS:
+     * id:id_usuario f0:fechaInicio f1:fechaFin tp:tipo mc:item WH:where OD:order GP:group
+     */
+    private function getVentaMercancia($id,$f0,$f1,$tp=false,$mc=false,$WH="",$OD=false,$GP=false)
+    {
+        if ($tp)
+            $WH .= " AND m.id_tipo_mercancia in ($tp)";
+
+        if ($mc)
+            $WH .= " AND cvm.id_mercancia in ($mc)";
+
+        if ($GP)
+            $GP = "GROUP BY cvm.id_mercancia";
+        else
+            $GP = "";
+
+        if ($OD)
+            $OD = "ORDER BY v.fecha DESC,v.id_venta DESC";
+        else
+            $OD = "";
+
+        $query = "SELECT *
+						FROM
+							cross_venta_mercancia cvm,
+							mercancia m,
+                            items i,
+							venta v
+						WHERE
+                            i.id = m.id
+							AND m.id = cvm.id_mercancia
+							AND cvm.id_venta = v.id_venta
+							$WH
+							AND v.id_user in ($id)
+							AND v.id_estatus = 'ACT'
+							AND v.fecha BETWEEN '$f0' AND '$f1 23:59:59'
+						$GP $OD";
+
+        $q = newQuery($this->db,$query);
+        
+
+        return $q;
+    }
+
 	/** complemento **/
 	
 	private function getLastDay() {
+
+	    return "2018-11-27";
 	    
 	    $query = "SELECT
 					    DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 1 DAY),
@@ -1153,7 +1446,7 @@ class autobono
 			}
 			
 			if(!isset($periodoFecha[$frecuencia])||!isset($tipoFecha[$tipo])){
-				return $fecha;
+				return ($tipo == "INI") ?  date('Y-m-d',strtotime($fecha)) : $fecha;
 			}
 			
 			$functionFecha = "get".$tipoFecha[$tipo].$periodoFecha[$frecuencia];

@@ -25,7 +25,7 @@ $val= isset($_POST['g-recaptcha-response'])&&strlen($_POST['g-recaptcha-response
 $ruta = str_replace("sites.clientes", "erp.clientes", getcwd());
 $link = $ruta.'/afiliar.php';
 
-$erplink = "http://jakk.com.mx/auth/login";
+$erplink = "http://office.jakk.com.mx/auth/login";
 
 require_once $link;
 
@@ -40,8 +40,22 @@ try {
 	
 	<div style=\"background: #449; color: #fff\">
         <h3>Bienvenido, '.$userData['username'].' Ha sido registrado en nuestro sistema</h3></div>
-	<p class="callout">
-			<strong>Para ingresar al sitio de clic <a class="btn btn-primary" href="'.$erplink.'">Aqui!</a></strong>
+	<p>En nombre de todo el equipo JAKK Digital Business, 
+		queremos hacerte saber que estamos muy contentos y
+		agradecidos de que ahora formes parte de nuestra familia. 
+		Somos un gran equipo y trabajaremos juntos para cumplir tus metas.
+		<br><br>
+		Sé que esto marca un antes y un después en tu meta hacia la Libertad Financiera 
+		y en tu estilo de vida sin importar en qué fase te encuentres.
+		<br><br>
+		Te invitamos unirte a nuestra página de Facebook de JAKK Digital Business,
+		 ya que este será uno de nuestros canales principales de comunicación.
+		<br><br>
+		Facebook: <a href="https://www.facebook.com/JakkDB">JakkDB</a>
+		</p><br><hr/>
+		<p class="callout">
+			<strong>Para ingresar al sitio de clic 
+			<a class="btn btn-primary" href="'.$erplink.'">Aqui!</a></strong>
 						</p><!-- /Callout Panel -->						
 						<p> o visite esta URL 
 						<a href="'.$erplink.'"></a>'.$erplink.'</p>						
@@ -56,7 +70,7 @@ $mail->IsSMTP();                           // tell the class to use SMTP
     $mail->SMTPAuth   = true;                  // enable SMTP authentication
 	$mail->Port       = 25;                    // set the SMTP server port 26
 	$mail->Host       = "a2plvcpnl41287.prod.iad2.secureserver.net"; // SMTP server mail.sistemadelealtad.com
-	$mail->Username   = "dev@networksoft.mx";     // SMTP server username afiliaciones@sistemadelealtad.com
+	$mail->Username   = "dev@networksoft.com.co";     // SMTP server username afiliaciones@sistemadelealtad.com
 	$mail->Password   = "QCmarcel7622";            // SMTP server password SXNS2016!
 
 	$mail->IsSendmail();  // tell the class to use Sendmail

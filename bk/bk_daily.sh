@@ -1,6 +1,6 @@
 #!/bin/bash
 #echo "creando dump";
-#dir=$DIRSTACK"/erp.multinivel/bk/";
+#dir="/var/www/erp.jakk/bk/";
 dir=$HOME"/www/erp.clientes/jakk/bk/";
 hostname=$1;
 username=$2;

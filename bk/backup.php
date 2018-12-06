@@ -3,9 +3,9 @@
 date_default_timezone_set('America/Mexico_City');#city
 echo "Leyendo datos..."; 
 	
-	#function setDir($base="/var/www"){	
-	function setDir_($base="/home/startupns/www/"){	
-		$project="erp.clientes"; #"erp.networksoft"
+	#function setDir_($base="/var/www/"){
+	function setDir_($base="/home/startupns/www/"){
+		$project="erp.clientes"; #"erp.jakk"
 		$project.="/jakk";#"erp.multinivel"
 		return $base.$project;
 	}
@@ -53,12 +53,14 @@ echo "
 ";
 
 echo "\n\n>PROCESOS 1> AUTOBONO DIARIO\n";
-#include(setDir()."/bk/autobono.php");
+include(setDir()."/bk/autobono.php");
 echo "\n\nCargando Datos\n";
-#$autobono = new autobono($db);
+$autobono = new autobono($db);
 echo "\n>OK\nProcesando Datos\n";
-#$afiliados = $autobono->calcular();
+$afiliados = $autobono->calcular();
 echo "\n>OK\n\n!PROCESO COMPLETADO!\n";	
+
+exit();
 
 echo "
 

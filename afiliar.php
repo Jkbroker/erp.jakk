@@ -23,12 +23,22 @@ function setDir_(){
 
 require_once(setDir_()."/bk/dataset.php");
 
-$query = "SELECT * FROM users where lower(email) = '".strtolower($datos["email"])."'";
+$username = isset($datos["username"]) ? strtolower($datos["username"]) : false;
+
+if(!$username){
+        echo '<div class="col-md-6">
+  <h4>ABORTADO, El Username no es valido.</h4>
+  <p>Por favor,  verifique la informacion proporcionada.</p>
+  </div><script>setTimeout (\'window.location.href="/"\', 5000);</script>';
+        terminar(1);
+    }
+
+$query = "SELECT * FROM users where lower(username) = '$username'";
 $isRepeated = newQuery($db,$query);
 
 if ($isRepeated) {
     echo '<div class="col-md-6">
-  <h4>El Email ingresado ya esta registrado.</h4>
+  <h4>El Username ingresado ya esta registrado.</h4>
      <p>Si desea Iniciar Sesion con esta cuenta 
            <a href="http://jakk.com.mx/">Haz Click Aqui</a>.</p>
   </div><script>setTimeout (\'window.location.href="/"\', 5000);</script>';

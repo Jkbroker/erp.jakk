@@ -18,6 +18,7 @@ class billetera2 extends CI_Controller
 		$this->load->model('bo/model_bonos');
 		$this->load->model('model_tipo_red');
 		$this->load->model('ov/model_perfil_red');
+		$this->load->model('bo/bonos/clientes/jakk/jakkbonos');
 		
 		if (!$this->tank_auth->is_logged_in())
 		{																		// logged in
@@ -349,7 +350,9 @@ class billetera2 extends CI_Controller
 		$total_bonos = $this->model_bonos->ver_total_bonos_id($id);
 		
 		$transaction = $this->modelo_billetera->get_total_transacciones_id($id);	
-		
+
+		$billetera = $this->jakkbonos->getPasivo($id);
+        $this->template->set("pasivo",$billetera);
 		
 		$this->template->set("style",$style);
 		$this->template->set("usuario",$usuario);

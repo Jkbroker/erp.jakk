@@ -55,8 +55,17 @@
 																							<!-- widget content -->
 												<div class="widget-body">
 													<div id="myTabContent1" class="tab-content padding-10">
-													<h1 class="text-center"></h1>
-													
+                                                        <?php if($pasivo): ?>
+                                                        <?php list($width,$tiempo,$acumulado) = $pasivo?>
+                                                            <h1 class="text-center">Inversión: <?=$tiempo?></h1>
+                                                        <div class="progress progress-striped active" rel="tooltip"
+                                                             data-original-title="<?=$acumulado?>" data-placement="bottom">
+                                                            <div id="progress" class="progress-bar bg-color-blue"
+                                                                 role="progressbar" style="width:<?=$width?>%">
+                                                                <?=$acumulado?>
+                                                            </div>
+                                                        </div>
+                                                        <?php endif; ?>
 													<div class="table-responsive">
 													<table class="table">
 													<thead>

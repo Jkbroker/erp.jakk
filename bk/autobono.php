@@ -929,7 +929,9 @@ class autobono
         foreach ($remanentes as $key => $pata) {
             $datos = json_decode($pata);
             echo ("\n pata $key :: $pata ");
-            if (json_encode($datos) == "0")
+            if (gettype($datos) != "array")
+                continue;
+            else if(sizeof($datos)<1)
                 continue;
 
             foreach ($datos as $id_venta => $valor) {

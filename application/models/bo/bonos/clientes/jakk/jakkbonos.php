@@ -11,6 +11,7 @@ class jakkbonos extends CI_Model
     {
         parent::__construct();
         $this->load->model('/bo/bonos/afiliado');
+        $this->load->model('/ov/modelo_billetera');
     }
 
     function getTemp()
@@ -103,7 +104,10 @@ class jakkbonos extends CI_Model
         $isPaid = $this->isPaid($id_usuario,$id_bono,$red);
         $isScheduled = $this->isValidDate($id_usuario,$id_bono);
 
-        $part= "P:($isPaid) A:($isActived) S:($isScheduled)";
+        $json_1 = json_encode($isPaid);
+        $json_2 = json_encode($isActived);
+        $json_3 = json_encode($isScheduled);
+        $part= "P: $json_1 A: $json_2 S: $json_3";
         $log = "ID:$id_usuario BONO:$id_bono RED:$red ACTIVO: [$part]";
         log_message('DEV',$log);
 
@@ -642,7 +646,9 @@ class jakkbonos extends CI_Model
         foreach ($remanentes as $key => $pata) {
             $datos = json_decode($pata);
             log_message('DEV', "pata $key :: $pata ");
-            if (json_encode($datos) == "0")
+            if (gettype($datos) != "array")
+                continue;
+            else if(sizeof($datos)<1)
                 continue;
 
             foreach ($datos as $id_venta => $valor) {
@@ -1003,6 +1009,54 @@ class jakkbonos extends CI_Model
             $this->repartirBono(4, $id_usuario, $monto,"",$fechaFin);
 
         return $monto;
+    }
+
+    function getPasivo($id,$fecha = false){
+        if(!$fecha)
+            $fecha = date('Y-m-d');
+
+
+        $billetera = $this->modelo_billetera->get_estatus($id);
+        $pasivo = $this->issetVar($billetera,"inversion");
+        $fechaInicio = $this->getInicioFecha($id);
+        $venta = $this->getVentaMercancia($id,$fechaInicio,$fecha,2,false,"",true);
+
+        if ($id == 2)
+            $pasivo = 1;
+
+        if (!$pasivo)
+            return false;
+        else if (!$venta)
+            return false;
+
+        $monto = $this->issetVar($venta,"puntos_comisionables",0);
+        $fecha_venta = $this->issetVar($venta,"fecha",$fechaInicio);
+        $valores = $this->getBonoValorNiveles(3);
+        $factor = $this->issetVar($valores,"valor",1);
+        $inversion = !isset($valores[$pasivo]) ? 1 : $valores[$pasivo]->valor;
+        $pasivo *= $factor;
+
+        $fecha_estimada = $this->getAnyTime($fecha_venta,"$pasivo month");
+
+        $conteo = $this->getDiffTime($fecha_venta, $fecha_estimada);
+        $contados = $this->getDiffTime($fecha_venta, $fecha);
+
+        $per = 100/$conteo;
+        $width = $contados*$per;
+
+        $tiempo = "$pasivo MESES";
+        $per = 1+($inversion/100);
+
+        $bono = $monto * $per;
+        $per = $bono / 100;
+        $acumulado = $width * $per;
+        $acumulado = round($acumulado,2);
+        $acumulado = "$ $acumulado de $ $bono";
+
+        log_message('DEV',"INV: $width per C $inversion % $tiempo meses $ $bono");
+
+        return array($width,$tiempo,$acumulado);
+
     }
 
     private function getRangoAfiliado($id_usuario)
@@ -1612,6 +1666,16 @@ class jakkbonos extends CI_Model
         return $date;
     }
 
+    private function getDiffTime($fecha1, $fecha2,$format = "a")
+    {
+        $fecha1 = new DateTime($fecha1);
+        $fecha2 = new DateTime($fecha2);
+
+        $interval = $fecha1->diff($fecha2);
+        $value = $interval->format("%$format");
+        return $value;
+    }
+
     private function getLastTime($date, $time = 'month')
     {
         $fecha_sub = new DateTime($date);
@@ -1690,5 +1754,7 @@ class jakkbonos extends CI_Model
         $isMax = ($negocio<$negocioSponsor);
         $subquery ="AND lider = $padre ";
     }
+
+
 
 }

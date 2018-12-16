@@ -253,8 +253,11 @@ class general extends CI_Model
             if ($type)
                 $result = isset($var[0]->$type) ? $var[0]->$type : $novar;
 
-            if (!isset($var[0]->$type))
-                log_message('DEV', "issetVar T:($type) :: " . json_encode($var));
+            $noAttr = !isset($var[0]->$type);
+            $noType = ($novar === false);
+            $json = json_encode($var);
+            if ($noAttr && $noType)
+                log_message('DEV', "issetVar T:($type) :: $json");
 
             return $result;
         }

@@ -1826,21 +1826,23 @@ function index()
 		$remanentes=array();
 		
 		foreach ($redes as $red){
-			
-			for($i=1; $i<=$red->frontal ;$i++){
-				$q=$this->db->query("SELECT total FROM comisionPuntosRemanentes where id_usuario=".$id." and id_pata=".$i." order by id desc limit 0,1");
-				$totalPata=$q->result();
-				$totalRemanente=0;
 
-				if($totalPata!=NULL)
-					$totalRemanente=$totalPata[0]->total;
-				 
-				$remanente = array(
+		    $lados = array("izquierda","derecha");
+			for($i=1; $i<=$red->frontal ;$i++){
+                $totalPata = $this->getValorPata($id);
+                $totalRemanente=0;
+
+                $key = $i - 1;
+				if($totalPata!=NULL){
+				    $lado = isset($lados[$key]) ? $lados[$key] : $lados[0];
+                    $totalRemanente=$totalPata[0]->$lado;
+                }
+
+                $remanente = array(
 						'id_red' => $red->id,
 						'nombre_red' => $red->nombre,
-						'id_pata' => $i,
+						'id_pata' => $key,
 						'total'   => $totalRemanente
-				
 				);
 				
 				array_push($remanentes, $remanente);
@@ -4501,6 +4503,17 @@ function index()
                             where id_user = $id";
             $this->db->query($query);
         }
+    }
+
+    /**
+     * @param $id
+     * @return mixed
+     */
+    private function getValorPata($id)
+    {
+        $q = $this->db->query("SELECT total FROM comisionPuntosRemanentes where id_usuario=" . $id . " order by id desc limit 0,1");
+        $totalPata = $q->result();
+        return $totalPata;
     }
 
 }

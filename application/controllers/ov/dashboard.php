@@ -18,7 +18,7 @@ class dashboard extends CI_Controller
 		$this->load->model('model_tipo_red');
 		$this->load->model('bo/model_admin');
 		$this->load->model('bo/bonos/titulo');
-		
+        $this->load->model('bo/bonos/clientes/jakk/jakkbonos');
 		$this->load->model('web_personal');		
 		
 	}
@@ -170,7 +170,13 @@ class dashboard extends CI_Controller
 		$ultimos_auspiciados=$this->modelo_dashboard->get_ultimos_auspiciados($id);
 		
 		$titulo=$this->titulo->getNombreTituloAlcanzadoAfiliado($id,date('Y-m-d'));
-		
+
+        $valores= $this->jakkbonos->getBonoValorNiveles(3);
+        $this->template->set("suscripcion",$valores);
+
+        $inversion= $this->getInversion();
+        $this->template->set("inversion",$inversion);
+
 		$this->template->set("id",$id);
 		$this->template->set("usuario",$usuario);
 	    $this->template->set("telefono",$telefono);
@@ -264,6 +270,65 @@ class dashboard extends CI_Controller
 		}
 	}
 
+    function getInversion (){
+        if (!$this->tank_auth->is_logged_in())
+        {
+            return 1;
+        }
+
+        $id=$this->tank_auth->get_user_id();
+
+        $q = $this->getBilleteraInversion($id);
+
+        if(!$q)
+            return 1;
+
+        $valor = $this->general->issetVar($q,"inversion",1);
+
+        if($valor==0)
+            $valor = 1;
+
+        return $valor;
+
+    }
+
+
+    function inversion (){
+        if (!$this->tank_auth->is_logged_in())
+        {																		// logged in
+            echo "FAIL";
+            return false;
+        }
+
+        $id=$this->tank_auth->get_user_id();
+
+        $inversion = isset($_POST["id"]) ? $_POST["id"] : false;
+        log_message('DEV',"update inversion : [$inversion] for ID: $id");
+
+        if (!$inversion)
+        {																		// logged in
+            echo "FAIL";
+            return false;
+        }
+
+        $valor = $inversion * 4;
+
+        $isInversion = $this->getBilleteraInversion($id);
+        if(!$isInversion){
+            $query = "INSERT INTO billetera values ($id,0,'ACT','si',$inversion)";
+            $this->db->query($query);
+            echo $valor." :: new";
+            return false;
+        }
+
+        $query = "UPDATE billetera SET inversion = $inversion where id_user = $id";
+        $this->db->query($query);
+
+
+
+        echo $valor;
+    }
+
 	private function isViewBonos() {
 		$query = "SELECT * FROM information_schema.TABLES
 					WHERE table_name like 'vb_%'";
@@ -278,6 +343,18 @@ class dashboard extends CI_Controller
 			exit();
 		}
 		
-	}	
+	}
+
+    /**
+     * @param $id
+     * @return mixed
+     */
+    private function getBilleteraInversion($id)
+    {
+        $query = "SELECT inversion FROM billetera WHERE id_user = $id";
+        $q = $this->db->query($query);
+        $q = $q->result();
+        return $q;
+    }
 
 }

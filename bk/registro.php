@@ -351,7 +351,7 @@ class registro {
 
         $this->insertDatos("cat_img",$fields, $dato_img);
 
-        $query = "SELECT last(id_img) id from cat_img";
+        $query = "SELECT max(id_img) id from cat_img";
         $lastid = newQuery($this->db, $query);
         $id_img = $lastid[1]["id"];
 

@@ -118,7 +118,7 @@
 															<section class="col col-4">
 
 															<label  for="captcha" class="input">Captcha </label>
-                                                                <div class=" dato_cptch " onshow="this.focus">
+                                                                <div class="dato_cptch" onshow="this.focus">
 																<!-- data-sitekey ? segun dns -->
 																<div class="g-recaptcha creativecontactform_required"
 																	data-sitekey="[[G_KEY]]"> </div>

@@ -246,6 +246,9 @@ class Auth extends CI_Controller
 	 */
 	function login()
 	{
+        $empresa=$this->model_admin->val_empresa_multinivel();
+        $g_key = $this->general->issetVar($empresa,"g_captcha");
+
 		$this->reset_view();
 		if ($this->tank_auth->is_logged_in())
 		{																		// logged in
@@ -349,6 +352,7 @@ class Auth extends CI_Controller
 				}
 
 			}
+            $this->template->set('g_key',$g_key);
 			$this->template->set('data',$data);
 			$this->template->build('auth/login');
 		}

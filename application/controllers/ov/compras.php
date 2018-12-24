@@ -1828,17 +1828,20 @@ function index()
 		foreach ($redes as $red){
 			
 			for($i=1; $i<=$red->frontal ;$i++){
-				$q=$this->db->query("SELECT total FROM comisionPuntosRemanentes where id_usuario=".$id." and id_pata=".$i." order by id desc limit 0,1");
-				$totalPata=$q->result();
-				$totalRemanente=0;
+				$q=$this->db->query("SELECT * FROM comisionPuntosRemanentes where id_usuario=".$id." order by id desc limit 0,1");
+                $data = $q->result();
 
-				if($totalPata!=NULL)
-					$totalRemanente=$totalPata[0]->total;
-				 
-				$remanente = array(
+				$totalRemanente=0;
+				$pata = $patas[$i];
+                if($data !=NULL)
+					$totalRemanente= $data[0]->$pata;
+
+				$patas = array("izquierda","derecha");
+
+                $remanente = array(
 						'id_red' => $red->id,
 						'nombre_red' => $red->nombre,
-						'id_pata' => $i,
+						'id_pata' => $pata,
 						'total'   => $totalRemanente
 				
 				);
@@ -3561,7 +3564,7 @@ function index()
 	}
 	
 	function printMercanciaPorTipoDeRed($mercancia,$tipoMercancia){
-		
+        $id = $this->tank_auth->get_user_id();
 		for($i=0;$i<sizeof($mercancia);$i++)
 		{
 			$id_tipo_mercancia = isset($mercancia[$i]->id_tipo_mercancia) ? $mercancia[$i]->id_tipo_mercancia : 0;
@@ -3590,6 +3593,11 @@ function index()
 			
 			if(!file_exists(getcwd().$img_item))
 				$img_item = "/template/img/favicon/favicon.png";
+
+			$inversion = $this->jakkbonos->isInversion($id);
+
+			if($inversion)
+			    continue;
 
 		$imprimir ='	<div class="item col-lg-3 col-md-3 col-sm-3 col-xs-3">
 					<div class="producto">

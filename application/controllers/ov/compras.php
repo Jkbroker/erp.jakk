@@ -1826,24 +1826,23 @@ function index()
 		$remanentes=array();
 		
 		foreach ($redes as $red){
-			
+
+		    $lados = array("izquierda","derecha");
 			for($i=1; $i<=$red->frontal ;$i++){
-				$q=$this->db->query("SELECT * FROM comisionPuntosRemanentes where id_usuario=".$id." order by id desc limit 0,1");
-                $data = $q->result();
+                $totalPata = $this->getValorPata($id);
+                $totalRemanente=0;
 
-				$totalRemanente=0;
-				$pata = $patas[$i];
-                if($data !=NULL)
-					$totalRemanente= $data[0]->$pata;
-
-				$patas = array("izquierda","derecha");
+                $key = $i - 1;
+				if($totalPata!=NULL){
+				    $lado = isset($lados[$key]) ? $lados[$key] : $lados[0];
+                    $totalRemanente=$totalPata[0]->$lado;
+                }
 
                 $remanente = array(
 						'id_red' => $red->id,
 						'nombre_red' => $red->nombre,
-						'id_pata' => $pata,
+						'id_pata' => $key,
 						'total'   => $totalRemanente
-				
 				);
 				
 				array_push($remanentes, $remanente);
@@ -3564,7 +3563,7 @@ function index()
 	}
 	
 	function printMercanciaPorTipoDeRed($mercancia,$tipoMercancia){
-        $id = $this->tank_auth->get_user_id();
+		
 		for($i=0;$i<sizeof($mercancia);$i++)
 		{
 			$id_tipo_mercancia = isset($mercancia[$i]->id_tipo_mercancia) ? $mercancia[$i]->id_tipo_mercancia : 0;
@@ -3593,11 +3592,6 @@ function index()
 			
 			if(!file_exists(getcwd().$img_item))
 				$img_item = "/template/img/favicon/favicon.png";
-
-			$inversion = $this->jakkbonos->isInversion($id);
-
-			if($inversion)
-			    continue;
 
 		$imprimir ='	<div class="item col-lg-3 col-md-3 col-sm-3 col-xs-3">
 					<div class="producto">
@@ -4509,6 +4503,17 @@ function index()
                             where id_user = $id";
             $this->db->query($query);
         }
+    }
+
+    /**
+     * @param $id
+     * @return mixed
+     */
+    private function getValorPata($id)
+    {
+        $q = $this->db->query("SELECT total FROM comisionPuntosRemanentes where id_usuario=" . $id . " order by id desc limit 0,1");
+        $totalPata = $q->result();
+        return $totalPata;
     }
 
 }

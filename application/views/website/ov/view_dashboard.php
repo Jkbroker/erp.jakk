@@ -132,14 +132,39 @@
 																<li><span class="font-md"><i>Total :</i></span> <?=$puntos_red_total?>
 																</li>
 															</ul>
-														<h1><small>Últimos Auspiciados</small></h1>
-															<ul class="list-inline friends-list">
-																<?php 
-																foreach ($ultimos_auspiciados as $afiliado) {
-																	echo '<li><a onclick="detalles('.$afiliado["id"].')"><img src="'.$afiliado["foto"].'"></a>
+
+                                                            <div class="row">
+                                                              <?php
+                                                              $valores= (sizeof($suscripcion)>1) ? $suscripcion : false;
+
+                                                              if($valores) {
+                                                                  $factor = $valores[0]->valor;
+                                                                  echo "<div class='row smart-form'>
+                                                                    <div class=' col-md-6'>Periodo de Inversión</div>
+                                                                    <div class='select col-md-6'>
+                                                                        <label for='inversion' class='select'>
+                                                                            <select  name='inversion' id='inversion' class='select2'>";
+                                                                  for ($key = 1; $key < sizeof($valores); $key++) {
+                                                                      $datos = $valores[$key];
+                                                                      $periodo = $factor * $datos->nivel;
+                                                                      echo "<option value='$datos->nivel' >$periodo MESES</option>";
+                                                                  }
+                                                                  echo
+                                                                  "</select>
+                                                                        </label>
+                                                                    </div>
+                                                                </div>";
+                                                              } ?>
+                                                            </div>
+                                                            <hr/>
+                                                            <h1><small>Últimos Auspiciados</small></h1>
+                                                            <ul class="list-inline friends-list">
+                                                                <?php
+                                                                foreach ($ultimos_auspiciados as $afiliado) {
+                                                                    echo '<li><a onclick="detalles('.$afiliado["id"].')"><img src="'.$afiliado["foto"].'"></a>
 																		  </li>';
-																}?>
-															</ul>
+                                                                }?>
+                                                            </ul>
 														</div>
 													</div>
 												</div>
@@ -839,6 +864,30 @@
 			</div>
 			<!-- END MAIN CONTENT -->
 <script>
+
+    $(document).ready(function () {
+        $("#inversion").val("<?=$inversion;?>");
+        inversion();
+    });
+
+    $("#inversion").change(function () {
+        inversion();
+    });
+    function inversion(id = false) {
+
+        if(!id)
+            id = $("#inversion").val();
+
+        $.ajax({
+            type: "POST",
+            url: "/ov/dashboard/inversion",
+            data: {id: id},
+        }).done(function( msg )
+            {
+                console.log("inversion : "+msg);
+            });
+    }
+
 function detalles(id)
 {
 	$.ajax({

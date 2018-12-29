@@ -599,6 +599,85 @@ class jakkbonos extends CI_Model
         return array($ganancia,$reporte);
     }
 
+    function getPuntosBrazos($id_usuario,$fecha = false,$frecuencia = "UNI")
+    {
+        if(!$fecha)
+            $fecha = date('Y-m-d');
+
+        $id_bono = 2;
+        $valores = $this->getBonoValorNiveles($id_bono);
+        $afiliados = $this->getAfiliadosMatriz($valores,$id_usuario);
+
+        $fechaInicio=$this->getPeriodoFecha($frecuencia, "INI", $fecha);
+        $fechaFin=$this->getPeriodoFecha($frecuencia, "FIN", $fecha);
+
+        $datos = $this->ComprobarBrazos($afiliados);
+
+        if(!$datos)
+            return 0;
+
+        list($afiliados,$brazos) = $datos;
+
+        log_message('DEV',"NIVEL 1 : ".json_encode($brazos));
+        list($puntos, $ventas) = $this->setPuntosFrontales($id_usuario,$fechaInicio, $fechaFin, $brazos);
+
+        if(!$afiliados)
+            return $puntos;
+
+        $uplines =$brazos;
+
+        foreach ($afiliados as $n => $nivel){
+            $idx = $n+1;
+            log_message('DEV',"NIVEL $idx : ".json_encode($nivel));
+            foreach ($nivel as $key => $afiliado){
+                $venta = $this->getVentaMercancia($afiliado,$fechaInicio,$fechaFin,2,false);
+
+                if(!$venta)
+                    continue;
+
+                $this->setPuntosDerrame($venta, $afiliado, $uplines, $puntos, $ventas);
+
+                log_message('DEV',"lados [$key] : ".json_encode($uplines));
+            }
+        }
+        log_message('DEV',"ventas  : ".json_encode($ventas));
+
+        $conteo = $puntos;
+
+        $puntos = $this->setPuntosTotales($conteo);
+
+        return $puntos;
+
+        $puntos = $this->setBrazoMenor($puntos);
+
+        if(!$puntos)
+            return false;
+
+        list($puntos,$debil) = $puntos;
+
+        $remanente = $this->setDatosArrayUnset($ventas, $debil);
+        $sobrante= $this->setDatosArrayUnset($conteo, $debil);
+        $remanente = $this->setRemanentesBinario($puntos,  $remanente, $sobrante);
+        $remanente = json_encode($remanente);
+
+        $this->updateRemanente($id_usuario, $debil, $remanente);
+
+        $ganados = $ventas[$debil];
+        if($ganados == 0)
+            return 0;
+
+        $ganados = explode(",", $ventas[$debil]);
+        $pagadas = explode(",", $conteo[$debil]);
+
+        $reporte = $this->setReporteBinario($ganados, $pagadas);
+        $reporte =  json_encode($reporte);
+
+        $per = $valores[1]->valor / 100;
+        $ganancia = $puntos*$per;
+
+        log_message('DEV',">>> BINARIO -> $puntos * $per V:$reporte R:$remanente");
+        return array($ganancia,$reporte);
+    }
 
     private function setRemanente($id,$remanente,$bono = 2){
 

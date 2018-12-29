@@ -246,12 +246,15 @@ class Auth extends CI_Controller
 	 */
 	function login()
 	{
+        $empresa=$this->model_admin->val_empresa_multinivel();
+        $g_key = $this->general->issetVar($empresa,"g_captcha");
+
 		$this->reset_view();
 		if ($this->tank_auth->is_logged_in())
 		{																		// logged in
 			$id   = $this->tank_auth->get_user_id();
 			$tipo = $this->general->get_tipo($id);
-			$tipo = (int)$tipo[0]->id_tipo_usuario;
+			$tipo = $this->general->issetVar($tipo,"id_tipo_usuario",2);
 			
 			$this->accesos ( $tipo );	
 
@@ -282,7 +285,7 @@ class Auth extends CI_Controller
 				{
 					$id_login = $this->general->get_user($_POST['login']);
                     if($id_login)	{
-						$_POST['login']=$id_login[0]->username;
+						$_POST['login']=$this->general->issetVar($id_login,"username");
 					}
 				}
 			}
@@ -311,10 +314,10 @@ class Auth extends CI_Controller
                             return true;
                         }
 
-						$tipo = (int)$tipo[0]->id_tipo_usuario;
+						$tipo = $this->general->issetVar($tipo,"id_tipo_usuario",2);
 							
 						$estatus = $this->general->get_status($id);
-						$estatus = $estatus[0]->id_estatus;
+						$estatus = $this->general->issetVar($estatus,"id_estatus",1);
 							
 						if($estatus == '1'){
 							$this->general->unlocked();
@@ -349,6 +352,7 @@ class Auth extends CI_Controller
 				}
 
 			}
+            $this->template->set('g_key',$g_key);
 			$this->template->set('data',$data);
 			$this->template->build('auth/login');
 		}

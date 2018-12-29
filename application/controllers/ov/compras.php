@@ -1833,7 +1833,7 @@ function index()
                 $totalRemanente=0;
 
                 $key = $i - 1;
-				if($totalPata!=NULL){
+				if($totalPata){
 				    $lado = isset($lados[$key]) ? $lados[$key] : $lados[0];
                     $totalRemanente=$totalPata[0]->$lado;
                 }
@@ -4496,6 +4496,10 @@ function index()
     private function setInversion($items)
     {
         $id = $this->tank_auth->get_user_id();
+
+        if(!$id)
+            return false;
+
         if ($items['name'] == 2) {
             $inversion = $items['options']['prom_id'];
             $query = "update billetera 
@@ -4511,7 +4515,7 @@ function index()
      */
     private function getValorPata($id)
     {
-        $q = $this->db->query("SELECT total FROM comisionPuntosRemanentes where id_usuario=" . $id . " order by id desc limit 0,1");
+        $q = $this->db->query("SELECT * FROM comisionPuntosRemanentes where id_usuario=" . $id . " order by id desc limit 0,1");
         $totalPata = $q->result();
         return $totalPata;
     }

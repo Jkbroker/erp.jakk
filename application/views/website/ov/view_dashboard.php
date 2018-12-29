@@ -114,8 +114,8 @@
 															<br>
 														</div>
 														<div class="col-sm-4">
-														<h1><small>Puntos Comisionables Personales</small>  <i class='fa fa-user'></i></h1>
-															<ul class="list-inline friends-list">
+														<h1 class="hide"><small>Puntos Comisionables Personales</small>  <i class='fa fa-user'></i></h1>
+															<ul class="hide list-inline friends-list">
 																<li><span class="font-md"><i>Semana :</i></span> <?=intval($puntos_semana)?>
 																</li>
 																<li><span class="font-md"><i>Mes :</i></span> <?=intval($puntos_mes)?>
@@ -123,8 +123,8 @@
 																<li><span class="font-md"><i>Total :</i></span> <?=intval($puntos_total)?>
 																</li>
 															</ul>
-														<h1><small>Puntos Comisionables Red </small>  <i class='fa fa-sitemap'></i></h1>
-															<ul class="list-inline friends-list">
+														<h1 class="hide"><small>Puntos Comisionables Red </small>  <i class='fa fa-sitemap'></i></h1>
+															<ul class="hide list-inline friends-list">
 																<li><span class="font-md"><i>Semana :</i></span> <?=$puntos_red_semana?>
 																</li>
 																<li><span class="font-md"><i>Mes :</i></span> <?=$puntos_red_mes?>
@@ -132,6 +132,14 @@
 																<li><span class="font-md"><i>Total :</i></span> <?=$puntos_red_total?>
 																</li>
 															</ul>
+
+                                                            <h1 class=""><small>Puntos Binario </small>  <i class='fa fa-sitemap'></i></h1>
+                                                            <ul class=" list-inline friends-list">
+                                                                <li><span class="font-md"><i>Izquierda :</i></span> <br/><?=$puntos[0]?>
+                                                                </li>
+                                                                <li><span class="font-md"><i>Derecha :</i></span> <br/> <?=$puntos[1]?>
+                                                                </li>
+                                                            </ul>
 
                                                             <div class="row">
                                                               <?php

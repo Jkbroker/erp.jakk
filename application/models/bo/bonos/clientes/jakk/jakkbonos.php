@@ -1090,6 +1090,29 @@ class jakkbonos extends CI_Model
         return $monto;
     }
 
+    function isInversion ($id,$fecha = false){
+        if(!$fecha)
+            $fecha = date('Y-m-d');
+
+        $fechaInicio = $this->getInicioFecha($id);
+        $venta = $this->getVentaMercancia($id,$fechaInicio,$fecha,2,false,"",true);
+
+        if ($id == 2)
+            return true;
+
+        if (!$venta)
+            return false;
+
+        $fecha_venta = $this->issetVar($venta,"fecha",$fechaInicio);
+
+        $conteo = $this->getDiffTime($fecha_venta, $fecha);
+
+        if($conteo<=0)
+            return false;
+
+        return true;
+    }
+
     function getPasivo($id,$fecha = false){
         if(!$fecha)
             $fecha = date('Y-m-d');

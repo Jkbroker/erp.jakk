@@ -140,6 +140,19 @@
                                                 <a class="link_login" href="/auth/forgot_password">Olvidaste tu contraseña?</a>
                                             </div>
                                         </section>
+                                       <?php if(isset($g_key)) :?>
+                                           <script src="https://www.google.com/recaptcha/api.js"></script>
+                                           <section>
+                                               <label  for="captcha" class="label">Captcha </label>
+                                               <div class=" dato_cptch " onshow="this.focus">
+                                                   <!-- data-sitekey ? segun dns -->
+                                                   <div class="g-recaptcha"
+                                                        data-callback="enable_submit"
+                                                        data-sitekey="<?=$g_key?>"> </div>
+                                               </div>
+                                           </section>
+
+                                       <?php endif; ?>
                                     </div>
                                 </fieldset>
                                 <footer>
@@ -155,6 +168,14 @@
             </div>
 
         </div>
+        <?php if(isset($g_key)) :?>
+        <script>
+            document.getElementById("enviar").disabled = true;
+            function enable_submit() {
+                document.getElementById("enviar").disabled = false;
+            }
+        </script>
+        <?php endif; ?>
         <div id="footer" class="fade in">
             <br />
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">

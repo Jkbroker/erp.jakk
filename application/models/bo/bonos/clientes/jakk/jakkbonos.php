@@ -599,8 +599,44 @@ class jakkbonos extends CI_Model
         return array($ganancia,$reporte);
     }
 
-    function getPuntosBrazos($id_usuario,$fecha = false,$frecuencia = "UNI")
+    function getPuntosBinario($id_usuario, $fecha = false)
     {
+        if (!$fecha)
+            $fecha = date('Y-m-d');
+
+        $usuario = new $this->afiliado;
+
+        $def = "0";
+        $fechaInicio = $this->getPeriodoFecha("UNI", "INI", $fecha);
+        $fechaFin = $this->getPeriodoFecha("UNI", "FIN", $fecha);
+
+        #$redes = $this->getRedes();
+
+        $puntos = array(0,0);
+        $id_red = 1;
+        $profundidad = 4;
+        $brazos = $this->getAfiliadosBinario($id_usuario);
+
+        log_message('DEV',"PUNTOS BINARIO :: $id_usuario");
+        if(sizeof($brazos)<2)
+            return $puntos;
+
+        $personal = "getPuntosTotalesPersonalesIntervalosDeTiempo";
+        $enlared="getVentasTodaLaRed";
+        foreach ($brazos as $key => $brazo) {
+            $puntos_personal= $usuario->$personal($brazo, $id_red, $def, $def, $fechaInicio, $fechaFin);
+            $puntos_red= $usuario->$enlared($brazo, $id_red, "RED", "EQU", $profundidad, $fechaInicio, $fechaFin, $def, $def, "PUNTOS");
+
+            $puntos[$key] =  $puntos_personal + $puntos_red;
+
+            log_message('DEV',"[$key]($brazo) -> $puntos_personal + $puntos_red = ".$puntos[$key]);
+        }
+
+        return $puntos;
+    }
+
+    function getPuntosBrazos($id_usuario,$fecha = false,$frecuencia = "UNI"){
+
         if(!$fecha)
             $fecha = date('Y-m-d');
 
@@ -660,7 +696,7 @@ class jakkbonos extends CI_Model
         $remanente = $this->setRemanentesBinario($puntos,  $remanente, $sobrante);
         $remanente = json_encode($remanente);
 
-        $this->updateRemanente($id_usuario, $debil, $remanente);
+        #TODO: $this->updateRemanente($id_usuario, $debil, $remanente);
 
         $ganados = $ventas[$debil];
         if($ganados == 0)
@@ -1831,6 +1867,13 @@ class jakkbonos extends CI_Model
         return $afiliadosActivos;
     }
 
+    private function getRedes()
+    {
+        $q = $this->db->query("select id , profundidad from tipo_red where estatus = 'ACT' group by id");
+        $redes = $q->result();
+        return $redes;
+    }
+
     private function getTipoRedes()
     {
         $q = $this->db->query('SELECT * FROM tipo_red');
@@ -1856,7 +1899,6 @@ class jakkbonos extends CI_Model
         $isMax = ($negocio<$negocioSponsor);
         $subquery ="AND lider = $padre ";
     }
-
 
 
 }

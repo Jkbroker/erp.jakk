@@ -159,7 +159,7 @@ class dashboard extends CI_Controller
                 
 		$actividad=$this->modelo_compras->is_afiliado_activo($id,date('Y-m-d'));
 
-		$puntos = $this->jakkbonos->getPuntosBrazos($id,false,"DIA");
+		$puntos = $this->jakkbonos->getPuntosBinario($id);#getPuntosBrazos
         $this->template->set("puntos",$puntos);
 
 		$puntos_semana=$this->modelo_dashboard->get_puntos_personales_semana($id);

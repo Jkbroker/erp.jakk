@@ -489,7 +489,7 @@ class jakkbonos extends CI_Model
 
         $id_usuario = $parametro["id_usuario"];
         $id_red = isset($parametro["red"]) ?  $parametro["red"] : 1;
-        log_message('DEV', "BONO $id_bono between: $fechaInicio - $fechaFin");
+        log_message('DEV', "BONO $id_bono between: $fechaInicio - $fechaFin ($periodo)");
 
         $afiliados = $this->getAfiliadosMatriz($valores,$id_usuario);
 
@@ -553,15 +553,12 @@ class jakkbonos extends CI_Model
             $idx = $n+1;
             log_message('DEV',"NIVEL $idx : ".json_encode($nivel));
             foreach ($nivel as $key => $afiliado){
-                $venta = $this->getVentaMercancia($afiliado,$fechaInicio,$fechaFin,2,false);
 
-                if(!$venta)
-                    continue;
-
-                $this->setPuntosDerrame($venta, $afiliado, $uplines, $puntos, $ventas);
+                $this->setPuntosDerrame( $afiliado, $fechaInicio,$fechaFin, $uplines, $puntos, $ventas);
 
                 log_message('DEV',"lados [$key] : ".json_encode($uplines));
             }
+            log_message('DEV', "VENTAS :::>>> ".json_encode($ventas)."PUNTOS :::>>> ".json_encode($puntos));
         }
         log_message('DEV',"ventas  : ".json_encode($ventas));
 
@@ -575,22 +572,42 @@ class jakkbonos extends CI_Model
 
         list($puntos,$debil) = $puntos;
 
+        $cumple= $this->getAfiliadosBinario($id_usuario,$fechaFin);
+
+        if($cumple){
+            list ($afiliados,$binario) = $cumple;
+            $cumple = sizeof($binario) >= 2;
+        }
         $remanente = $this->setDatosArrayUnset($ventas, $debil);
         $sobrante= $this->setDatosArrayUnset($conteo, $debil);
-        $remanente = $this->setRemanentesBinario($puntos,  $remanente, $sobrante);
-        $remanente = json_encode($remanente);
 
-        $this->updateRemanente($id_usuario, $debil, $remanente);
+        if($cumple){
+            $remanente = $this->setRemanentesBinario( $remanente, $sobrante, $puntos);
+
+        } else {
+            $remanente = $this->setRemanentesBinario( $remanente, $sobrante);
+        }
+
+        $remanente = json_encode($remanente);
+        $this->updateRemanenteDebil($id_usuario, $debil, $remanente);
 
         $ganados = $ventas[$debil];
-        if($ganados == 0)
-            return 0;
 
-        $ganados = explode(",", $ventas[$debil]);
+        $ganados = explode(",", $ganados);
         $pagadas = explode(",", $conteo[$debil]);
 
         $reporte = $this->setReporteBinario($ganados, $pagadas);
         $reporte =  json_encode($reporte);
+        $this->updateRemanente($id_usuario, $debil, $reporte);
+        if($ganados == 0)
+            return 0;
+
+        if(!$cumple){
+            log_message('DEV',">>> NO CUMPLE CONDICION ($id_usuario)");
+            return 0;
+        }
+
+        $this->updateRemanente($id_usuario, $debil);
 
         $per = $valores[1]->valor / 100;
         $ganancia = $puntos*$per;
@@ -615,10 +632,15 @@ class jakkbonos extends CI_Model
         $puntos = array(0,0);
         $id_red = 1;
         $profundidad = 4;
-        $brazos = $this->getAfiliadosBinario($id_usuario);
+        $isbrazos = $this->getAfiliadosBinario($id_usuario);
+
+        if($isbrazos){
+            list($brazos,$directos) = $isbrazos;
+            $isbrazos = sizeof($brazos)>=2;
+        }
 
         log_message('DEV',"PUNTOS BINARIO :: $id_usuario");
-        if(sizeof($brazos)<2)
+        if(!$isbrazos)
             return $puntos;
 
         $personal = "getPuntosTotalesPersonalesIntervalosDeTiempo";
@@ -760,10 +782,14 @@ class jakkbonos extends CI_Model
         $ventas = array(0, 0);
         foreach ($remanentes as $key => $pata) {
             $datos = json_decode($pata);
+            $isObject = gettype($datos) == "object";
+            $isArray = gettype($datos) == "array";
+            $isEmpty = sizeof($datos) < 1 || $datos === 0;
             log_message('DEV', "pata $key :: $pata ");
-            if (gettype($datos) != "array")
+
+            if ($isObject && $isArray)
                 continue;
-            else if(sizeof($datos)<1)
+            else if($isEmpty )
                 continue;
 
             foreach ($datos as $id_venta => $valor) {
@@ -777,8 +803,15 @@ class jakkbonos extends CI_Model
         return array($puntos, $ventas);
     }
 
-    private function setValueSeparated($datos, $key, $value)
+    private function setValueSeparated($datos, $key, $value,$split= false)
     {
+        if($split){
+            $list = explode(",",$datos[$key]."");
+            foreach ($list as $data)
+                if($data == $value)
+                    return $datos;
+        }
+
         if ($datos[$key] == 0)
             $datos[$key] = $value;
         else
@@ -823,7 +856,7 @@ class jakkbonos extends CI_Model
         return $reporte;
     }
 
-    private function setRemanentesBinario($puntos, $remanente, $conteo)
+    private function setRemanentesBinario($remanente, $conteo,$puntos = 0)
     {
         $monto = 0;
         $sobrantes = array();
@@ -845,15 +878,17 @@ class jakkbonos extends CI_Model
         }
         return $sobrantes;
     }
-
-    private function updateRemanente($id_usuario, $debil, $remanente)
+    private function updateRemanenteDebil($id_usuario, $debil, $remanente = 0)
     {
-        $lados = array(
-            "izquierda" => 0,
-            "derecha" => 0
-        );
+        $contrario = ($debil == 0) ? 1 : 0;
+        $this->updateRemanente($id_usuario,$contrario,$remanente);
+    }
 
-        $ladomayor = ($debil == 0) ? "derecha" : "izquierda";
+    private function updateRemanente($id_usuario, $lado, $remanente = 0)
+    {
+        $lados = array();
+
+        $ladomayor = ($lado == 0) ? "izquierda" : "derecha";
 
         $lados[$ladomayor] = $remanente;
 
@@ -878,7 +913,7 @@ class jakkbonos extends CI_Model
 
     private function isUpline($id,$id_debajo = 2, $red = 1)
     {
-        $query = "select * from afiliar 
+        $query = "select * from afiliar -- imprimir
                     where debajo_de in ($id_debajo)
                       and id_afiliado = $id
                       and id_red = $red ";
@@ -891,18 +926,24 @@ class jakkbonos extends CI_Model
 
     private function setBrazoMenor($puntos)
     {
+        $sumPuntos = array_sum($puntos);
+
+        if($sumPuntos == 0)
+            return false;
+
         $menor = 0;$debil=false;$aplica = false;
         foreach ($puntos as $key => $punto) {
-            if ($punto != 0 && !$aplica)
-                $aplica=true;
-            if ($menor == 0 || $punto < $menor){
+            log_message('DEV',">>> PUNTO [$key] -> [[ $punto ]]");
+            if (!$aplica || $punto < $menor){
                 $debil = $key;
                 $menor = $punto;
             }
+            $aplica=true;
         }
+
         $json = json_encode($puntos);
         log_message('DEV',">>> PUNTOS : $json -> $menor");
-        return $aplica ? array($menor,$debil) : false;
+        return array($menor,$debil);
     }
 
     private function setPuntosFrontales($id_usuario,$fechaInicio, $fechaFin, $brazos)
@@ -926,11 +967,8 @@ class jakkbonos extends CI_Model
         return array($puntos, $ventas);
     }
 
-    private function setPuntosDerrame($venta, $afiliado, &$uplines, &$puntos, &$ventas)
+    private function setPuntosDerrame($afiliado,$fechaInicio,$fechaFin, &$uplines, &$puntos, &$ventas)
     {
-        $valor = $venta[0]->puntos_comisionables;
-        $id_venta = $venta[0]->id_venta;
-
         foreach ($uplines as $key => $upline) {
             $isUpline = $this->isUpline($afiliado, $upline);
             if (!$isUpline)
@@ -938,12 +976,20 @@ class jakkbonos extends CI_Model
 
             $uplines[$key] .= ",$afiliado";
 
+            $venta = $this->getVentaMercancia($afiliado,$fechaInicio,$fechaFin,2,false);
+
+            if(!$venta)
+                continue;
+
+            $valor = $venta[0]->puntos_comisionables;
+            $id_venta = $venta[0]->id_venta;
+
+            log_message('DEV', ">>>! ADD lado[$key] ->> a:$afiliado I:$id_venta V:$valor");
+
             $puntos = $this->setValueSeparated($puntos, $key, $valor);
-            $ventas = $this->setValueSeparated($ventas, $key, $id_venta);
+            $ventas = $this->setValueSeparated($ventas, $key, $id_venta,true);
 
         }
-
-        log_message('DEV', "Derrame : A2:$afiliado V:$valor I:$id_venta");
     }
 
 
@@ -1006,35 +1052,72 @@ class jakkbonos extends CI_Model
         return $condicion [0]->$nombre;
     }
 
-    private function getAfiliadosBinario($id_usuario)
+    private function getAfiliadosBinario($id_usuario,$fecha = false)
     {
+        if (! $fecha)
+            $fecha = date ( "Y-m-d" );
+
         $this->getAfiliadosBy($id_usuario, 1, "RED", "order by lado",$id_usuario,1);
         $afiliados = $this->getAfiliados();
 
         $this->getAfiliadosBy($id_usuario, 1, "DIRECTOS", "",$id_usuario,1);
         $directos = $this->getAfiliados();
 
-        if(!$directos){
-            return array();
-        }else if(sizeof($directos)==1){
-            $midirecto = $directos[0];
-            $isDirecto = $this->isDirectoContraLado($id_usuario,$afiliados, $midirecto);
-            if(!$isDirecto)
-                return array();
+        if(!$directos)
+            return false;
+
+        $fechaInicio=$this->getPeriodoFecha("UNI", "INI", '');
+
+        $lados = array();
+        foreach ($afiliados as $key =>$id_user){
+
+            $venta = $this->getVentaMercancia($id_user, $fechaInicio, $fecha, 2, false);
+
+            $Directo = $this->getAfiliacion($id_user);
+            if($Directo)
+                $Directo = ($Directo[0]->directo == $id_usuario) ? $id_user : false;
+
+            $json = json_encode($venta);
+            log_message('DEV',"Directo ($id_user) -->>>> $json | [[ $Directo ]]");
+
+            if(!$venta || !$Directo)
+                $Directo = $this->isDirectoLado($id_usuario,$afiliados, $id_user,$fecha);
+
+            log_message('DEV',"condicion ($id_user)[$key] :: [[ $Directo ]]");
+
+            if(!$Directo)
+                return false;
+
+            $lados[$key] = $Directo;
+
         }
 
-        return $afiliados;
+        return array($afiliados,$lados);
     }
 
-    private function isDirectoContraLado($id_usuario , $afiliados, $directo)
+    private function getAfiliacion($id, $red = 1)
     {
+        $q = $this->db->query("SELECT * FROM afiliar WHERE id_afiliado = $id and id_red = $red");
+        $q = $q->result();
+
+        return $q;
+    }
+
+    private function isDirectoLado($id_usuario , $afiliados, $directo,$fecha = false)
+    {
+        if (! $fecha)
+            $fecha = date ( "Y-m-d" );
+
+        $fechaInicio=$this->getPeriodoFecha("UNI", "INI", '');
+        $fechaFin=$fecha;
+
         $datoid = $this->getAfiliacion($directo,1);
-        $lado = $datoid[0]->lado == 1 ? 0 : 1;
+        $lado = $datoid[0]->lado;
 
         $mired = $afiliados;
         $directos = false;
         $isdirecto = false;
-
+        $isDirectoCompra = false;
         while(!$isdirecto){
 
             $islado = false;
@@ -1048,17 +1131,74 @@ class jakkbonos extends CI_Model
                     $this->getAfiliadosBy($uid, 1, "DIRECTOS", "",$id_usuario,1);
                     $directos = $this->getAfiliados();
 
+                    $isDirectoCompra = false;
+                    foreach ($directos as $id_user){
+                        $venta = $this->getVentaMercancia($id_user, $fechaInicio, $fechaFin, 2, false);
+
+                        if ($venta)
+                            $isDirectoCompra = $id_user;
+                    }
+
                     break;
                 }
             }
 
-            if ($directos)
+            if ($isDirectoCompra)
                 $isdirecto = true;
             else if (! $islado)
                 $isdirecto = true;
         }
 
-        return ($directos) ? true : false;
+        return $isDirectoCompra;
+    }
+
+    private function isDirectoContraLado($id_usuario , $afiliados, $directo,$fecha = false)
+    {
+        if (! $fecha)
+            $fecha = date ( "Y-m-d" );
+
+        $fechaInicio=$this->getPeriodoFecha("UNI", "INI", '');
+        $fechaFin=$fecha;
+
+        $datoid = $this->getAfiliacion($directo,1);
+        $lado = $datoid[0]->lado == 1 ? 0 : 1;
+
+        $mired = $afiliados;
+        $directos = false;
+        $isdirecto = false;
+        $isDirectoCompra = false;
+        while(!$isdirecto){
+
+            $islado = false;
+            foreach ($mired as $uid){
+                $datoid = $this->getAfiliacion($uid,1);
+                $milado = $datoid[0]->lado;
+                $islado = ($milado==$lado);
+                if($islado){
+                    $this->getAfiliadosBy($uid, 1, "RED", "",$id_usuario,1);
+                    $mired = $this->getAfiliados();
+                    $this->getAfiliadosBy($uid, 1, "DIRECTOS", "",$id_usuario,1);
+                    $directos = $this->getAfiliados();
+
+                    $isDirectoCompra = false;
+                    foreach ($directos as $id_user){
+                        $venta = $this->getVentaMercancia($id_user, $fechaInicio, $fechaFin, 2, false);
+
+                        if ($venta)
+                            $isDirectoCompra = $id_user;
+                    }
+
+                    break;
+                }
+            }
+
+            if ($isDirectoCompra)
+                $isdirecto = true;
+            else if (! $islado)
+                $isdirecto = true;
+        }
+
+        return $isDirectoCompra;
     }
 
     function getValorBonoInversion($parametro,$pagar = false)

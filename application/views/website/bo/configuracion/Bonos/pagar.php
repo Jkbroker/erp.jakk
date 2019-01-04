@@ -184,10 +184,19 @@ function enviar() {
 							className: "btn-success",
 							callback: function() {
 								
-								location.href="/bo/bonos/historial";
+								//location.href="/bo/bonos/historial";
 								FinalizarSpinner();
 								}
-							}
+							},
+                            warning: {
+                                label: "Ver Reporte",
+                                className: "btn-success",
+                                callback: function() {
+
+                                    location.href="/bo/bonos/historial";
+                                    FinalizarSpinner();
+                                }
+                            }
 						}
 					})
 					

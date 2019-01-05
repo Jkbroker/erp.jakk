@@ -1019,11 +1019,16 @@ function index()
 
 		$link = getcwd()."/CompropagoSdk/exec/listProviders.php";
 
-		require_once $link;
+		try{
+            require_once $link;
+            $passProviders = $providers;
+            $this->template->set("providers",$passProviders);
+        }catch(Exception $e){
+            echo "MÉTODO DE PAGO NO DISPONIBLE";
+            return false;
+            exit();
+        }
 
-		$passProviders = $providers;
- 		
- 		$this->template->set("providers",$passProviders);
  		$this->template->build('website/ov/compra_reporte/compropago/proveedores');
 	
 	}

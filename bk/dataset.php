@@ -68,6 +68,8 @@ function setCommand ($db,$file,$data = ""){
 function newQuery($db,$data = "")
 {
     $command = setCommand($db, "query.sh", $data);
+    #TODO: log_message("<db> $data \n\n ");
+
     $query = shell_exec($command);
     
     $datos = explode("\n", $query);

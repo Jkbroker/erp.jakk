@@ -3176,7 +3176,7 @@ function index()
           <a data-placement="left" data-original-title="Add to Wishlist" data-toggle="tooltip" class="add-fav tooltipHere">
           <i class="glyphicon glyphicon-heart"></i>
           </a>
-            <div class="image"> <a href="product-details.html">
+            <div class="image"> <a href="'.$img_item.'" target="_blank">
 				<img class="img-responsive" alt="img" src="'.$img_item.'" style="width: 15rem ! important; height: 10rem ! important;">
 				</a>
             </div>
@@ -3841,7 +3841,9 @@ function index()
 							echo '<tr class="miniCartProduct"> 
 									<td style="width:20%" class="miniCartProductThumb"><div> <a href="#"> <img src="'.$imgn[0]->url.'" alt="img"> </a> </div></td>
 									<td style="width:40%"><div class="miniCartDescription">
-				                        <h4> <a href="product-details.html"> '.$detalles[0]->nombre.'</a> </h4>
+				                        <h4> <a  onclick="detalles('.$items['id'].','.$items['name'].')" 
+				                        href="javascript:void(0);">
+				                         '.$detalles[0]->nombre.'</a> </h4>
 				                        <div class="price"> <span> '.($items['price']).' </span> </div>
 				                      </div></td>
 				                    <td  style="width:10%" class="miniCartQuantity"><a > X '.$items['qty'].' </a></td>

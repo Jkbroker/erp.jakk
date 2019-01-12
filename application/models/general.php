@@ -68,6 +68,26 @@ class general extends CI_Model
 	  	$q=$this->db->query('select * from estilo_usuario where id_usuario = '.$id);
 	 	return $q->result();
 	}
+
+    function isFineRegistry($id)
+    {
+        if($id<=2)
+            return true;
+
+        $usuario = $this->get_username($id);
+        $afiliar = $this->get_afiliar($id);
+        if (!$usuario || !$afiliar) {
+            $log = "Usuario : $id no registrado correctamente";
+            log_message('DEV', $log);
+            redirect('auth/logout');
+        }
+    }
+
+	function get_afiliar($id)
+    {
+        $q=$this->db->query('select * from afiliar where id_afiliado = '.$id);
+        return $q->result();
+    }
 	function get_username($id)
 	{
 		$q=$this->db->query('select * from user_profiles where user_id = '.$id);

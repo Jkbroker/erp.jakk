@@ -37,7 +37,7 @@ class registro {
 
             $this->insertPassword ( $hashed_password, $email_activacion );
 
-            return $this->obtenrIdUser($email_activacion);
+            return $this->obtenrIdUsername($username);
     }
 
 	private function insertPassword($hashed_password, $email_activacion) {
@@ -256,7 +256,7 @@ class registro {
     }
 
     function crearUsuario(){
-
+        log_message("CREANDO USUARIO \n ------------ \n");
         $id = $this->createUser();
 
         if (!$id){
@@ -321,9 +321,10 @@ class registro {
             $dato_rango,
             $dato_img
         );
+
         #foreach ($afiliar as $rest){
             #echo "<br/><br/>".json_encode($rest);
-        #}               
+        #}
 
         # TELEFONOS $dato_tels dato_tels($id)
 
@@ -700,14 +701,14 @@ class registro {
         $query = "select id from users where email = '$email'";
         $id_afiliador= newQuery($this->db,$query);
 
-        return $id_afiliador[1]["id"];
+        return $id_afiliador ? $id_afiliador[1]["id"] : false;
     }
 
     function obtenrIdUsername($username){
-        $id_afiliador= newQuery($this->db,'select id from users where username like "'.$username.'"');
+        $query = "select id from users where username like '$username'";
+        $id_afiliador= newQuery($this->db, $query);
 
-
-        return $id_afiliador[1]["id"];
+        return $id_afiliador ? $id_afiliador[1]["id"] : false;
     }
 
     function obtenrIdUserby($usuario){

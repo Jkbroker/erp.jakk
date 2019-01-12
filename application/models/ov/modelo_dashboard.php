@@ -38,7 +38,7 @@ class modelo_dashboard extends CI_Model
 	{
 		$q=$this->db->query('select ultima_sesion from user_profiles where user_id = '.$id);
 		$q=$q->result();
-		return $q[0]->ultima_sesion;
+		return $q ? $q[0]->ultima_sesion : false;
 	}
 
   function get_user_phone($id){
@@ -50,7 +50,7 @@ class modelo_dashboard extends CI_Model
   function get_user_email($id){
 		$q=$this->db->query('select email from users where id = '.$id);
     $q=$q->result();
-		return $q[0]->email;
+		return $q ? $q[0]->email : false;
   }
 
   function get_user_name($id){
@@ -65,7 +65,7 @@ class modelo_dashboard extends CI_Model
                           and u.id_user='.$id.';
                         ');
     $q=$q->result();
-		return $q[0]->code2;
+		return $q ? $q[0]->code2 : false;
   }
   
   function get_user_country($id){

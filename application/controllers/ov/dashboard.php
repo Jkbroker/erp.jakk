@@ -121,6 +121,7 @@ class dashboard extends CI_Controller
 		
 		$id=$this->tank_auth->get_user_id();
 		$usuario=$this->general->get_username($id);
+		$this->general->isFineRegistry($id);
 		
 		
 		$this->getAfiliadosRed($id);

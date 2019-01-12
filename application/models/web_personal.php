@@ -215,6 +215,10 @@ class web_personal extends CI_Model{
     private function setFormBody($id)
     {
         $profile = $this->traer_perfil($id);
+
+        if(!$profile)
+            return false;
+
         $nombre_completo = $profile[0]->nombre." ".$profile[0]->apellido;
         $nombre_completo = strtoupper($nombre_completo);
         $in_sponsor = "<input type='hidden' value='".$id."' name='sponsor' />";

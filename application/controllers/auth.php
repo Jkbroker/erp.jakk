@@ -253,7 +253,9 @@ class Auth extends CI_Controller
 		if ($this->tank_auth->is_logged_in())
 		{																		// logged in
 			$id   = $this->tank_auth->get_user_id();
-			$tipo = $this->general->get_tipo($id);
+            $this->general->isFineRegistry($id, $g_key);
+
+            $tipo = $this->general->get_tipo($id);
 			$tipo = $this->general->issetVar($tipo,"id_tipo_usuario",2);
 			
 			$this->accesos ( $tipo );	
@@ -308,6 +310,7 @@ class Auth extends CI_Controller
 							$data['login_by_email'])) {								// success
 					
 						$id   = $this->tank_auth->get_user_id();
+                        $this->general->isFineRegistry($id, $g_key);
 						$tipo = $this->general->get_tipo($id);
 						if(!$tipo) {
                             $this->template->build('auth/login');

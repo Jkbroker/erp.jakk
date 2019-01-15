@@ -41,7 +41,7 @@ class Modelo_historial_consignacion extends CI_Model{
 	}
 	
 	function CambiarEstadoPago($id_venta, $id_historial){
-		$q = $this->db->query("update venta set id_estatus = 'ACT' where id_venta = ".$id_venta);
+		$q = $this->db->query("update venta set id_estatus = 'ACT', fecha = now() where id_venta = ".$id_venta);
 		$q = $this->db->query("update cuenta_pagar_banco_historial set estatus = 'ACT' where id = ".$id_historial);
 		return true;
 	}
@@ -106,10 +106,15 @@ where cpb.id_banco = cb.id_banco and cpb.id_usuario =".$id." and fecha between '
 		}
 	}
 	
-	function consultar_venta(){
-		$q = $this->db->query("SELECT cpb.id, cpb.fecha, cb.descripcion as banco, cb.cuenta, cb.clave, cpb.valor ,cs.descripcion as estado
-FROM cuenta_pagar_banco_historial cpb, cat_banco cb, cat_estatus cs
-where cpb.id_banco = cb.id_banco and cs.id_estatus = cpb.estatus and cpb.id_usuario =".$id." and fecha between '".$inicio." 00:00:00' and '".$fin." 23:59:59'");
+	function consultar_venta($id,$inicio,$fin){
+        $query = "SELECT 
+                    cpb.id, cpb.fecha, cb.descripcion as banco, cb.cuenta, cb.clave, 
+                    cpb.valor ,cs.descripcion as estado
+                    FROM cuenta_pagar_banco_historial cpb, cat_banco cb, cat_estatus cs
+                    where cpb.id_banco = cb.id_banco and cs.id_estatus = cpb.estatus
+                     and cpb.id_usuario = $id and 
+                    fecha between '$inicio 00:00:00' and '$fin 23:59:59'";
+        $q = $this->db->query($query);
 		$historial = $q->result();
 		return $historial;
 	}

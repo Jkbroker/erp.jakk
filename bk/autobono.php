@@ -815,6 +815,106 @@ class autobono
         return $afiliados;
     }
 
+    private function getAfiliadosBinario($id_usuario,$fecha = false)
+    {
+        if (! $fecha)
+            $fecha = date ( "Y-m-d" );
+
+        $this->getAfiliadosBy($id_usuario, 1, "RED", "order by lado",$id_usuario,1);
+        $afiliados = $this->getAfiliados();
+
+        $this->getAfiliadosBy($id_usuario, 1, "DIRECTOS", "",$id_usuario,1);
+        $directos = $this->getAfiliados();
+
+        if(!$directos)
+            return false;
+
+        $fechaInicio=$this->getPeriodoFecha("UNI", "INI", '');
+
+        $lados = array();
+        foreach ($afiliados as $key =>$id_user){
+
+            $venta = $this->getVentaMercancia($id_user, $fechaInicio, $fecha, 2, false);
+
+            $Directo = $this->getAfiliacion($id_user);
+            if($Directo)
+                $Directo = ($Directo[1]["directo"] == $id_usuario) ? $id_user : false;
+
+            $json = json_encode($venta);
+            echo ("Directo ($id_user) -->>>> $json | [[ $Directo ]]");
+
+            if(!$venta || !$Directo)
+                $Directo = $this->isDirectoLado($id_usuario,$afiliados, $id_user,$fecha);
+
+            echo ("condicion ($id_user)[$key] :: [[ $Directo ]]");
+
+            if(!$Directo)
+                return false;
+
+            $lados[$key] = $Directo;
+
+        }
+
+        return array($afiliados,$lados);
+    }
+
+    private function getAfiliacion($id, $red = 1)
+    {
+        $q = newQuery($this->db, "SELECT * FROM afiliar WHERE id_afiliado = $id and id_red = $red");
+
+
+        return $q;
+    }
+
+    private function isDirectoLado($id_usuario , $afiliados, $directo,$fecha = false)
+    {
+        if (! $fecha)
+            $fecha = date ( "Y-m-d" );
+
+        $fechaInicio=$this->getPeriodoFecha("UNI", "INI", '');
+        $fechaFin=$fecha;
+
+        $datoid = $this->getAfiliacion($directo,1);
+        $lado = $datoid[1]["lado"];
+
+        $mired = $afiliados;
+        $directos = false;
+        $isdirecto = false;
+        $isDirectoCompra = false;
+        while(!$isdirecto){
+
+            $islado = false;
+            foreach ($mired as $uid){
+                $datoid = $this->getAfiliacion($uid,1);
+                $milado = $datoid[1]["lado"];
+                $islado = ($milado==$lado);
+                if($islado){
+                    $this->getAfiliadosBy($uid, 1, "RED", "",$id_usuario,1);
+                    $mired = $this->getAfiliados();
+                    $this->getAfiliadosBy($uid, 1, "DIRECTOS", "",$id_usuario,1);
+                    $directos = $this->getAfiliados();
+
+                    $isDirectoCompra = false;
+                    foreach ($directos as $id_user){
+                        $venta = $this->getVentaMercancia($id_user, $fechaInicio, $fechaFin, 2, false);
+
+                        if ($venta)
+                            $isDirectoCompra = $id_user;
+                    }
+
+                    break;
+                }
+            }
+
+            if ($isDirectoCompra)
+                $isdirecto = true;
+            else if (! $islado)
+                $isdirecto = true;
+        }
+
+        return $isDirectoCompra;
+    }
+
     function getGananciaBinario($id_usuario,$afiliados,$valores,$fechaInicio, $fechaFin) {
 
         $datos = $this->ComprobarBrazos($afiliados);
@@ -836,17 +936,14 @@ class autobono
             $idx = $n+1;
             echo ("\n NIVEL $idx : ".json_encode($nivel));
             foreach ($nivel as $key => $afiliado){
-                $venta = $this->getVentaMercancia($afiliado,$fechaInicio,$fechaFin,2,false);
 
-                if(!$venta)
-                    continue;
-
-                $this->setPuntosDerrame($venta, $afiliado, $uplines, $puntos, $ventas);
+                $this->setPuntosDerrame($afiliado,$fechaInicio,$fechaFin, $uplines, $puntos, $ventas);
 
                 echo ("\n lados [$key] : ".json_encode($uplines));
             }
+            echo ( "VENTAS :::>>> ".json_encode($ventas)."PUNTOS :::>>> ".json_encode($puntos));
         }
-        echo ("\n ventas  : ".json_encode($ventas));
+        echo ("ventas  : ".json_encode($ventas));
 
         $conteo = $puntos;
 
@@ -858,22 +955,43 @@ class autobono
 
         list($puntos,$debil) = $puntos;
 
+        $cumple= $this->getAfiliadosBinario($id_usuario,$fechaFin);
+
+        if($cumple){
+            list ($afiliados,$binario) = $cumple;
+            $cumple = sizeof($binario) >= 2;
+        }
+
         $remanente = $this->setDatosArrayUnset($ventas, $debil);
         $sobrante= $this->setDatosArrayUnset($conteo, $debil);
-        $remanente = $this->setRemanentesBinario($puntos,  $remanente, $sobrante);
-        $remanente = json_encode($remanente);
 
-        $this->updateRemanente($id_usuario, $debil, $remanente);
+        if($cumple){
+            $remanente = $this->setRemanentesBinario( $remanente, $sobrante, $puntos);
+
+        } else {
+            $remanente = $this->setRemanentesBinario( $remanente, $sobrante);
+        }
+
+        $remanente = json_encode($remanente);
+        $this->updateRemanenteDebil($id_usuario, $debil, $remanente);
 
         $ganados = $ventas[$debil];
-        if($ganados == 0)
-            return 0;
 
-        $ganados = explode(",", $ventas[$debil]);
+        $ganados = explode(",", $ganados);
         $pagadas = explode(",", $conteo[$debil]);
 
         $reporte = $this->setReporteBinario($ganados, $pagadas);
         $reporte =  json_encode($reporte);
+        $this->updateRemanente($id_usuario, $debil, $reporte);
+        if($ganados == 0)
+            return 0;
+
+        if(!$cumple){
+            echo ">>> NO CUMPLE CONDICION ($id_usuario)";
+            return 0;
+        }
+
+        $this->updateRemanente($id_usuario, $debil);
 
         $per = $valores[2]["valor"] / 100;
         $ganancia = $puntos*$per;
@@ -928,10 +1046,14 @@ class autobono
         $ventas = array(0, 0);
         foreach ($remanentes as $key => $pata) {
             $datos = json_decode($pata);
-            echo ("\n pata $key :: $pata ");
-            if (gettype($datos) != "array")
+            $isObject = gettype($datos) == "object";
+            $isArray = gettype($datos) == "array";
+            $isEmpty = sizeof($datos) < 1 || $datos === 0;
+            log_message('DEV', "pata $key :: $pata ");
+
+            if ($isObject && $isArray)
                 continue;
-            else if(sizeof($datos)<1)
+            else if($isEmpty )
                 continue;
 
             foreach ($datos as $id_venta => $valor) {
@@ -945,8 +1067,15 @@ class autobono
         return array($puntos, $ventas);
     }
 
-    private function setValueSeparated($datos, $key, $value)
+    private function setValueSeparated($datos, $key, $value,$split= false)
     {
+        if($split){
+            $list = explode(",",$datos[$key]."");
+            foreach ($list as $data)
+                if($data == $value)
+                    return $datos;
+        }
+
         if ($datos[$key] == 0)
             $datos[$key] = $value;
         else
@@ -991,7 +1120,7 @@ class autobono
         return $reporte;
     }
 
-    private function setRemanentesBinario($puntos, $remanente, $conteo)
+    private function setRemanentesBinario($remanente, $conteo,$puntos = 0)
     {
         $monto = 0;
         $sobrantes = array();
@@ -1014,14 +1143,17 @@ class autobono
         return $sobrantes;
     }
 
-    private function updateRemanente($id_usuario, $debil, $remanente)
+    private function updateRemanenteDebil($id_usuario, $debil, $remanente = 0)
     {
-        $lados = array(
-            "izquierda" => 0,
-            "derecha" => 0
-        );
+        $contrario = ($debil == 0) ? 1 : 0;
+        $this->updateRemanente($id_usuario,$contrario,$remanente);
+    }
 
-        $ladomayor = ($debil == 0) ? "derecha" : "izquierda";
+    private function updateRemanente($id_usuario, $lado, $remanente = 0)
+    {
+        $lados = array();
+
+        $ladomayor = ($lado == 0) ? "izquierda" : "derecha";
 
         $lados[$ladomayor] = $remanente;
 
@@ -1094,10 +1226,8 @@ class autobono
         return array($puntos, $ventas);
     }
 
-    private function setPuntosDerrame($venta, $afiliado, &$uplines, &$puntos, &$ventas)
+    private function setPuntosDerrame($afiliado,$fechaInicio,$fechaFin,&$uplines, &$puntos, &$ventas)
     {#echo ("\n Venta ($afiliado) : ".json_encode($venta));
-        $valor = $this->issetVar($venta,"puntos_comisionables",0);
-        $id_venta = $this->issetVar($venta,"id_venta",1);
 
         foreach ($uplines as $key => $upline) {
             $isUpline = $this->isUpline($afiliado, $upline);
@@ -1106,12 +1236,20 @@ class autobono
 
             $uplines[$key] .= ",$afiliado";
 
+            $venta = $this->getVentaMercancia($afiliado,$fechaInicio,$fechaFin,2,false);
+
+            if(!$venta)
+                continue;
+
+            $valor = $this->issetVar($venta,"puntos_comisionables",0);
+            $id_venta = $this->issetVar($venta,"id_venta",1);
+
+            echo ( ">>>! ADD lado[$key] ->> a:$afiliado I:$id_venta V:$valor");
+
             $puntos = $this->setValueSeparated($puntos, $key, $valor);
-            $ventas = $this->setValueSeparated($ventas, $key, $id_venta);
+            $ventas = $this->setValueSeparated($ventas, $key, $id_venta,true);
 
         }
-
-        echo ("\n Derrame : A2:$afiliado V:$valor I:$id_venta");
     }
 
     function getValorBonoInversion($parametro,$pagar = false)

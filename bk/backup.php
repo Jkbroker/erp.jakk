@@ -1,7 +1,8 @@
 #!/usr/bin/php
 <?php
 date_default_timezone_set('America/Mexico_City');#city
-echo "Leyendo datos..."; 
+$fecha = date('Y-m-d');
+echo "CRON $fecha :: Leyendo datos...";
 	
 	#function setDir_($base="/var/www/"){
 	function setDir_($base="/home/startupns/www/"){

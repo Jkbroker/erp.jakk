@@ -975,8 +975,8 @@ function index()
 		{																		// logged in
 			redirect('/auth');
 		}
-		
-		$payment_status = $_POST['payment_status'];
+		log_message('DEV',"NEW PAYPAL :: ".json_encode($_POST));
+		$payment_status = isset($_POST['payment_status']) ? $_POST['payment_status'] : false;
 		
 		if ($payment_status=="Completed") {
 			$this->cart->destroy();

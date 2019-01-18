@@ -573,49 +573,43 @@ class autobono
 			return $valid;
 			
 	}
-	
-	private function isValidDate($id_usuario,$id_bono,$fecha = false,$dia = false){
-		
-		$bono = $this->getBono($id_bono);
-		
-		$mes_inicio = $bono[1]["mes_desde_afiliacion"];
-		$mes_fin = $bono[1]["mes_desde_activacion"];
-		
-		if($mes_inicio<=0){
-			return true;
-		}
-		
-		if($fecha)
-			$fecha = "'".$fecha."'";
-			else
-				$fecha = "NOW()";
-				
-				$mes_inicio*=2;
-				
-				$select = "DATE_FORMAT(created, '%Y-%m') < DATE_FORMAT(DATE_SUB($fecha, INTERVAL $mes_inicio WEEK),'%Y-%m')";
-				
-				if($dia){
-					$select = "created < DATE_SUB(NOW(), INTERVAL $mes_inicio MONTH)";
-				}
-				
-				$query = "SELECT
-				$select 'valid'
-				FROM
-				users
-				WHERE
-				id = ".$id_usuario;
-				
-				$q = newQuery($this->db, $query);
-				
-				
-				if(!$q)
-					return false;
-					
-					$valid = ($q[1]["valid"]==1) ? true : false;
-					
-					return $valid;
-					
-	}
+
+    private function isValidDate($id_usuario, $id_bono, $fecha = false, $dia = false)
+    {
+
+        $bono = $this->getBono($id_bono);
+
+        $mes_inicio = $bono[1]["mes_desde_afiliacion"];
+        $mes_fin = $bono[1]["mes_desde_activacion"];
+
+        if ($mes_inicio <= 0) {
+            return true;
+        }
+
+        $select = "DATE_FORMAT(created, '%Y-%m')";
+        $select.= " < DATE_FORMAT(DATE_SUB(NOW(), INTERVAL $mes_inicio MONTH),'%Y-%m')";
+
+        if($dia)
+            $select = "created < DATE_SUB(NOW(), INTERVAL $mes_inicio MONTH)";
+
+        $query = "SELECT
+					    $select 'valid'
+					FROM
+					    users
+					WHERE
+					    id = " . $id_usuario;
+
+        $q = newQuery($this->db, $query);
+
+
+        if (!$q)
+            return false;
+
+        $valid = ($q[1]["valid"] == 1) ? true : false;
+
+        return $valid;
+
+    }
 	
 	private function isScheduled($id_usuario,$id_bono,$fecha = ""){
 		

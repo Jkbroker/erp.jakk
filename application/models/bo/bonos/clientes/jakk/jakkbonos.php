@@ -6,6 +6,7 @@ class jakkbonos extends CI_Model
     private $temp = false;
     private $fechaInicio = '';
     private $fechaFin = '';
+    private $remanente = array(0,0);
 
     function __construct()
     {
@@ -612,8 +613,12 @@ class jakkbonos extends CI_Model
         $per = $valores[1]->valor / 100;
         $ganancia = $puntos*$per;
 
-        log_message('DEV',">>> BINARIO -> $puntos * $per V:$reporte R:$remanente");
-        return array($ganancia,$reporte);
+        $regresion = json_encode($this->remanente);
+        $extra = "$reporte|$regresion";
+
+        log_message('DEV',">>> BINARIO -> $puntos * $per V:$extra R:$remanente");
+
+        return array($ganancia,$extra);
     }
 
     function getPuntosBinario($id_usuario, $fecha = false)
@@ -778,6 +783,7 @@ class jakkbonos extends CI_Model
     private function setValoresRemanente($id_usuario)
     {
         $remanentes = $this->getBonoRemanente($id_usuario);
+        $this->remanente = $remanentes;
         $puntos = array(0, 0);
         $ventas = array(0, 0);
         foreach ($remanentes as $key => $pata) {

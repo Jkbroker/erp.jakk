@@ -43,6 +43,7 @@ function setUpCondicion($idBono,$idRango,$idTipoRango,$red,$condicion1,$condicio
 			'condicion2' => $condicion2,
 			'calificado' => $calificado,
 	);
+
 	return $bonoCondiciones;
 }
 
@@ -61,7 +62,7 @@ function actualizar_bono($idBono,$datosBono){
 }
 
 function kill_bono($id){
-	$this->db->query("DELETE FROM cat_bono_valor_nivel where id_bono='".$id."'");
+    $this->db->query("DELETE FROM cat_bono_valor_nivel where id_bono='".$id."'");
 	$this->db->query("DELETE FROM cat_bono_condicion where id_bono='".$id."'");
 	$this->db->query("DELETE FROM bono where id='".$id."'");
 }
@@ -704,10 +705,133 @@ function get__condicioneses_bonos_id_bono($id_bono){
 	}
 	
 	function kill_historial($id){
+        $this->updateRemanenteLast($id);
+
+        #TODO: return true;
+
 		$this->db->query("delete from comision_bono_historial where id = ".$id);
 		$this->db->query("delete from comision_bono where id_bono_historial = ".$id);
 		$this->db->query("delete from comisionPuntosRemanentes where id_bono_historial = ".$id);
 		return true ;
 	}
-	
+
+    private function getBonosHistorial($id_historial,$id_bono = 2)
+    {
+        $query="SELECT * FROM comision_bono 
+                  WHERE id_bono_historial = $id_historial AND id_bono = $id_bono
+                  GROUP BY id_usuario
+                  ORDER BY valor DESC";
+        $q = $this->db->query($query);
+        $q = $q->result();
+
+        if(!$q)
+            return array();
+
+        return $q;
+    }
+
+    private function getHistorial($id)
+    {
+        $query="SELECT * FROM comision_bono_historial WHERE id in ($id)";
+        $q = $this->db->query($query);
+        $q = $q->result();
+
+        return $q;
+    }
+
+    private function updateRemanenteLast($id)
+    {
+        $historial = $this->getHistorial($id);
+
+        if(!$historial)
+            return false;
+
+        $id_bono = $historial[0]->id_bono;
+
+        $lastHistorial = $this->getLastHistorial($id, $id_bono);
+        log_message('DEV',"historial :: ".json_encode($lastHistorial));
+        if(!$lastHistorial)
+            return false;
+
+        $id_historial =  $lastHistorial[0]->id;
+
+        $usuarios = $this->getBonosHistorial($id_historial,$id_bono);
+
+        return $this->updateRemanenteUsuario($usuarios, $id_bono);
+
+
+    }
+
+
+    private function getLastHistorial($id, $id_bono = 2)
+    {
+        $query = "SELECT * FROM comision_bono_historial
+                    WHERE id < $id AND id_bono = $id_bono
+                    ORDER BY fecha DESC ";
+        $q = $this->db->query($query);
+        $q = $q->result();
+
+        return $q;
+    }
+
+
+    private function updateRemanenteUsuario($usuarios, $id_bono = 2)
+    {
+        $update = array();
+        $where = array();
+        $where["id_bono"] = $id_bono;
+        $lados = array("izquierda", "derecha");
+
+        foreach ($usuarios as $index => $usuario) {
+            $remanente = $usuario->extra;
+            $id_usuario = $usuario->id_usuario;
+            if (strlen($remanente) < 2)
+                return false;
+
+            $extra = explode("|", $remanente);
+
+            $remanente = "{0,0}";
+            if (sizeof($extra) > 1)
+                $remanente = $extra[1];
+
+            $remanente = $this->formatDecode($remanente);
+
+            $where["id_usuario"] = $id_usuario;
+            foreach ($lados as $index => $lado) {
+                $data = $remanente[$index];
+
+                $update[$lado] = $data;
+            }
+
+            log_message('DEV',"$id_usuario ::: ".json_encode($update));
+            #TODO: continue;
+
+            foreach ($where as $key => $value)
+                $this->db->where($key, $value);
+
+            $this->db->update("comisionPuntosRemanentes", $update);
+        }
+    }
+
+
+    private function formatDecode($json)
+    {
+        $replament = array(
+            ',"{"' => '|"{"',
+            ',"0"]' => '|0]',
+            '["0"' => '[0',
+            ']' => '',
+            '[' => '',
+            '|"' => '|',
+            '"|' => '|'
+        );
+
+        foreach ($replament as $index => $item)
+            $json = str_replace($index,$item,$json);
+
+        $json = explode("|",$json);
+
+        return $json;
+    }
+
 }

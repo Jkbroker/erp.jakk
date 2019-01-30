@@ -40,7 +40,7 @@ try {
 	
 	<div style=\"background: #449; color: #fff\">
         <h3>Bienvenido, '.$userData['username'].' Ha sido registrado en nuestro sistema</h3></div>
-	<p>En nombre de todo el equipo JAKK Digital Business, 
+	<p>En nombre de todo el equipo JAKK Broker House, 
 		queremos hacerte saber que estamos muy contentos y
 		agradecidos de que ahora formes parte de nuestra familia. 
 		Somos un gran equipo y trabajaremos juntos para cumplir tus metas.
@@ -48,10 +48,10 @@ try {
 		Sé que esto marca un antes y un después en tu meta hacia la Libertad Financiera 
 		y en tu estilo de vida sin importar en qué fase te encuentres.
 		<br><br>
-		Te invitamos unirte a nuestra página de Facebook de JAKK Digital Business,
+		Te invitamos unirte a nuestra página de Facebook de JAKK Broker House,
 		 ya que este será uno de nuestros canales principales de comunicación.
 		<br><br>
-		Facebook: <a href="https://www.facebook.com/JakkDB">JakkDB</a>
+		Facebook: <a href="https://www.facebook.com/JakkBH">JakkBH</a>
 		</p><br><hr/>
 		<p class="callout">
 			<strong>Para ingresar al sitio de clic 

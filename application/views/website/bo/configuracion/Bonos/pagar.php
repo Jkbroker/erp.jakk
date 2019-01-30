@@ -75,6 +75,12 @@
 											<input required id="inicio" value="" type="text" name="fecha" placeholder="Fecha de Corte">
 										</label>
 									</section>
+                                    <section class="col col-3">
+                                        <label class="checkbox">
+                                            <input id="test" value="1" name="test"  type="checkbox">
+                                            <i ></i>
+                                        </label>
+                                    </section>
 								<br><br>	
 								<button style="margin: 1rem;margin-bottom: 4rem;" type="input" class="btn btn-success">Calcular</button>
 			

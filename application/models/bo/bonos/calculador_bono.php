@@ -45,8 +45,14 @@ class calculador_bono extends CI_Model
 	
 		$bono=new $this->bono();
 		$bono->setUpBono($id_bono);
-			
-		if($this->isActivo($bono)&&$this->isVigentePorFecha($bono,$fechaCalculo)&&($this->isPagado($bono, $fechaCalculo)==false)){
+
+		$test= isset($_POST["test"]) ? $_POST["test"] : false;
+
+        $isActivo = $this->isActivo($bono);
+        $isVigente = $this->isVigentePorFecha($bono, $fechaCalculo);
+        $isPagado = ($test) ? false : $this->isPagado($bono, $fechaCalculo);
+
+        if($isActivo && $isVigente && !$isPagado){
 			log_message('DEV',"pagarComisionesBonoPorFecha : $id_bono");
 			$this->pagarComisionesBonoPorFecha($bono,$fechaCalculo);
 			return true;
@@ -85,28 +91,21 @@ class calculador_bono extends CI_Model
 	
 	private function pagarComisionesBonoPorFecha($bono,$fecha) {
 		$id_bono=$bono->getId();
-		$red=$bono->getIdRed(); 
+		$red=$bono->getIdRed();
+
 		$usuarios=$this->getUsuariosRed($red);
-	
-		$repartidorComisionBono=new $this->repartidor_comision_bono();
-	
-		$frecuencia=$bono->getActivacionBono()->getFrecuencia();
 
-		$fechaActual=$fecha;
-		$this->setFechaCalculoBono($fechaActual);
+        $fechaActual=$fecha;
+        $this->setFechaCalculoBono($fechaActual);
 
-		$fechaInicio=$this->getFechaInicioPagoDeBono($frecuencia,$fechaActual);
+        $isPagado =$this->isPagado($bono,$fechaActual);
+        $id_historial_pago_bono = $isPagado ? $isPagado[0]->id : false;
 
-		$ano= date('Y',strtotime($fechaInicio));
-		$mes= date('m',strtotime($fechaInicio));
-		$dia= date('d',strtotime($fechaInicio));
-		
+        if(!$id_historial_pago_bono)
+            $id_historial_pago_bono = $this->setHistorialBono($bono, $id_bono, $fechaActual);
 
-		$id_historial_pago_bono=$repartidorComisionBono->ingresarHistorialComisionBono($repartidorComisionBono->getIdHistorialTransaccion(),
-				$id_bono,$dia,$mes,$ano,
-				$fechaActual);
-	
-		$this->setIdBonoHistorial($id_historial_pago_bono);
+
+        $this->setIdBonoHistorial($id_historial_pago_bono);
 		
 		foreach ($usuarios as $usuario){
 			$id_afiliado=$usuario->id_afiliado;
@@ -196,7 +195,7 @@ class calculador_bono extends CI_Model
 		if($idTransaccion==NULL)
 			return false;
 		
-		return true;	
+		return $idTransaccion;
 		
 	}
 	
@@ -613,6 +612,7 @@ class calculador_bono extends CI_Model
 	}
 	
 	public function getUsuariosRed($id_red) {
+
 		$q=$this->db->query("SELECT u.id as id_afiliado,u.username,u.created,a.debajo_de,a.directo,a.lado FROM users u,afiliar a
 								where (u.id=a.id_afiliado) and a.id_afiliado>2 and id_red=".$id_red);
 		$datosAfiliado=$q->result();
@@ -664,7 +664,23 @@ class calculador_bono extends CI_Model
 		$this->isSetBonoRepartir = $isSetBonoRepartir;
 		return $this;
 	}
-	
 
-	
+    private function setHistorialBono($bono, $id_bono, $fechaActual)
+    {
+        $repartidorComisionBono = new $this->repartidor_comision_bono();
+        $frecuencia = $bono->getActivacionBono()->getFrecuencia();
+
+        $fechaInicio = $this->getFechaInicioPagoDeBono($frecuencia, $fechaActual);
+
+        $ano = date('Y', strtotime($fechaInicio));
+        $mes = date('m', strtotime($fechaInicio));
+        $dia = date('d', strtotime($fechaInicio));
+
+        $id_historial_pago_bono = $repartidorComisionBono->ingresarHistorialComisionBono($repartidorComisionBono->getIdHistorialTransaccion(),
+            $id_bono, $dia, $mes, $ano,
+            $fechaActual);
+        return $id_historial_pago_bono;
+    }
+
+
 }

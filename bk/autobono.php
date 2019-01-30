@@ -10,8 +10,9 @@ class autobono
 	public $afiliados = array();
 	
 	public $db = array();
-	
-	function __construct($db){
+    private $remanente = array(0,0);
+
+    function __construct($db){
 		$this->db = $db;
 	}
 
@@ -239,9 +240,10 @@ class autobono
 		$this->setFechaInicio($this->getPeriodoFecha($periodo, "INI", $fecha));
 		$this->setFechaFin($this->getPeriodoFecha($periodo, "FIN", $fecha));
 
-		$isPaid = $this->isPaid($id_usuario,$id_bono);
+		$isPaid = ($id_bono == 2) ? false : $this->isPaid($id_usuario,$id_bono);
 		
 		if($isPaid){
+		    echo "\n ISPAID ::: ($id_usuario)[$id_bono] $this->fechaInicio - $this->fechaFin ";
 			return false;
 		}		
 		
@@ -990,8 +992,12 @@ class autobono
         $per = $valores[2]["valor"] / 100;
         $ganancia = $puntos*$per;
 
-        echo ("\n >>> BINARIO -> $puntos * $per V:$reporte R:$remanente");
-        return array($ganancia,$reporte);
+        $regresion = json_encode($this->remanente);
+        $extra = "$reporte|$regresion";
+
+        echo ("\n >>> BINARIO -> $puntos * $per V:$extra R:$remanente");
+
+        return array($ganancia,$extra);
     }
 
 
@@ -1036,6 +1042,7 @@ class autobono
     private function setValoresRemanente($id_usuario)
     {
         $remanentes = $this->getBonoRemanente($id_usuario);
+        $this->remanente = $remanentes;
         $puntos = array(0, 0);
         $ventas = array(0, 0);
         foreach ($remanentes as $key => $pata) {
@@ -1580,7 +1587,7 @@ class autobono
 			}
 			
 			if(!isset($periodoFecha[$frecuencia])||!isset($tipoFecha[$tipo])){
-				return ($tipo == "INI") ?  date('Y-m-d',strtotime($fecha)) : $fecha;
+				return ($tipo == "INI" && $tipo != "DIA") ?  date('Y-m-d',strtotime($fecha)) : $fecha;
 			}
 			
 			$functionFecha = "get".$tipoFecha[$tipo].$periodoFecha[$frecuencia];

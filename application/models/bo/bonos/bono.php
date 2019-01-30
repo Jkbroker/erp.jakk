@@ -260,7 +260,12 @@ class bono extends CI_Model
 		return $this;
 	}
 	public function getIdRed() {
-		return $this->id_red;
+        $id_red = $this->id_red;
+
+        if($id_red == 0)
+            $id_red = 1;
+
+        return $id_red;
 	}
 	public function setIdRed($id_red) {
 		$this->id_red = $id_red;

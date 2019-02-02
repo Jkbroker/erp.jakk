@@ -154,7 +154,7 @@ class web_personal extends CI_Model{
         $webempresa = $webempresa[0]->web; # "http://[[website]]";
         $webland = "";#TODO : "/[[website_form]].html";
 
-        $urldef = 'http://' . $_SERVER['SERVER_NAME'] . "/";
+        $urldef = "http://" . $_SERVER['SERVER_NAME'] . "/";
         $contacto = file_get_contents($urldef);
         try{
             $contacto = file_get_contents($webempresa.$webland);

@@ -495,7 +495,7 @@
                                                                     Tipo de persona
                                                                     <label class="select">
                                                                         <select id="tipo_fiscal" required name="fiscal">
-                                                                            <?foreach ($tipo_fiscal as $key)
+                                                                            <?php foreach ($tipo_fiscal as $key)
                                                                             {?>
                                                                             <option value="<?= $key->id ?>">
                                                                                 <?= $key->descripcion ?>
@@ -557,12 +557,11 @@
                                                                     <div class="">País
                                                                         <label class="select">
                                                                             <select style=""  id="pais" required name="pais">
-                                                                                <?foreach ($pais as $key)
-                                                                                {?>
+                                                                                <?php foreach ($pais as $key) : ?>
                                                                                 <option value="<?= $key->Code ?>">
                                                                                     <?= $key->Name ?>
                                                                                 </option>
-                                                                                <?}?>
+                                                                                <?php endforeach;?>
                                                                             </select>
                                                                         </label>
                                                                     </div>
@@ -610,59 +609,48 @@
                                                                 <section class="col col-3">Estado civil
                                                                     <label class="select">
                                                                         <select name="civil">
-                                                                            <?foreach ($civil as $key)
-                                                                            {
-                                                                            if($key->id_edo_civil==$usuario[0]->id_edo_civil)
-                                                                            echo '<option selected value="'.$key->id_edo_civil.'">'.$key->descripcion.'</option>';
-                                                                            else
-                                                                            echo '<option value="'.$key->id_edo_civil.'">'.$key->descripcion.'</option>';
-
-                                                                            }?>
+                                                                            <?php foreach ($civil as $key) : ?>
+                                                                            <option value="<?=$key->id_edo_civil;?>">
+                                                                            <?=$key->descripcion;?>
+                                                                            </option>
+                                                                                <?php endforeach; ?>
                                                                         </select>
                                                                     </label>
                                                                 </section>
                                                                 <section class="col col-2">Sexo&nbsp;
                                                                     <div class="inline-group">
-                                                                        <?
-                                                                        foreach ($sexo as $value)
-                                                                        {?>
+                                                                        <?php foreach ($sexo as $value) : ?>
                                                                         <label class="radio">
                                                                             <input <?= ($value->id_sexo == 1) ? 'checked' : '' ?> type="radio" value="<?= $value->id_sexo ?>" name="sexo" placeholder="sexo">
                                                                             <i></i><?= $value->descripcion ?></label>
-                                                                        <?}?>
+                                                                        <?php endforeach; ?>
                                                                     </div>
                                                                 </section>
                                                                 <section class="col col-2">Estudio&nbsp;
                                                                     <div class="inline-group">
-                                                                        <?
-                                                                        foreach ($estudios as $value)
-                                                                        {?>
+                                                                        <?php foreach ($estudios as $value) : ?>
                                                                         <label class="radio">
                                                                             <input <?= ($value->id_estudio == 1) ? 'checked' : '' ?> type="radio" value="<?= $value->id_estudio ?>" name="estudios">
                                                                             <i></i><?= $value->descripcion ?></label>
-                                                                        <?}?>
+                                                                        <?php endforeach; ?>
                                                                     </div>
                                                                 </section>
                                                                 <section class="col col-2">Ocupación&nbsp;
                                                                     <div class="inline-group">
-                                                                        <?
-                                                                        foreach ($ocupacion as $value)
-                                                                        {?>
+                                                                        <?php  foreach ($ocupacion as $value) : ?>
                                                                         <label class="radio">
                                                                             <input <?= ($value->id_ocupacion == 1) ? 'checked' : '' ?> type="radio" value="<?= $value->id_ocupacion ?>" name="ocupacion">
                                                                             <i></i><?= $value->descripcion ?></label>
-                                                                        <?}?>
+                                                                        <?php endforeach; ?>
                                                                     </div>
                                                                 </section>
                                                                 <section class="col col-2">Tiempo dedicado&nbsp;
                                                                     <div class="inline-group">
-                                                                        <?
-                                                                        foreach ($tiempo_dedicado as $value)
-                                                                        {?>
+                                                                        <?php foreach ($tiempo_dedicado as $value) : ?>
                                                                         <label class="radio">
                                                                             <input <?= ($value->id_tiempo_dedicado == 1) ? 'checked' : '' ?> type="radio" value="<?= $value->id_tiempo_dedicado ?>" name="tiempo_dedicado">
                                                                             <i></i><?= $value->descripcion ?></label>
-                                                                        <?}?>
+                                                                        <?php endforeach; ?>
                                                                     </div>
                                                                 </section>
                                                             </div>
